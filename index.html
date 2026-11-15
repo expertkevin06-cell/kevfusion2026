@@ -63,7 +63,7 @@ nav#nav button{white-space:nowrap}nav#nav button.act{border-color:var(--ac);colo
 iframe.mod{width:100%;height:calc(100vh - 190px);border:1px solid var(--line);border-radius:12px;background:#fff}
 #modal{position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:center;justify-content:center;padding:14px}
 #modalBox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:680px;width:100%;max-height:88vh;overflow:auto}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111c31;border:1px solid var(--ac2);padding:10px 16px;border-radius:12px;z-index:200;max-width:92vw}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111c31;border:1px solid var(--ac2);padding:10px 16px;border-radius:12px;z-index:10000;max-width:92vw}
 .stat{font-size:26px;font-weight:800;color:var(--ac2)}
 .constats{display:flex;flex-wrap:wrap;gap:6px}.constats label{display:flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:18px;padding:4px 10px;font-size:13px;color:var(--tx)}.constats input{width:auto;margin:0}
 .bar{height:8px;background:#0d1526;border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ac)}
@@ -93,14 +93,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 .admpanel{border:1px solid var(--ac);background:linear-gradient(160deg,#1a1408,#121a2b 60%);box-shadow:0 0 0 1px #ff7a1a33,0 18px 44px #000a;border-radius:14px;padding:14px}
 .admhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
 .admshield{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:11px;background:conic-gradient(from 200deg,var(--ac),#ffd166,var(--ac2),var(--ac));color:#160b00;font-size:19px;box-shadow:0 0 18px #ff7a1a66}
-.pwrow{display:flex;gap:8px;align-items:flex-start}
-.pwrow input{flex:1;font-family:ui-monospace,monospace;letter-spacing:.5px;font-size:16px}
-.eye{flex:none;margin-top:4px;padding:9px 11px;border-radius:10px}
-.vaultrow{margin:2px 0 10px}
-.tg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);background:#0d1526;border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none}
-.tg input{width:auto;margin:0;accent-color:var(--ac)}
-.tg.on{color:var(--ac);border-color:var(--ac)}
-.modaladm{padding:14px;border-radius:14px}
+#kfAdmPass:focus{border-color:var(--ac)!important;box-shadow:0 0 0 3px #ff7a1a44}
 #printArea{display:none}
 @media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:12px/1.45 Georgia,serif;padding:20px}#printArea h1{font-size:18px}#printArea h2{font-size:14px;border-bottom:1px solid #999;margin-top:12px}#printArea pre{white-space:pre-wrap;font:12px/1.5 Georgia,serif}#printArea img{max-width:220px;margin:4px;border:1px solid #ccc}}
 </style>
@@ -133,7 +126,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
  <b id="brandTap">🔥 KEV FUSION <span class="ver">2026</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span></div>
  <div class="hbtns">
-  <button id="admBtn" title="Connexion administrateur">🛡️</button>
+  <button id="admBtn" type="button" title="Connexion administrateur">🛡️</button>
   <button id="btnInstall" class="hid" data-act="install" title="Installer">⬇️</button>
   <button data-act="shareOpen" title="Partager">📤</button>
   <button data-act="bugOpen" title="Signaler un bug">🐞</button>
@@ -160,12 +153,12 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
-<script src="admingate.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
 <script src="vehicles.js"></script>
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
+<script src="admingate.js"></script>
 </body>
 </html>
