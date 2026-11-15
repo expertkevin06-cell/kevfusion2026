@@ -35,14 +35,16 @@ body.noanim #scene *{animation:none!important}
 #topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#0b1220ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 #topbar b{font-size:16px;white-space:nowrap}.ver{color:var(--ac);font-weight:700}
 #brandTap{cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;gap:6px}
-.chips{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex:1;flex-wrap:wrap;min-width:0}
 .chip{font-size:12px;padding:3px 8px;border-radius:20px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
 .chip.on{border-color:var(--ok);color:var(--ok)}.chip.off{border-color:var(--bad);color:var(--bad)}.chip.bt{border-color:var(--ac2);color:var(--ac2)}
 button{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:10px;padding:9px 13px;font-size:14px}
 button:hover{border-color:var(--ac2)}button.pri{background:var(--ac);border-color:var(--ac);color:#111;font-weight:700}
 button.jr{background:var(--jr);border-color:var(--jr);color:#fff;font-weight:700}
 button.danger{border-color:var(--bad);color:var(--bad)}button:disabled{opacity:.45;cursor:not-allowed}
-.hbtns{display:flex;gap:6px}.hbtns button{padding:7px 9px}
+.hbtns{display:flex;gap:6px;flex:none}.hbtns button{padding:7px 10px}
+#admBtn{border-color:var(--ac);color:var(--ac);background:#1a1408;box-shadow:0 0 0 1px #ff7a1a33}
+#admBtn.on{background:linear-gradient(90deg,var(--ac),#ffd166);color:#160b00;border-color:var(--ac);box-shadow:0 0 16px #ff7a1a66}
 section,main{max-width:1080px;margin:0 auto;padding:16px}
 .card{background:#121a2bdd;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;backdrop-filter:blur(3px)}
 h1{font-size:22px;margin-bottom:6px}h2{font-size:17px;margin-bottom:8px}h3{font-size:15px;margin:8px 0 4px}
@@ -88,13 +90,11 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 .faultcard{border-left:3px solid var(--ac2)}
 .gatehead{background:linear-gradient(120deg,#121a2b,#16233c 55%,#1a2340);border-color:var(--line2)}
 .tierscard{border-color:var(--jr)}
-.admpanel{border:1px solid var(--ac);background:linear-gradient(160deg,#1a1408,#121a2b 60%);box-shadow:0 0 0 1px #ff7a1a33,0 18px 44px #000a}
-.admpanel.pop{animation:admpop .35s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes admpop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.admpanel{border:1px solid var(--ac);background:linear-gradient(160deg,#1a1408,#121a2b 60%);box-shadow:0 0 0 1px #ff7a1a33,0 18px 44px #000a;border-radius:14px;padding:14px}
 .admhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
 .admshield{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:11px;background:conic-gradient(from 200deg,var(--ac),#ffd166,var(--ac2),var(--ac));color:#160b00;font-size:19px;box-shadow:0 0 18px #ff7a1a66}
 .pwrow{display:flex;gap:8px;align-items:flex-start}
-.pwrow input{flex:1;font-family:ui-monospace,monospace;letter-spacing:.5px;font-size:15px}
+.pwrow input{flex:1;font-family:ui-monospace,monospace;letter-spacing:.5px;font-size:16px}
 .eye{flex:none;margin-top:4px;padding:9px 11px;border-radius:10px}
 .vaultrow{margin:2px 0 10px}
 .tg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);background:#0d1526;border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none}
@@ -132,7 +132,12 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 <header id="topbar">
  <b id="brandTap">🔥 KEV FUSION <span class="ver">2026</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span></div>
- <div class="hbtns"><button id="btnInstall" class="hid" data-act="install">⬇️</button><button data-act="shareOpen">📤</button><button data-act="bugOpen">🐞</button></div>
+ <div class="hbtns">
+  <button id="admBtn" title="Connexion administrateur">🛡️</button>
+  <button id="btnInstall" class="hid" data-act="install" title="Installer">⬇️</button>
+  <button data-act="shareOpen" title="Partager">📤</button>
+  <button data-act="bugOpen" title="Signaler un bug">🐞</button>
+ </div>
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
