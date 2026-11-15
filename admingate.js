@@ -1,12 +1,12 @@
-/* KEV FUSION 2026 — admingate.js v4.7.0
-   Accès admin TOUJOURS reachable (bouton 🛡️ en barre supérieure + gestes), mot de passe en clair
-   (aucun point, jamais pré-rempli), masquable, sauvegardable sur l'appareil admin, connexion fiable en APK.
-   Purge totale du module « New MRT Kevin ». */
+/* KEV FUSION 2026 — admingate.js v5.0.0
+   Correctif bloquant : le champ mot de passe admin est désormais créé et garanti dans un panneau
+   autonome (aucun MutationObserver, aucun re-render pendant la saisie, aucun conflit avec app.js).
+   Saisie visible (aucun point), masquable, sauvegarde locale admin, connexion fiable en APK. */
 (function(){
 'use strict';
 if(typeof sha256!=='function'||typeof ADMIN_HASH==='undefined'){console.warn('admingate.js: app.js non chargé');return}
-const TAPS=5,TAPWIN=2500,HOLD=1100;
-/* ---------- purge New MRT ---------- */
+
+/* ---------- purge « New MRT Kevin » (une seule fois, sans boucle) ---------- */
 function purgeMrt(){
  try{
   if(typeof MODULES!=='undefined'){
@@ -19,132 +19,165 @@ function purgeMrt(){
   if(S.cfg&&S.cfg.moduleUrls&&Object.prototype.hasOwnProperty.call(S.cfg.moduleUrls,'mrt')){delete S.cfg.moduleUrls.mrt;ch=true}
   if(ch)ls.set('cfg',S.cfg);
   const st=ls.get('upStats',{});if(st&&st.mrt){delete st.mrt;ls.set('upStats',st)}
-  if(S.check&&S.check.results){const n=S.check.results.length;
-   S.check.results=S.check.results.filter(function(r){return !/new\s*mrt/i.test(r.name||'')});
-   if(S.check.results.length!==n&&typeof renderVerdict==='function')renderVerdict()}
  }catch(e){}}
 purgeMrt();
-/* ---------- coffre local admin ---------- */
+
+/* ---------- coffre local ---------- */
 function isAdmDevice(){return ls.get('admDevice',false)===true}
 function hasVault(){return !!ls.get('admVault','')}
 function salt(){let s=ls.get('admSalt','');if(!s){s=uid();ls.set('admSalt',s)}return s}
 function enc(p){const k=salt();let o='';for(let i=0;i<p.length;i++)o+=String.fromCharCode(p.charCodeAt(i)^k.charCodeAt(i%k.length));return btoa(unescape(encodeURIComponent(o)))}
 function dec(b){try{const s=decodeURIComponent(escape(atob(b)));const k=salt();let o='';for(let i=0;i<s.length;i++)o+=String.fromCharCode(s.charCodeAt(i)^k.charCodeAt(i%k.length));return o}catch(e){return''}}
-/* ---------- UI ---------- */
-function loginInner(prefix){
+
+/* ---------- panneau admin autonome (hors #view, hors #modalBox) ---------- */
+let panel=null,input=null,saveBox=null,masked=false,busy=false;
+function buildPanel(){
+ if(panel)return panel;
+ panel=document.createElement('div');
+ panel.id='kfAdm';
+ panel.setAttribute('role','dialog');
+ panel.setAttribute('aria-modal','true');
+ panel.style.cssText='position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(4,8,16,.82);backdrop-filter:blur(6px)';
+ panel.innerHTML=
+ '<div id="kfAdmCard" style="width:100%;max-width:460px;max-height:92vh;overflow:auto;border:1px solid #ff7a1a;border-radius:18px;padding:18px;background:linear-gradient(160deg,#1a1408,#121a2b 62%);box-shadow:0 24px 70px #000c,0 0 0 1px #ff7a1a44">'+
+  '<div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">'+
+   '<span style="width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:12px;background:conic-gradient(from 200deg,#ff7a1a,#ffd166,#38bdf8,#ff7a1a);color:#160b00;font-size:21px;box-shadow:0 0 20px #ff7a1a77">🛡️</span>'+
+   '<div><b style="font-size:17px;color:#e8eefc">Connexion administrateur</b>'+
+   '<div style="font-size:12px;color:#93a4c3">Saisie visible · aucun point par défaut</div></div>'+
+   '<button id="kfAdmClose" type="button" aria-label="Fermer" style="margin-left:auto;background:#0d1526;border:1px solid #22304a;color:#e8eefc;border-radius:10px;padding:6px 11px;font-size:15px;cursor:pointer">✕</button>'+
+  '</div>'+
+  '<label for="kfAdmPass" style="display:block;font-size:13px;color:#93a4c3;margin-bottom:6px">Mot de passe admin</label>'+
+  '<div style="display:flex;gap:8px;align-items:stretch">'+
+   '<input id="kfAdmPass" type="text" inputmode="text" enterkeyhint="go" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="kf-adm-field" placeholder="Saisir le mot de passe admin" '+
+    'style="flex:1;min-width:0;background:#0d1526;border:2px solid #38bdf8;color:#e8eefc;border-radius:12px;padding:13px 14px;font:16px/1.2 ui-monospace,monospace;letter-spacing:.5px;outline:none">'+
+   '<button id="kfAdmEye" type="button" title="Masquer / afficher" style="flex:none;background:#0d1526;border:1px solid #22304a;color:#e8eefc;border-radius:12px;padding:0 14px;font-size:17px;cursor:pointer">🙈</button>'+
+  '</div>'+
+  '<div id="kfAdmErr" style="display:none;margin-top:8px;font-size:13px;color:#ef4444"></div>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin:12px 0;font-size:12px;color:#93a4c3;background:#0d1526;border:1px solid #22304a;border-radius:20px;padding:8px 12px;cursor:pointer">'+
+   '<input id="kfAdmSave" type="checkbox" style="width:auto;margin:0;accent-color:#ff7a1a"> 💾 Sauvegarder sur cet appareil admin</label>'+
+  '<div id="kfAdmVault" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
+   '<button id="kfAdmQuick" type="button" style="background:linear-gradient(90deg,#ff7a1a,#ff9500);border:1px solid #ff7a1a;color:#160b00;font-weight:700;border-radius:11px;padding:10px 14px;cursor:pointer">⚡ Connexion rapide</button>'+
+   '<button id="kfAdmForget" type="button" style="background:#0d1526;border:1px solid #ef4444;color:#ef4444;border-radius:11px;padding:10px 14px;cursor:pointer">🗑️ Oublier</button>'+
+  '</div>'+
+  '<button id="kfAdmGo" type="button" style="width:100%;padding:14px;font-size:16px;font-weight:800;border-radius:12px;border:1px solid #ff7a1a;background:linear-gradient(90deg,#ff7a1a,#ff9500);color:#160b00;cursor:pointer;box-shadow:0 10px 26px #ff7a1a44">🔑 Se connecter en admin</button>'+
+  '<div id="kfAdmLogged" style="display:none;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+   '<button id="kfAdmMenu" type="button" style="flex:1;background:#1f6f54;border:1px solid #1f6f54;color:#fff;font-weight:700;border-radius:11px;padding:11px 14px;cursor:pointer">🔐 Menu admin</button>'+
+   '<button id="kfAdmOut" type="button" style="background:#0d1526;border:1px solid #ef4444;color:#ef4444;border-radius:11px;padding:11px 14px;cursor:pointer">🚪 Déconnexion</button>'+
+  '</div>'+
+  '<p style="margin:12px 0 0;font-size:11px;color:#6d8469">Entrée = valider. Le mot de passe n\'est jamais affiché côté tiers ; la sauvegarde reste locale à cet appareil.</p>'+
+ '</div>';
+ document.body.appendChild(panel);
+ input=panel.querySelector('#kfAdmPass');
+ saveBox=panel.querySelector('#kfAdmSave');
+
+ panel.addEventListener('click',function(e){if(e.target===panel)close()});
+ panel.querySelector('#kfAdmClose').addEventListener('click',close);
+ panel.querySelector('#kfAdmEye').addEventListener('click',function(){
+  masked=!masked;input.type=masked?'password':'text';this.textContent=masked?'👁':'🙈';input.focus()});
+ panel.querySelector('#kfAdmGo').addEventListener('click',submit);
+ input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();submit()}});
+ input.addEventListener('input',function(){err('')});
+ panel.querySelector('#kfAdmQuick').addEventListener('click',async function(){
+  const pw=dec(ls.get('admVault',''));
+  if(pw&&await sha256(pw)===ADMIN_HASH)await succeed(pw,true);
+  else{ls.set('admVault','');err('Coffre invalide — ressaisis le mot de passe.');refreshVault();input.focus()}});
+ panel.querySelector('#kfAdmForget').addEventListener('click',function(){
+  ls.set('admVault','');refreshVault();err('');toast('🗑️ Mot de passe oublié sur cet appareil');input.focus()});
+ panel.querySelector('#kfAdmMenu').addEventListener('click',function(){close();syncNav();switchView('admin')});
+ panel.querySelector('#kfAdmOut').addEventListener('click',function(){
+  S.role=null;ls.set('session',null);close();syncNav();toast('🚪 Déconnecté de l\'admin');switchView('home')});
+ document.addEventListener('keydown',function(e){
+  if(panel.style.display==='none')return;
+  if(e.key==='Escape')close();
+  if(e.key==='Tab'){
+   const f=panel.querySelectorAll('button,input');const list=Array.prototype.filter.call(f,function(x){return x.offsetParent!==null});
+   if(!list.length)return;const first=list[0],last=list[list.length-1];
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+ return panel}
+function err(m){const e=panel&&panel.querySelector('#kfAdmErr');if(!e)return;
+ e.textContent=m||'';e.style.display=m?'block':'none'}
+function refreshVault(){if(!panel)return;
+ const v=hasVault();panel.querySelector('#kfAdmVault').style.display=v?'flex':'none';saveBox.checked=v}
+function open(){
+ buildPanel();refreshVault();err('');
  const logged=S.role==='admin';
- return '<div class="admhead"><span class="admshield">🛡️</span><div><b>'+(logged?'Session administrateur active':'Connexion administrateur')+'</b>'+
- '<p class="mut">Mot de passe requis · saisie visible · aucun point par défaut</p></div></div>'+
- (logged?'<p class="mut">Tu es déjà connecté en admin sur cet appareil.</p>'+
-  '<div class="row"><button class="pri" data-ag="goAdmin">🔐 Ouvrir le menu admin</button>'+
-  '<button class="danger" data-ag="logout">🚪 Déconnexion</button>'+
-  '<button data-act="closeModal">Fermer</button></div>'
- :
- '<label>Mot de passe admin</label>'+
- '<div class="pwrow"><input id="'+prefix+'Pass" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="kf-adm-'+Math.random().toString(36).slice(2)+'" placeholder="Saisir le mot de passe admin" value="">'+
- '<button type="button" class="eye" data-ag="mask" data-k="'+prefix+'Pass" title="Masquer / afficher">🙈</button></div>'+
- '<div class="row vaultrow"><label class="tg '+(hasVault()?'on':'')+'"><input type="checkbox" id="'+prefix+'Save" '+(hasVault()?'checked':'')+'> 💾 Sauvegarder sur cet appareil admin</label>'+
- (hasVault()?'<button class="pri" data-ag="quick">⚡ Connexion rapide</button><button class="danger" data-ag="forget">🗑️ Oublier</button>':'')+'</div>'+
- '<div class="row"><button class="pri" data-act="adminLogin">🔑 Se connecter en admin</button><button data-act="closeModal">Annuler</button></div>'+
- '<p class="mut">Entrée = valider. Le mot de passe n\'est jamais affiché côté tiers ; la sauvegarde reste locale à cet appareil.</p>')}
-function rebuildGate(){
- const g=$('#gate');if(!g)return;
- g.innerHTML='<div class="card gatehead"><h1>🔑 Accès à KEV FUSION</h1>'+
- '<p class="mut">Application technique & juridique unifiée. Les tiers demandent l\'accès par prénom ; l\'administration se fait par mot de passe.</p></div>'+
- '<div class="grid g2">'+
- '<div class="card tierscard"><h2>👤 Accès tiers</h2><label>Ton prénom</label><input id="gPrenom" maxlength="24" placeholder="Thomas" autocomplete="off">'+
- '<div class="row"><button class="pri" data-act="reqAccess">📨 Demander l\'accès</button></div><div id="reqZone"></div>'+
- '<label>Code d\'accès reçu (KF1-…)</label><input id="gCode" placeholder="KF1-Prenom-20261231-xxxxxxxx" autocomplete="off">'+
- '<button data-act="valCode">🔓 Valider le code</button></div>'+
- '<div class="card admpanel"><div class="admhead"><span class="admshield">🛡️</span><div><b>Administrateur</b><p class="mut">Connexion par mot de passe</p></div></div>'+
- '<button class="pri" data-ag="open">🔑 Ouvrir la connexion admin</button>'+
- '<p class="mut">Le mot de passe et sa sauvegarde ne sont jamais visibles pour les tiers.</p></div>'+
- '</div>'}
-/* ---------- normalisation : jamais de points ---------- */
-function normalizePw(root){
- const scope=root||document;if(!scope.querySelectorAll)return;
- Array.prototype.forEach.call(scope.querySelectorAll('#gPass,#mPass'),function(i){
-  if(i.dataset.kfInit==='1')return;
-  i.dataset.kfInit='1';i.type='text';i.value='';
-  i.setAttribute('autocomplete','off');i.setAttribute('autocapitalize','off');
-  i.setAttribute('autocorrect','off');i.setAttribute('spellcheck','false');
-  i.setAttribute('name','kf-adm-'+Math.random().toString(36).slice(2));
-  i.placeholder='Saisir le mot de passe admin';
-  i.addEventListener('input',function(){i.dataset.kfTouched='1'});
-  i.addEventListener('focus',function(){if(i.dataset.kfTouched!=='1'&&i.value)i.value='';i.type=i.dataset.kfMask==='1'?'password':'text'});
-  i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();window.doAdminLogin()}})})}
-let rafId=0;
-function tick(){cancelAnimationFrame(rafId);rafId=requestAnimationFrame(function(){purgeMrt();normalizePw(document)})}
-/* ---------- ouverture / connexion ---------- */
-function openLogin(){
- openModal('<div class="admpanel modaladm">'+loginInner('m')+'</div>');
- normalizePw($('#modalBox'));
- const i=$('#mPass');if(i){i.value='';i.type='text';setTimeout(function(){i.focus()},60)}}
-window.openAdminModal=openLogin;
+ panel.querySelector('#kfAdmLogged').style.display=logged?'flex':'none';
+ panel.querySelector('#kfAdmGo').style.display=logged?'none':'block';
+ masked=false;input.type='text';input.value='';
+ panel.querySelector('#kfAdmEye').textContent='🙈';
+ panel.style.display='flex';
+ document.documentElement.style.overflow='hidden';
+ setTimeout(function(){if(!logged){input.focus();input.select()}},80)}
+function close(){if(!panel)return;panel.style.display='none';document.documentElement.style.overflow='';err('')}
+window.openAdminModal=open;
+window.KFAdminOpen=open;
+
+/* ---------- connexion ---------- */
 function syncNav(){
  const i=NAV.findIndex(function(n){return n[0]==='admin'});
  const show=isAdmDevice()||S.role==='admin';
  if(show&&i<0)NAV.push(['admin','🔐 Admin']);
  if(!show&&i>=0)NAV.splice(i,1);
  const app=$('#app');
- if(app&&!app.classList.contains('hid')&&S.view&&typeof switchView==='function')switchView(S.view)}
-function afterLogin(){
- closeModal();syncNav();
- const app=$('#app');
- if(app&&app.classList.contains('hid'))enterApp();
- switchView('admin')}
+ if(app&&!app.classList.contains('hid')&&S.view==='admin'&&typeof switchView==='function')switchView('admin')}
 async function succeed(pw,save){
  ls.set('admDevice',true);
- if(save)ls.set('admVault',enc(pw));
+ if(save)ls.set('admVault',enc(pw));else if(!hasVault())ls.set('admVault','');
  S.role='admin';ls.set('session',{ts:Date.now()});
- const el=$('#gPass')||$('#mPass');if(el){el.value='';el.dataset.kfTouched=''}
- toast('🛡️ Admin connecté'+(save?' · mot de passe sauvegardé':''));
- afterLogin()}
-window.doAdminLogin=async function(){
- const el=$('#mPass')||$('#gPass');
- let pw=el?String(el.value||'').trim():'';
+ input.value='';close();
+ const btn=$('#admBtn');if(btn)btn.classList.add('on');
+ syncNav();
+ const app=$('#app');
+ if(app&&app.classList.contains('hid'))enterApp();
+ switchView('admin');
+ toast('🛡️ Admin connecté'+(save?' · mot de passe sauvegardé':''))}
+async function submit(){
+ if(busy)return;
+ let pw=String(input.value||'').trim();
  if(!pw&&hasVault())pw=dec(ls.get('admVault',''));
- if(!pw){toast('Saisis le mot de passe admin');if(el)el.focus();return}
- if(await sha256(pw)===ADMIN_HASH){
-  const save=!!((($('#mSave')&&$('#mSave').checked)||($('#gSave')&&$('#gSave').checked)));
-  await succeed(pw,save);
- }else{toast('❌ Mot de passe incorrect');log('warn','admin échec');if(el){el.value='';el.focus()}}};
-async function quick(){
- if(!hasVault()){toast('Aucun mot de passe sauvegardé');return}
- const pw=dec(ls.get('admVault',''));
- if(pw&&await sha256(pw)===ADMIN_HASH)await succeed(pw,true);
- else{ls.set('admVault','');toast('Coffre invalide — ressaisis le mot de passe');openLogin()}}
-/* ---------- gestes (bonus) ---------- */
-let taps=0,tapT=0,holdT=null;
-function bindGestures(){
+ if(!pw){err('Saisis le mot de passe admin.');input.focus();return}
+ busy=true;
+ const go=panel.querySelector('#kfAdmGo');const old=go.textContent;go.textContent='⏳ Vérification…';go.disabled=true;
+ let ok=false;
+ try{ok=(await sha256(pw))===ADMIN_HASH}catch(e){ok=false}
+ go.textContent=old;go.disabled=false;busy=false;
+ if(ok){await succeed(pw,!!saveBox.checked)}
+ else{err('❌ Mot de passe incorrect.');log('warn','admin échec');input.value='';input.focus()}}
+window.doAdminLogin=submit;
+
+/* ---------- points d'entrée ---------- */
+function bindEntry(){
+ const btn=$('#admBtn');
+ if(btn&&!btn.dataset.kfBound){btn.dataset.kfBound='1';
+  btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();open()});
+  btn.classList.toggle('on',S.role==='admin')}
  const logo=$('#brandTap');
- if(logo){
-  logo.addEventListener('click',function(){const n=Date.now();if(n-tapT>TAPWIN)taps=0;tapT=n;taps++;if(taps>=TAPS){taps=0;openLogin()}});
-  logo.addEventListener('pointerdown',function(){holdT=setTimeout(openLogin,HOLD)});
-  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){logo.addEventListener(ev,function(){clearTimeout(holdT)})})}
- document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.shiftKey&&(e.key==='A'||e.key==='a')){e.preventDefault();openLogin()}})}
-/* ---------- actions ---------- */
-document.addEventListener('click',async function(e){
- const b=e.target.closest('[data-ag]');if(!b)return;
- const a=b.dataset.ag,k=b.dataset.k;
- if(a==='open'){openLogin();return}
- if(a==='goAdmin'){closeModal();syncNav();switchView('admin');return}
- if(a==='logout'){S.role=null;ls.set('session',null);closeModal();syncNav();toast('🚪 Déconnecté de l\'admin');switchView('home');return}
- if(a==='mask'){const i=$('#'+k);if(!i)return;
-  const masked=i.type==='password';i.type=masked?'text':'password';i.dataset.kfMask=masked?'':'1';
-  b.textContent=masked?'🙈':'👁';i.focus();return}
- if(a==='quick'){await quick();return}
- if(a==='forget'){ls.set('admVault','');toast('🗑️ Mot de passe oublié sur cet appareil');openLogin();return}
- if(a==='unmark'){ls.set('admDevice',false);ls.set('admVault','');S.role=null;ls.set('session',null);
-  syncNav();closeModal();toast('🚫 Appareil retiré · admin masqué');return}});
+ if(logo&&!logo.dataset.kfBound){logo.dataset.kfBound='1';
+  let taps=0,t=0,hold=null;
+  logo.addEventListener('click',function(){const n=Date.now();if(n-t>2500)taps=0;t=n;taps++;if(taps>=5){taps=0;open()}});
+  logo.addEventListener('pointerdown',function(){hold=setTimeout(open,1100)});
+  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){logo.addEventListener(ev,function(){clearTimeout(hold)})})}
+ document.addEventListener('keydown',function(e){
+  if(e.ctrlKey&&e.shiftKey&&(e.key==='A'||e.key==='a')){e.preventDefault();open()}})}
+/* bouton de secours flottant : garantit l'accès même si la barre est masquée */
+function fallbackButton(){
+ if($('#kfAdmFab'))return;
+ const b=document.createElement('button');
+ b.id='kfAdmFab';b.type='button';b.title='Connexion administrateur';b.textContent='🛡️';
+ b.style.cssText='position:fixed;right:14px;bottom:74px;z-index:900;width:52px;height:52px;border-radius:16px;border:1px solid #ff7a1a;background:linear-gradient(140deg,#1a1408,#2a1c08);color:#ff7a1a;font-size:22px;cursor:pointer;box-shadow:0 10px 28px #000a,0 0 0 1px #ff7a1a44;display:grid;place-items:center';
+ b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();open()});
+ document.body.appendChild(b)}
 /* ---------- init ---------- */
 function boot(){
- purgeMrt();rebuildGate();bindGestures();syncNav();normalizePw(document);
- const btn=$('#admBtn');
- if(btn){btn.classList.toggle('on',S.role==='admin');
-  btn.addEventListener('click',function(){openLogin()})}
- new MutationObserver(function(){tick();
-  const b2=$('#admBtn');if(b2)b2.classList.toggle('on',S.role==='admin')}).observe(document.body,{childList:true,subtree:true})}
+ purgeMrt();bindEntry();fallbackButton();buildPanel();syncNav();
+ if(typeof rebuildGate==='function')rebuildGate();
+ const g=$('#gate');
+ if(g&&!g.dataset.kfAdm){g.dataset.kfAdm='1';
+  const card=document.createElement('div');card.className='card admpanel';
+  card.innerHTML='<div class="admhead"><span class="admshield">🛡️</span><div><b>Administrateur</b><p class="mut">Connexion par mot de passe</p></div></div><button class="pri" type="button" id="kfGateAdm">🔑 Ouvrir la connexion admin</button><p class="mut">Le mot de passe et sa sauvegarde ne sont jamais visibles pour les tiers.</p>';
+  g.appendChild(card);
+  card.querySelector('#kfGateAdm').addEventListener('click',open)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-window.KFAdminGate={openLogin:openLogin,syncNav:syncNav,isAdmDevice:isAdmDevice,hasVault:hasVault,purgeMrt:purgeMrt};
+window.KFAdminGate={open:open,close:close,syncNav:syncNav,isAdmDevice:isAdmDevice,hasVault:hasVault,purgeMrt:purgeMrt};
 })();
