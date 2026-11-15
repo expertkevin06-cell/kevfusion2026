@@ -1,6 +1,6 @@
-/* KEV FUSION 2026 — SW v3.2.0 */
-const V='kf2026-v3.2.0';
-const SHELL=['./','./index.html','./data.js','./app.js','./extra.js','./manifest.webmanifest','./firebase-config.js','./icon-192.png','./icon-512.png'];
+/* KEV FUSION 2026 — SW v3.3.0 */
+const V='kf2026-v3.3.0';
+const SHELL=['./','./index.html','./data.js','./app.js','./extra.js','./updates.js','./manifest.webmanifest','./firebase-config.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{for(const u of SHELL){try{await k.add(u)}catch(x){}}}).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(x=>x!==V&&x.startsWith('kf2026')).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
