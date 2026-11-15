@@ -1,7 +1,7 @@
 {
   "name": "KEV FUSION 2026 — Technique · Incendie · Juridique",
   "short_name": "KEV FUSION",
-  "description": "Fusion massive : diagnostic, incendie, juridique, JusteRepère, VIN complet, photos, rappels. Admin, accès tiers, OBD, fond animé, hors ligne.",
+  "description": "Fusion massive : diagnostic AutoDiag Pro, Formation, incendie, juridique, JusteRepère, Auto-Droit Smart, VIN, photos, rappels. Admin, accès tiers, OBD, fond animé, hors ligne.",
   "id": "./", "start_url": "./index.html", "scope": "./",
   "display": "standalone", "orientation": "any", "lang": "fr",
   "theme_color": "#0b1220", "background_color": "#0b1220",
@@ -13,6 +13,8 @@
   ],
   "shortcuts": [
     {"name": "JusteRepère", "url": "./index.html?view=jr"},
+    {"name": "Auto-Droit Smart", "url": "./index.html?view=droitsmart"},
+    {"name": "Formation AutoDiag", "url": "./index.html?view=formation"},
     {"name": "Lecture VIN", "url": "./index.html?view=vin"},
     {"name": "Étude croisée", "url": "./index.html?view=etude"},
     {"name": "Dossiers Juridix", "url": "./index.html?view=dossiers"},
