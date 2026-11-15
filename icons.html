@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0f0a">
+<title>KEV FUSION · Studio d'icônes PWABuilder</title>
+<style>
+:root{
+ --bg:#0a0f0a;--bg2:#0d1410;--surface:#121a14;--surface2:#182219;--overlay:#1d2a1f;
+ --line:#2a3a2c;--line2:#3a4f3c;
+ --tx:#f2f6ee;--mut:#9db39a;--dim:#6d8469;
+ --amber:#ff9500;--amber2:#ff7a1a;--blue:#1e6fff;--blue2:#0a5fd7;--gold:#d8b45a;
+ --acid:#a3e635;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--info:#38bdf8;
+ --scrim:#000000b0;
+}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:var(--amber) var(--bg2)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--amber),var(--blue));border-radius:9px;border:2px solid var(--bg2)}
+::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+html,body{height:100%}
+body{
+ background:
+  radial-gradient(60% 40% at 12% 0%,#ff950018,transparent 60%),
+  radial-gradient(50% 40% at 88% 8%,#1e6fff1c,transparent 60%),
+  radial-gradient(70% 60% at 50% 110%,#a3e63510,transparent 60%),
+  linear-gradient(180deg,var(--bg),var(--bg2));
+ color:var(--tx);font:15px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+ background-image:radial-gradient(1px 1px at 20% 30%,#ffffff14,transparent),radial-gradient(1px 1px at 70% 20%,#ffffff10,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#ffffff0d,transparent);
+ animation:drift 26s linear infinite}
+@keyframes drift{to{transform:translateY(-40px)}}
+header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:14px 22px;
+ background:#0a0f0add;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.logo{width:40px;height:40px;border-radius:11px;background:conic-gradient(from 210deg,var(--amber),var(--amber2),var(--blue),var(--gold),var(--amber));
+ display:grid;place-items:center;font-weight:900;color:#160b00;box-shadow:0 0 22px #ff950055;flex:none}
+header h1{font-size:19px;letter-spacing:.3px}
+header h1 span{background:linear-gradient(90deg,var(--amber),var(--gold),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{color:var(--mut);font-size:12px}
+.spacer{flex:1}
+.pill{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--acid);background:#a3e63512;white-space:nowrap}
+main{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;max-width:1280px;margin:0 auto;padding:22px}
+@media(max-width:980px){main{grid-template-columns:1fr}}
+.panel{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 50px #00000066}
+.stage{display:flex;flex-direction:column;gap:16px}
+.previewWrap{position:relative;display:grid;place-items:center;padding:26px;border-radius:16px;
+ background:
+  radial-gradient(50% 50% at 50% 40%,#1e6fff14,transparent 70%),
+  repeating-conic-gradient(#141c15 0% 25%,#0f1610 0% 50%) 0 0/26px 26px;
+ border:1px solid var(--line)}
+#big{width:min(340px,72vw);height:auto;border-radius:24px;box-shadow:0 24px 60px #000c,0 0 0 1px var(--line2);image-rendering:auto;transition:transform .25s}
+#big:hover{transform:scale(1.02) rotate(-.5deg)}
+.safeNote{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--mut);background:#0a0f0acc;padding:3px 10px;border-radius:12px;border:1px solid var(--line)}
+.strip{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.thumb{display:flex;flex-direction:column;align-items:center;gap:5px}
+.thumb canvas{border-radius:9px;box-shadow:0 6px 16px #000a,0 0 0 1px var(--line);background:#0f1610}
+.thumb span{font-size:10px;color:var(--dim);font-family:ui-monospace,monospace}
+h2{font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.ctl{display:flex;flex-direction:column;gap:13px;max-height:none}
+.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.row label{font-size:12px;color:var(--mut)}
+.row output{font-size:11px;color:var(--acid);font-family:ui-monospace,monospace;min-width:44px;text-align:right}
+input[type=range]{grid-column:1/-1;width:100%;appearance:none;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--amber),var(--blue));outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:17px;height:17px;border-radius:50%;background:var(--tx);border:3px solid var(--amber);box-shadow:0 0 10px #ff950088;cursor:grab}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--tx);border:3px solid var(--amber);cursor:grab}
+select,input[type=text]{width:100%;background:var(--overlay);border:1px solid var(--line2);color:var(--tx);border-radius:10px;padding:8px 10px;font-size:13px}
+select:focus,input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.swatch{display:flex;flex-direction:column;gap:4px;align-items:center}
+.swatch input[type=color]{width:100%;height:34px;border:1px solid var(--line2);border-radius:9px;background:var(--overlay);padding:2px;cursor:pointer}
+.swatch span{font-size:10px;color:var(--dim)}
+.toggles{display:flex;gap:8px;flex-wrap:wrap}
+.tg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);background:var(--overlay);border:1px solid var(--line2);border-radius:20px;padding:6px 11px;cursor:pointer;user-select:none}
+.tg input{accent-color:var(--amber)}
+.tg.on{color:var(--acid);border-color:var(--acid)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+button{cursor:pointer;border:1px solid var(--line2);background:var(--overlay);color:var(--tx);border-radius:11px;padding:10px 12px;font-size:13px;font-weight:600;transition:transform .12s,box-shadow .12s,border-color .12s}
+button:hover{border-color:var(--amber);transform:translateY(-1px);box-shadow:0 6px 18px #ff950033}
+button:active{transform:translateY(0)}
+button.primary{grid-column:1/-1;background:linear-gradient(90deg,var(--amber),var(--amber2));border-color:var(--amber);color:#160b00;box-shadow:0 8px 24px #ff950044}
+button.blue{background:linear-gradient(90deg,var(--blue),var(--blue2));border-color:var(--blue);color:#fff}
+button.ghost{background:transparent}
+.manifest{margin-top:14px}
+pre{background:#0b110c;border:1px solid var(--line);border-radius:12px;padding:12px;font:11px/1.5 ui-monospace,monospace;color:var(--acid);max-height:220px;overflow:auto;white-space:pre}
+.hint{font-size:11px;color:var(--dim);margin-top:8px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--overlay);border:1px solid var(--acid);color:var(--acid);padding:10px 18px;border-radius:12px;z-index:90;transition:.25s;pointer-events:none;font-size:13px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.drop{border:2px dashed var(--line2);border-radius:12px;padding:12px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--blue);color:var(--info);background:#1e6fff10}
+footer{position:relative;z-index:1;text-align:center;color:var(--dim);font-size:11px;padding:8px 0 26px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">KF</div>
+ <div><h1>KEV FUSION · <span>Studio d'icônes</span></h1><p>Génère le jeu d'icônes complet requis par PWABuilder (any + maskable + Apple + favicon)</p></div>
+ <div class="spacer"></div>
+ <span class="pill">PWABuilder ready</span>
+</header>
+<main>
+ <section class="stage">
+  <div class="panel">
+   <h2>Aperçu live</h2>
+   <div class="previewWrap">
+    <canvas id="big" width="512" height="512"></canvas>
+    <span class="safeNote" id="safeNote">zone de sécurité maskable affichée</span>
+   </div>
+   <div class="strip" id="strip"></div>
+  </div>
+  <div class="panel manifest">
+   <h2>manifest.webmanifest généré</h2>
+   <pre id="manifestOut"></pre>
+   <div class="btns">
+    <button id="copyManifest">📋 Copier le manifest</button>
+    <button id="dlManifest" class="blue">⬇️ manifest.webmanifest</button>
+   </div>
+   <p class="hint">Place les PNG téléchargés à la racine du dépôt, puis ce manifest. PWABuilder détectera automatiquement les icônes any + maskable.</p>
+  </div>
+ </section>
+
+ <aside class="panel">
+  <h2>Réglages live</h2>
+  <div class="ctl">
+   <div class="row"><label>Source du visuel</label></div>
+   <select id="source">
+    <option value="supercar">Supercar orange (vectoriel)</option>
+    <option value="rally">Berline rally bleue (vectoriel)</option>
+    <option value="mono">Monogramme KF + flamme</option>
+    <option value="upload">Mes photos (upload)</option>
+   </select>
+   <div class="drop" id="drop">📷 Dépose / clique pour charger tes 2 photos (Lambo, WRX…)</div>
+   <input type="file" id="file" accept="image/*" hidden>
+
+   <div class="row"><label>Fond</label></div>
+   <select id="bgMode"><option value="gradient">Dégradé</option><option value="solid">Uni</option><option value="transparent">Transparent</option></select>
+   <div class="colors">
+    <div class="swatch"><input type="color" id="bg1" value="#0d1410"><span>Fond 1</span></div>
+    <div class="swatch"><input type="color" id="bg2" value="#1e6fff"><span>Fond 2</span></div>
+    <div class="swatch"><input type="color" id="car" value="#ff9500"><span>Carrosserie</span></div>
+    <div class="swatch"><input type="color" id="accent" value="#d8b45a"><span>Accent / jantes</span></div>
+   </div>
+
+   <div class="row"><label>Échelle</label><output id="oScale">100%</output><input type="range" id="scale" min="40" max="160" value="100"></div>
+   <div class="row"><label>Décalage X</label><output id="oDx">0</output><input type="range" id="dx" min="-40" max="40" value="0"></div>
+   <div class="row"><label>Décalage Y</label><output id="oDy">0</output><input type="range" id="dy" min="-40" max="40" value="0"></div>
+   <div class="row"><label>Rotation</label><output id="oRot">0°</output><input type="range" id="rot" min="-30" max="30" value="0"></div>
+   <div class="row"><label>Arrondi des coins</label><output id="oRadius">22%</output><input type="range" id="radius" min="0" max="50" value="22"></div>
+   <div class="row"><label>Marge maskable</label><output id="oPad">12%</output><input type="range" id="pad" min="0" max="30" value="12"></div>
+   <div class="row"><label>Halo (glow)</label><output id="oGlow">35%</output><input type="range" id="glow" min="0" max="100" value="35"></div>
+   <div class="row"><label>Ombre portée</label><output id="oShadow">45%</output><input type="range" id="shadow" min="0" max="100" value="45"></div>
+
+   <div class="toggles">
+    <label class="tg on" id="tgSafe"><input type="checkbox" id="safe" checked> Zone maskable</label>
+    <label class="tg" id="tgBadge"><input type="checkbox" id="badge"> Badge texte</label>
+    <label class="tg on" id="tgWheels"><input type="checkbox" id="wheels" checked> Jantes accent</label>
+   </div>
+   <input type="text" id="badgeText" value="2026" placeholder="Texte du badge">
+
+   <div class="btns">
+    <button id="reset" class="ghost">↺ Réinitialiser</button>
+    <button id="rand" class="ghost">🎲 Aléatoire</button>
+    <button id="png" class="blue">⬇️ PNG 512</button>
+    <button id="zip" class="primary">📦 Télécharger le pack ZIP (toutes icônes + manifest)</button>
+   </div>
+  </div>
+ </aside>
+</main>
+<footer>KEV FUSION 2026 · studio d'icônes autonome, sans dépendance — prêt pour PWABuilder / TWA Android.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const state={source:'supercar',bgMode:'gradient',bg1:'#0d1410',bg2:'#1e6fff',car:'#ff9500',accent:'#d8b45a',
+ scale:100,dx:0,dy:0,rot:0,radius:22,pad:12,glow:35,shadow:45,safe:true,badge:false,badgeText:'2026',wheels:true};
+let uploadImg=null;
+const DEF=JSON.parse(JSON.stringify(state));
+const SIZES=[512,192,144,96,72,48,32,16];
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0')}
+function wheel(ctx,x,y,r,accent,on){ctx.save();ctx.fillStyle='#0b0d10';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+ ctx.fillStyle=on?accent:'#39424d';ctx.beginPath();ctx.arc(x,y,r*0.55,0,7);ctx.fill();
+ ctx.strokeStyle=shade(on?accent:'#39424d',0.6);ctx.lineWidth=r*0.16;
+ for(let i=0;i<5;i++){const a=i*Math.PI*2/5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*r*0.5,y+Math.sin(a)*r*0.5);ctx.stroke()}
+ ctx.fillStyle='#10141a';ctx.beginPath();ctx.arc(x,y,r*0.16,0,7);ctx.fill();ctx.restore()}
+function supercar(ctx,st){const c=st.car;
+ ctx.save();
+ ctx.fillStyle=shade(c,0.55);ctx.beginPath();ctx.ellipse(0,15,46,4,0,0,7);ctx.fill();
+ const g=ctx.createLinearGradient(0,-16,0,14);g.addColorStop(0,shade(c,1.25));g.addColorStop(0.5,c);g.addColorStop(1,shade(c,0.6));
+ ctx.fillStyle=g;ctx.beginPath();
+ ctx.moveTo(-46,10);ctx.lineTo(-44,2);ctx.quadraticCurveTo(-30,-2,-18,-4);ctx.quadraticCurveTo(-8,-15,6,-15);
+ ctx.quadraticCurveTo(18,-14,26,-6);ctx.quadraticCurveTo(38,-3,46,2);ctx.lineTo(47,8);ctx.quadraticCurveTo(47,12,42,12);
+ ctx.lineTo(-42,12);ctx.quadraticCurveTo(-46,12,-46,10);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#0e1a26';ctx.beginPath();ctx.moveTo(-14,-5);ctx.quadraticCurveTo(-6,-13,5,-13);ctx.quadraticCurveTo(15,-12,22,-6);ctx.lineTo(2,-6);ctx.closePath();ctx.fill();
+ ctx.fillStyle=shade(c,0.45);ctx.beginPath();ctx.moveTo(-24,4);ctx.lineTo(-12,2);ctx.lineTo(-14,9);ctx.lineTo(-26,9);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#fff7d6';ctx.beginPath();ctx.moveTo(40,1);ctx.lineTo(46,3);ctx.lineTo(45,6);ctx.lineTo(39,4);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#ff3b30';ctx.fillRect(-46,4,3,3);
+ wheel(ctx,-27,12,8.5,st.accent,st.wheels);wheel(ctx,29,12,8.5,st.accent,st.wheels);
+ ctx.restore()}
+function rally(ctx,st){const c=st.car;
+ ctx.save();
+ ctx.fillStyle=shade(c,0.55);ctx.beginPath();ctx.ellipse(0,16,46,4,0,0,7);ctx.fill();
+ ctx.fillStyle=shade(c,0.8);ctx.fillRect(-47,-14,10,3);ctx.fillRect(-44,-11,3,8);
+ const g=ctx.createLinearGradient(0,-14,0,14);g.addColorStop(0,shade(c,1.3));g.addColorStop(0.5,c);g.addColorStop(1,shade(c,0.6));
+ ctx.fillStyle=g;ctx.beginPath();
+ ctx.moveTo(-46,10);ctx.lineTo(-45,0);ctx.quadraticCurveTo(-32,-3,-22,-4);ctx.quadraticCurveTo(-13,-13,-1,-13);
+ ctx.quadraticCurveTo(12,-13,19,-6);ctx.lineTo(33,-4);ctx.quadraticCurveTo(44,-2,46,2);ctx.lineTo(47,8);
+ ctx.quadraticCurveTo(47,12,42,12);ctx.lineTo(-42,12);ctx.quadraticCurveTo(-46,12,-46,10);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#0e1a26';ctx.beginPath();ctx.moveTo(-18,-5);ctx.quadraticCurveTo(-11,-11,-1,-11);ctx.quadraticCurveTo(10,-11,16,-6);ctx.lineTo(-2,-6);ctx.closePath();ctx.fill();
+ ctx.beginPath();ctx.moveTo(2,-6);ctx.lineTo(15,-6);ctx.lineTo(17,-5);ctx.lineTo(3,-5);ctx.closePath();ctx.fill();
+ ctx.fillStyle=shade(c,0.5);ctx.fillRect(24,-7,8,3);
+ ctx.fillStyle='#fff7d6';ctx.beginPath();ctx.moveTo(40,1);ctx.lineTo(46,3);ctx.lineTo(45,6);ctx.lineTo(39,4);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#ff3b30';ctx.fillRect(-46,3,3,4);
+ wheel(ctx,-27,12,8.5,st.accent,true);wheel(ctx,29,12,8.5,st.accent,true);
+ ctx.restore()}
+function mono(ctx,st){ctx.save();
+ const g=ctx.createLinearGradient(-30,-30,30,30);g.addColorStop(0,st.car);g.addColorStop(1,st.accent);
+ ctx.fillStyle=g;ctx.font='900 44px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('KF',0,2);
+ ctx.fillStyle=st.car;ctx.beginPath();ctx.moveTo(0,-30);ctx.quadraticCurveTo(7,-22,4,-16);ctx.quadraticCurveTo(10,-19,9,-26);ctx.quadraticCurveTo(14,-18,10,-12);ctx.quadraticCurveTo(4,-8,0,-12);ctx.quadraticCurveTo(-6,-16,-3,-22);ctx.quadraticCurveTo(-2,-18,1,-18);ctx.quadraticCurveTo(-3,-24,0,-30);ctx.closePath();ctx.fill();
+ ctx.restore()}
+function drawUpload(ctx,S,st){if(!uploadImg)return;const iw=uploadImg.width,ih=uploadImg.height;
+ const base=Math.max(S/iw,S/ih);const sc=base*(st.scale/100);
+ const w=iw*sc,h=ih*sc;ctx.drawImage(uploadImg,-w/2,-h/2,w,h)}
+function render(ctx,S,st,maskable){
+ ctx.clearRect(0,0,S,S);ctx.save();
+ const rad=(st.radius/100)*(S/2);
+ if(st.bgMode!=='transparent'){rr(ctx,0,0,S,S,rad);ctx.clip();
+  if(st.bgMode==='gradient'){const g=ctx.createLinearGradient(0,0,S,S);g.addColorStop(0,st.bg1);g.addColorStop(1,st.bg2);ctx.fillStyle=g}
+  else ctx.fillStyle=st.bg1;
+  ctx.fillRect(0,0,S,S);
+  const vg=ctx.createRadialGradient(S/2,S*0.35,S*0.1,S/2,S/2,S*0.75);vg.addColorStop(0,'#ffffff10');vg.addColorStop(1,'#00000055');ctx.fillStyle=vg;ctx.fillRect(0,0,S,S);}
+ const content=(maskable?1-(st.pad/100)*1.1:1)*(st.scale/100);
+ ctx.translate(S/2+(st.dx/100)*S,S/2+(st.dy/100)*S);
+ ctx.rotate(st.rot*Math.PI/180);
+ const k=(S/110)*content;ctx.scale(k,k);
+ if(st.shadow>0){ctx.shadowColor='#000000';ctx.shadowBlur=st.shadow*0.2;ctx.shadowOffsetY=st.shadow*0.08}
+ if(st.glow>0){ctx.shadowColor=st.car;ctx.shadowBlur=st.glow*0.35}
+ if(st.source==='supercar')supercar(ctx,st);
+ else if(st.source==='rally')rally(ctx,st);
+ else if(st.source==='mono')mono(ctx,st);
+ else drawUpload(ctx,S/k,st);
+ ctx.restore();
+ if(st.badge&&st.badgeText){ctx.save();rr(ctx,0,0,S,S,rad);ctx.clip();
+  ctx.fillStyle='#00000099';const bh=S*0.16;ctx.fillRect(0,S-bh,S,bh);
+  ctx.fillStyle=st.accent;ctx.font='700 '+(bh*0.6)+'px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(st.badgeText,S/2,S-bh/2);ctx.restore()}
+ if(st.safe&&maskable){ctx.save();ctx.strokeStyle='#a3e635';ctx.setLineDash([6,6]);ctx.lineWidth=Math.max(1,S*0.006);
+  ctx.beginPath();ctx.arc(S/2,S/2,S*0.4,0,7);ctx.stroke();ctx.restore()}
+}
+const big=$('#big');const bctx=big.getContext('2d');
+const strip=$('#strip');const thumbs=[];
+[192,144,96,72,48,32,16].forEach(s=>{const d=document.createElement('div');d.className='thumb';
+ const c=document.createElement('canvas');c.width=c.height=s;const sp=document.createElement('span');sp.textContent=s+'px';
+ d.appendChild(c);d.appendChild(sp);strip.appendChild(d);thumbs.push([s,c.getContext('2d')])});
+let raf=0;
+function paint(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+ render(bctx,512,state,true);
+ thumbs.forEach(([s,c])=>render(c,s,state,false));
+ $('#safeNote').style.display=state.safe?'block':'none';
+ $('#manifestOut').textContent=manifestJSON();})}
+function manifestJSON(){const icons=[];
+ SIZES.forEach(s=>icons.push({src:'icon-'+s+'.png',sizes:s+'x'+s,type:'image/png',purpose:'any'}));
+ icons.push({src:'icon-192-maskable.png',sizes:'192x192',type:'image/png',purpose:'maskable'});
+ icons.push({src:'icon-512-maskable.png',sizes:'512x512',type:'image/png',purpose:'maskable'});
+ return JSON.stringify({name:'KEV FUSION 2026 — Technique · Incendie · Juridique',short_name:'KEV FUSION',
+  description:'APK unique technique & juridique : diagnostic, incendie, JusteRepère, Auto-Droit, VIN, OBD, photos, rappels.',
+  id:'./',start_url:'./index.html',scope:'./',display:'standalone',orientation:'any',lang:'fr',
+  theme_color:state.bg1,background_color:state.bg1,categories:['productivity','utilities','education'],icons},null,2)}
+/* ---- controls ---- */
+function bindRange(id,key,fmt){const el=$('#'+id),out=$('#o'+id[0].toUpperCase()+id.slice(1));
+ el.addEventListener('input',()=>{state[key]=+el.value;out.textContent=fmt(el.value);paint()})}
+bindRange('scale','scale',v=>v+'%');bindRange('dx','dx',v=>v);bindRange('dy','dy',v=>v);
+bindRange('rot','rot',v=>v+'°');bindRange('radius','radius',v=>v+'%');bindRange('pad','pad',v=>v+'%');
+bindRange('glow','glow',v=>v+'%');bindRange('shadow','shadow',v=>v+'%');
+['bg1','bg2','car','accent'].forEach(id=>$('#'+id).addEventListener('input',e=>{state[id]=e.target.value;paint()}));
+$('#source').addEventListener('change',e=>{state.source=e.target.value;paint()});
+$('#bgMode').addEventListener('change',e=>{state.bgMode=e.target.value;paint()});
+$('#badgeText').addEventListener('input',e=>{state.badgeText=e.target.value;paint()});
+function tg(id,key,cls){const w=$('#'+cls),el=$('#'+id);el.addEventListener('change',()=>{state[key]=el.checked;w.classList.toggle('on',el.checked);paint()})}
+tg('safe','safe','tgSafe');tg('badge','badge','tgBadge');tg('wheels','wheels','tgWheels');
+$('#reset').addEventListener('click',()=>{Object.assign(state,JSON.parse(JSON.stringify(DEF)));syncUI();paint();toast('Réglages réinitialisés')});
+$('#rand').addEventListener('click',()=>{
+ const pal=[['#0d1410','#1e6fff','#ff9500','#d8b45a'],['#160b00','#ff7a1a','#ffd166','#0e1a26'],['#0a1a2f','#0a5fd7','#1e6fff','#d8b45a'],['#101418','#a3e635','#ff9500','#38bdf8'],['#1a0d14','#f87171','#fbbf24','#a3e635']];
+ const p=pal[Math.floor(Math.random()*pal.length)];
+ state.bg1=p[0];state.bg2=p[1];state.car=p[2];state.accent=p[3];
+ state.source=['supercar','rally','mono'][Math.floor(Math.random()*3)];
+ state.scale=80+Math.floor(Math.random()*50);state.rot=Math.floor(Math.random()*21)-10;
+ state.radius=Math.floor(Math.random()*40);state.glow=20+Math.floor(Math.random()*60);
+ syncUI();paint();toast('Palette aléatoire appliquée')});
+function syncUI(){$('#source').value=state.source;$('#bgMode').value=state.bgMode;
+ ['bg1','bg2','car','accent'].forEach(id=>$('#'+id).value=state[id]);
+ [['scale','scale','%'],['dx','dx',''],['dy','dy',''],['rot','rot','°'],['radius','radius','%'],['pad','pad','%'],['glow','glow','%'],['shadow','shadow','%']]
+ .forEach(([id,key,f])=>{$('#'+id).value=state[key];$('#o'+id[0].toUpperCase()+id.slice(1)).textContent=state[key]+f});
+ $('#safe').checked=state.safe;$('#badge').checked=state.badge;$('#wheels').checked=state.wheels;
+ $('#tgSafe').classList.toggle('on',state.safe);$('#tgBadge').classList.toggle('on',state.badge);$('#tgWheels').classList.toggle('on',state.wheels);
+ $('#badgeText').value=state.badgeText}
+/* ---- upload ---- */
+const drop=$('#drop'),file=$('#file');
+drop.addEventListener('click',()=>file.click());
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadImg(e.dataTransfer.files[0])});
+file.addEventListener('change',e=>{if(e.target.files[0])loadImg(e.target.files[0])});
+function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{uploadImg=i;state.source='upload';$('#source').value='upload';drop.textContent='✅ '+f.name+' chargée';paint();toast('Photo chargée comme source')};i.src=r.result};r.readAsDataURL(f)}
+/* ---- export ---- */
+function blobOf(canvas){return new Promise(res=>canvas.toBlob(res,'image/png'))}
+async function pngOf(size,maskable){const c=document.createElement('canvas');c.width=c.height=size;
+ const st=JSON.parse(JSON.stringify(state));if(!maskable)st.safe=false;
+ render(c.getContext('2d'),size,st,maskable);return new Uint8Array(await (await blobOf(c)).arrayBuffer())}
+$('#png').addEventListener('click',async()=>{const u8=await pngOf(512,false);dl(new Blob([u8],{type:'image/png'}),'icon-512.png');toast('PNG 512 téléchargé')});
+$('#dlManifest').addEventListener('click',()=>{dl(new Blob([manifestJSON()],{type:'application/manifest+json'}),'manifest.webmanifest');toast('manifest téléchargé')});
+$('#copyManifest').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(manifestJSON());toast('manifest copié')}catch(e){toast('Copie impossible')}});
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+/* ---- ZIP (store, sans dépendance) ---- */
+const CT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CT[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zip(entries){const enc=new TextEncoder();const parts=[],central=[];let off=0;
+ for(const e of entries){const name=enc.encode(e.name),crc=crc32(e.u8),sz=e.u8.length;
+  const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(8,0,true);
+  lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);lh.setUint16(26,name.length,true);
+  parts.push(new Uint8Array(lh.buffer),name,e.u8);
+  const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);
+  ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);ch.setUint16(28,name.length,true);ch.setUint32(42,off,true);
+  central.push(new Uint8Array(ch.buffer),name);off+=30+name.length+sz}
+ let cs=0;central.forEach(c=>cs+=c.length);
+ const end=new DataView(new ArrayBuffer(22));end.setUint32(0,0x06054b50,true);end.setUint16(8,entries.length,true);end.setUint16(10,entries.length,true);
+ end.setUint32(12,cs,true);end.setUint32(16,off,true);
+ return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:'application/zip'})}
+$('#zip').addEventListener('click',async()=>{
+ toast('Génération du pack…');const entries=[];
+ for(const s of SIZES)entries.push({name:'icon-'+s+'.png',u8:await pngOf(s,false)});
+ entries.push({name:'icon-192-maskable.png',u8:await pngOf(192,true)});
+ entries.push({name:'icon-512-maskable.png',u8:await pngOf(512,true)});
+ entries.push({name:'apple-touch-icon.png',u8:await pngOf(180,false)});
+ entries.push({name:'favicon-32.png',u8:await pngOf(32,false)});
+ entries.push({name:'favicon-16.png',u8:await pngOf(16,false)});
+ entries.push({name:'manifest.webmanifest',u8:new TextEncoder().encode(manifestJSON())});
+ dl(zip(entries),'kev-fusion-icons.zip');toast('Pack ZIP complet téléchargé ✅')});
+syncUI();paint();
+</script>
+</body>
+</html>
