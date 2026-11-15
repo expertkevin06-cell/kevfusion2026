@@ -1,10 +1,9 @@
-/* KEV FUSION 2026 — predictive.js v5.2.0
-   Correctif : « Lancer l'étude corrélée » utilise désormais un moteur d'étude AUTONOME
-   (plus d'appel à runStudy/qualify/scoreKB d'app.js, sources de l'erreur), qualification juridique
-   défensive, rendu complet + PDF + JSON + dossier, garde-fous et message d'erreur lisible. */
+/* KEV FUSION 2026 — predictive.js v5.3.0
+   Rendu 100 % défensif (KFnorm sur toutes les collections), étude autonome, recherche corrélée stricte. */
 (function(){
 'use strict';
 if(typeof KBall!=='function'||typeof VEHDB==='undefined'||!window.KFCorr){console.warn('predictive.js: prérequis manquants');return}
+const A=window.KFnorm||{arr:function(v){return Array.isArray(v)?v:[]},dtc:function(v){return Array.isArray(v)?v:[]},txt:function(v){return Array.isArray(v)?v:[]},num:function(){return null}};
 S.vehicle=null;S.yearFilter=null;
 const WIN=KFCorr.WIN,norm=KFCorr.norm;
 const PF={sys:'',grav:'',q:'',fire:false,rappel:true,tsb:true,dtc:true,strict:true};
@@ -15,19 +14,21 @@ function toks(q){return norm(q).split(' ').filter(Boolean)}
 function matchText(text,q){const t=toks(q);if(!t.length)return true;const L=norm(text);
  return t.every(function(k){return L.indexOf(k)>=0||(ALIAS[k]||[]).some(function(a){return L.indexOf(a)>=0})})}
 function overlap(y,a,b){return y&&y[0]<=b&&y[1]>=a}
-function inWin(e){if(!e.y)return true;const Y=S.yearFilter;return Y?overlap(e.y,Y,Y):overlap(e.y,WIN[0],WIN[1])}
+function inWin(e){const y=A.yrs&&A.yrs(e&&e.y);if(!y)return true;const Y=S.yearFilter;
+ return Y?overlap(y,Y,Y):overlap(y,WIN[0],WIN[1])}
 function brands(){return Array.from(new Set(Object.keys(VEHDB).concat(Object.keys(VEHall())))).sort()}
 function models(b){if(!b)return[];const s=new Set();
- Object.keys(VEHDB[b]||{}).forEach(function(m){if((VEHDB[b][m]||[]).some(inWin))s.add(m)});
- Object.keys(VEHall()[b]||{}).forEach(function(m){if((VEHall()[b][m]||[]).length)s.add(m)});
+ Object.keys(VEHDB[b]||{}).forEach(function(m){if(A.arr(VEHDB[b][m]).length&&VEHDB[b][m].some(inWin))s.add(m)});
+ Object.keys(VEHall()[b]||{}).forEach(function(m){if(A.arr(VEHall()[b][m]).length)s.add(m)});
  return Array.from(s).sort()}
 function engines(b,m){if(!b||!m)return[];const out=[],seen=new Set();
- ((VEHDB[b]||{})[m]||[]).forEach(function(e){if(inWin(e)&&!seen.has(e.label)){seen.add(e.label);out.push(e)}});
- ((VEHall()[b]||{})[m]||[]).forEach(function(x){if(!seen.has(x)){seen.add(x);out.push({label:x,ch:null,fuel:KFCorr.fuelGroup(x),y:null})}});
+ A.arr((VEHDB[b]||{})[m]).forEach(function(e){if(!e)return;
+  if(typeof e==='string'){if(!seen.has(e)){seen.add(e);out.push({label:e,ch:null,fuel:KFCorr.fuelGroup(e),y:null})}return}
+  if(inWin(e)&&e.label&&!seen.has(e.label)){seen.add(e.label);out.push(e)}});
+ A.arr((VEHall()[b]||{})[m]).forEach(function(x){const lab=typeof x==='string'?x:(x&&x.label);
+  if(lab&&!seen.has(lab)){seen.add(lab);out.push({label:lab,ch:A.num(x&&x.ch),fuel:KFCorr.fuelGroup(lab),y:null})}});
  return out}
-function kw(ch){return ch?Math.round(ch*0.7355):null}
 function lawOf(id){try{const l=txtById(id);return l&&l.t?l:null}catch(e){return null}}
-/* ---------- combobox ---------- */
 function makeCombo(mount,cfg){
  mount.innerHTML='<label>'+esc(cfg.label)+'</label><div class="cbx"><input class="cbx-in" autocomplete="off" placeholder="'+esc(cfg.placeholder||'')+'" value="'+esc(cfg.value||'')+'"><button type="button" class="cbx-tgl" tabindex="-1">▾</button><div class="cbx-list hid"></div></div>';
  const wrap=mount.querySelector('.cbx'),inp=mount.querySelector('.cbx-in'),list=mount.querySelector('.cbx-list'),tgl=mount.querySelector('.cbx-tgl');
@@ -73,7 +74,7 @@ function mountSelector(host){
    cE.refresh();vehChanged();cE.focus()}});
  cE=makeCombo($('#cbEngine'),{label:'Motorisation + puissance réelle',placeholder:S.vehicle&&S.vehicle.model?'Motorisations '+S.vehicle.model:'Choisis le modèle',value:S.vehicle?S.vehicle.engine:'',empty:'Choisis le modèle',
   options:function(){return engines(S.vehicle?S.vehicle.brand:'',S.vehicle?S.vehicle.model:'').map(function(e){return{label:e.label,sub:e.ch?e.ch+' ch':'',_e:e}})},
-  onPick:function(o){const e=o._e||{label:o.label,ch:null};S.vehicle.engine=e.label;S.vehicle.ch=e.ch;
+  onPick:function(o){const e=o._e||{label:o.label,ch:null};S.vehicle.engine=e.label;S.vehicle.ch=A.num(e.ch);
    S.vehicle.fuel=e.fuel||KFCorr.fuelGroup(e.label);S.vehicle.y=e.y;vehChanged()}});
  const ys=$('#pfYear');
  if(ys)ys.addEventListener('change',function(e){S.yearFilter=e.target.value?+e.target.value:null;
@@ -87,7 +88,7 @@ function resolvedVehicle(){
   if(!o.fuel){const cnt={};es.forEach(function(e){const f=e.fuel||KFCorr.fuelGroup(e.label);if(f)cnt[f]=(cnt[f]||0)+1});
    const best=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})[0];
    if(best)o.fuel=best==='ev'?'Électrique':best==='hyb'?'Hybride':best==='diesel'?'Diesel':'Essence'}
-  if(!o.engine&&es.length===1){o.engine=es[0].label;o.ch=es[0].ch;o.y=es[0].y;
+  if(!o.engine&&es.length===1){o.engine=es[0].label;o.ch=A.num(es[0].ch);o.y=es[0].y;
    if(!o.fuel)o.fuel=es[0].fuel||KFCorr.fuelGroup(es[0].label)}}
  if(!o.fuel&&o.engine)o.fuel=KFCorr.fuelGroup(o.engine);
  if(S.yearFilter)o.y=[S.yearFilter,S.yearFilter];
@@ -98,7 +99,7 @@ function readout(){const el=$('#vehRead');if(!el)return;const v=resolvedVehicle(
  el.innerHTML='🚗 <b>'+esc(v.brand)+'</b> '+esc(v.model||'')+' '+esc(v.engine||'')+
  (sig.ch?' · <b class="pw">'+sig.ch+' ch</b> ('+sig.kw+' kW)':'')+
  ' · '+esc((sig.fuelGroup||'énergie déduite').toUpperCase())+' · <b>'+esc(sig.familyLabel)+'</b>'+
- (v.y?' · '+v.y[0]+'–'+v.y[1]:'')}
+ (sig.years?' · '+sig.years[0]+'–'+sig.years[1]:'')}
 function syncStudy(){const v=resolvedVehicle()||{};
  const set=function(id,val){const e=$('#'+id);if(e)e.value=val==null?'':val};
  set('stMarque',v.brand);set('stModele',v.model);set('stMotor',v.engine);
@@ -114,7 +115,6 @@ function paint(){
  catch(e){log('error','paint '+e.message);
   const h=$('#srRes')||$('#vehPanel');
   if(h)h.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Erreur d\'affichage</h2><p class="mut">'+esc(e.message)+'</p><button data-ps="clearQ">↻ Réinitialiser</button></div>'}}
-/* ---------- rendu corrélation ---------- */
 function traceCard(c){const t=c.trace,s=c.sig;
  return '<div class="card"><h2>🧬 Trace d\'ingénieur</h2><table class="kv">'+
  '<tr><td>Véhicule</td><td><b>'+esc(s.brand)+' '+esc(s.model)+'</b> '+esc(s.engine)+'</td></tr>'+
@@ -123,9 +123,9 @@ function traceCard(c){const t=c.trace,s=c.sig;
  '<tr><td>Famille moteur</td><td><b>'+esc(s.familyLabel)+'</b></td></tr>'+
  '<tr><td>Base analysée</td><td class="mut">'+t.total+' fiches → marque '+t.brand+' → système '+t.system+' → énergie '+t.energy+' → famille '+t.family+' → puissance '+t.power+' → périmètre '+t.strict+'</td></tr>'+
  '<tr><td>Retenues</td><td><b>'+t.kept+' panne(s)</b> · '+c.dtc.length+' DTC · '+c.recalls.length+' rappel(s) · '+c.tsb.length+' TSB'+(t.fallback?' <span class="badge b-elev">repli ingénieur actif</span>':'')+'</td></tr>'+
- '<tr><td>DTC du modèle</td><td class="mut">'+esc(c.modelDtc.join(', ')||'—')+'</td></tr></table></div>'}
+ '<tr><td>DTC du modèle</td><td class="mut">'+esc(A.dtc(c.modelDtc).join(', ')||'—')+'</td></tr></table></div>'}
 function filterBar(pool){
- const sys=Array.from(new Set((pool||[]).map(function(k){return k.s}))).sort();
+ const sys=Array.from(new Set(A.arr(pool).map(function(k){return k&&k.s}).filter(Boolean))).sort();
  return '<div class="row" style="margin-bottom:8px"><button class="chipf '+(PF.strict?'on':'')+'" data-ps="strict">🎯 Corrélation stricte</button>'+
  '<span class="mut">'+(PF.strict?'Marque + modèle + motorisation + puissance + énergie + systèmes.':'Élargi : ajoute les pannes génériques compatibles.')+'</span></div>'+
  '<div class="grid g3"><div><label>Système</label><select data-ps="sys"><option value="">Tous</option>'+
@@ -138,60 +138,67 @@ function filterBar(pool){
  '<button class="chipf '+(PF.rappel?'on':'')+'" data-ps="rappel">📣 Rappels</button>'+
  '<button class="chipf '+(PF.tsb?'on':'')+'" data-ps="tsb">🧰 TSB</button></div>'}
 function applyFilters(list,extraQ){
- let out=list||[];
+ let out=A.arr(list).filter(function(k){return k&&typeof k==='object'});
  if(PF.sys)out=out.filter(function(k){return k.s===PF.sys});
  if(PF.grav)out=out.filter(function(k){return k.g===PF.grav});
  if(PF.fire)out=out.filter(function(k){return k.f});
  const q=[PF.q,extraQ].filter(Boolean).join(' ');
- if(q)out=out.filter(function(k){return matchText((k.t||'')+' '+(k.mec||'')+' '+(k.dtc||[]).join(' ')+' '+(k.s||'')+' '+(k.sym||[]).join(' ')+' '+(k.cons||[]).join(' '),q)});
+ if(q)out=out.filter(function(k){return matchText((k.t||'')+' '+(k.mec||'')+' '+A.dtc(k.dtc).join(' ')+' '+(k.s||'')+' '+A.txt(k.sym).join(' ')+' '+A.txt(k.cons).join(' '),q)});
  return out}
 function dtcCard(c){
- return '<div class="card"><h2>🔢 Codes défauts liés — '+c.dtc.length+'</h2>'+
- (c.dtc.length?'<div class="row">'+c.dtc.map(function(d){
-  return '<span class="badge '+(d.fromModel?'b-crit':'b-dtc')+'" title="'+esc(d.faults.join(' | '))+'">'+d.code+(d.read?' ✅':'')+(d.fromModel?' ★':'')+'</span>'}).join('')+'</div>'+
+ const L=A.arr(c.dtc).filter(function(d){return d&&d.code});
+ return '<div class="card"><h2>🔢 Codes défauts liés — '+L.length+'</h2>'+
+ (L.length?'<div class="row">'+L.map(function(d){
+  return '<span class="badge '+(d.fromModel?'b-crit':'b-dtc')+'" title="'+esc(A.txt(d.faults).join(' | '))+'">'+esc(d.code)+(d.read?' ✅':'')+(d.fromModel?' ★':'')+'</span>'}).join('')+'</div>'+
  '<p class="mut">★ code issu d\'un TSB/rappel du modèle · ✅ déjà lu sur le véhicule.</p>'+
  '<div class="row" style="margin-top:8px"><button data-ps="injectDtc">🧠 Injecter dans l\'étude</button><button data-ps="copyDtc">📋 Copier</button></div>'
  :'<p class="mut">Aucun DTC corrélé.</p>')+'</div>'}
 function faultFull(k){
- const rel=k.relevance.indexOf('DIRECT')===0?'b-crit':k.relevance.indexOf('FORT')===0?'b-elev':'b-mod';
+ const rel=String(k.relevance||'').indexOf('DIRECT')===0?'b-crit':String(k.relevance||'').indexOf('FORT')===0?'b-elev':'b-mod';
+ const D=A.dtc(k.dtc),CONS=A.txt(k.cons),SYM=A.txt(k.sym),PRV=A.txt(k.prv),TST=A.txt(k.tst);
+ const LEG=A.arr(k.legal).filter(function(l){return l&&l.ref});
+ const LT=A.arr(k.linkTsb).filter(function(t){return t&&t.ref});
+ const LR=A.arr(k.linkRec).filter(function(r){return r&&r.t});
  return '<div class="card faultcard"><h3>'+esc(k.t)+'</h3>'+
- '<div><span class="badge '+rel+'">'+esc(k.relevance)+'</span>'+
- '<span class="badge '+(k.g==='Critique'?'b-crit':k.g==='Élevé'?'b-elev':'b-mod')+'">'+esc(k.g)+'</span>'+
+ '<div><span class="badge '+rel+'">'+esc(k.relevance||'—')+'</span>'+
+ '<span class="badge '+(k.g==='Critique'?'b-crit':k.g==='Élevé'?'b-elev':'b-mod')+'">'+esc(k.g||'—')+'</span>'+
  (k.f?'<span class="badge b-fire">🔥 incendie</span>':'')+
- '<span class="badge">'+esc(k.s)+'</span>'+
- (k.dtc||[]).map(function(d){return '<span class="badge b-dtc">'+esc(d)+'</span>'}).join('')+'</div>'+
- '<p class="mut"><b>Corrélation :</b> '+esc(k.why.join(' · '))+' · score '+k.sc+'</p>'+
- '<p><b>Mécanisme :</b> '+esc(k.mec)+'</p>'+
+ '<span class="badge">'+esc(k.s||'—')+'</span>'+
+ D.map(function(d){return '<span class="badge b-dtc">'+esc(d)+'</span>'}).join('')+'</div>'+
+ '<p class="mut"><b>Corrélation :</b> '+esc(A.txt(k.why).join(' · '))+' · score '+(k.sc||0)+'</p>'+
+ '<p><b>Mécanisme :</b> '+esc(k.mec||'—')+'</p>'+
  (k.ch?'<p class="b-fire"><b>Chaîne incendie :</b> '+esc(k.ch)+'</p>':'')+
- '<p class="mut"><b>Conséquences :</b> '+esc((k.cons||[]).join(' · ')||'—')+'</p>'+
- '<p class="mut"><b>Symptômes :</b> '+esc((k.sym||[]).join(' · ')||'—')+'</p>'+
- '<p class="mut"><b>Preuves :</b> '+esc((k.prv||[]).join(' · ')||'—')+'</p>'+
- '<p class="mut"><b>Tests :</b> '+esc((k.tst||[]).join(' · ')||'—')+'</p>'+
+ '<p class="mut"><b>Conséquences :</b> '+esc(CONS.join(' · ')||'—')+'</p>'+
+ '<p class="mut"><b>Symptômes :</b> '+esc(SYM.join(' · ')||'—')+'</p>'+
+ '<p class="mut"><b>Preuves :</b> '+esc(PRV.join(' · ')||'—')+'</p>'+
+ '<p class="mut"><b>Tests :</b> '+esc(TST.join(' · ')||'—')+'</p>'+
  '<p class="mut"><b>Sécurité :</b> '+esc(k.sec||'—')+'</p>'+
- (k.legal&&k.legal.length?'<p class="mut"><b>Juridique :</b> '+k.legal.map(function(l){return '<span class="badge b-law">'+esc(l.ref)+'</span>'}).join(' ')+'</p>':'')+
- (k.linkTsb&&k.linkTsb.length?'<p class="mut"><b>TSB liés :</b> '+k.linkTsb.map(function(t){return esc(t.ref)}).join(' · ')+'</p>':'')+
- (k.linkRec&&k.linkRec.length?'<p class="mut"><b>Rappels liés :</b> '+k.linkRec.map(function(r){return esc(r.t)}).join(' · ')+'</p>':'')+
+ (LEG.length?'<p class="mut"><b>Juridique :</b> '+LEG.map(function(l){return '<span class="badge b-law">'+esc(l.ref)+'</span>'}).join(' ')+'</p>':'')+
+ (LT.length?'<p class="mut"><b>TSB liés :</b> '+LT.map(function(t){return esc(t.ref)}).join(' · ')+'</p>':'')+
+ (LR.length?'<p class="mut"><b>Rappels liés :</b> '+LR.map(function(r){return esc(r.t)}).join(' · ')+'</p>':'')+
  '<div class="row"><button class="pri" data-ps="fiche" data-k="'+esc(k.id)+'">📋 Fiche complète</button>'+
  '<button data-ps="studyOne" data-k="'+esc(k.id)+'">🧠 Étudier ce cas</button>'+
  '<button data-ps="toJR" data-k="'+esc(k.id)+'">⚖️ JusteRepère</button>'+
  '<button data-ps="toAD" data-k="'+esc(k.id)+'">🧠 Auto-Droit</button></div></div>'}
 function recallCard(r){
- return '<div class="card"><b>'+(r.fire?'🔥 ':'')+esc(r.t)+'</b> <span class="badge">'+esc(r.src)+'</span>'+
- '<p class="mut">'+esc(r.risk)+'</p><p class="mut">'+r.y[0]+'–'+r.y[1]+' · '+esc((r.dtc||[]).join(', '))+' · '+esc((r.law||[]).join(', '))+'</p></div>'}
+ const Y=A.yrs(r.y)||[1990,2030];
+ return '<div class="card"><b>'+(r.fire?'🔥 ':'')+esc(r.t)+'</b> <span class="badge">'+esc(r.src||'—')+'</span>'+
+ '<p class="mut">'+esc(r.risk||'—')+'</p><p class="mut">'+Y[0]+'–'+Y[1]+' · '+esc(A.dtc(r.dtc).join(', ')||'—')+' · '+esc(A.arr(r.law).join(', ')||'—')+'</p></div>'}
 function tsbCard(t){
- return '<div class="card"><b>'+esc(t.ref)+'</b> <span class="badge '+(t.g==='Critique'?'b-crit':'b-elev')+'">'+esc(t.g)+'</span>'+
- '<p>'+esc(t.s)+'</p><p class="mut">'+esc(t.sys)+' · '+esc((t.dtc||[]).join(', '))+' · '+t.y[0]+'–'+t.y[1]+' · motorisations : '+esc((t.e||[]).join(', '))+'</p></div>'}
+ const Y=A.yrs(t.y)||[1990,2030];
+ return '<div class="card"><b>'+esc(t.ref)+'</b> <span class="badge '+(t.g==='Critique'?'b-crit':'b-elev')+'">'+esc(t.g||'—')+'</span>'+
+ '<p>'+esc(t.s||'—')+'</p><p class="mut">'+esc(t.sys||'—')+' · '+esc(A.dtc(t.dtc).join(', ')||'—')+' · '+Y[0]+'–'+Y[1]+' · motorisations : '+esc(A.arr(t.e).join(', ')||'—')+'</p></div>'}
 function legalBlock(q){
  if(!q)return'';
- const list=ALLTEXTS().filter(function(l){return matchText(l.t+' '+l.ref+' '+l.txt,q)});
+ const list=ALLTEXTS().filter(function(l){return l&&matchText(l.t+' '+l.ref+' '+l.txt,q)});
  if(!list.length)return'';
  return '<div class="card"><h2>⚖️ Textes juridiques ('+list.length+')</h2>'+list.map(function(l){
   return '<div class="card"><h3>'+esc(l.t)+' <span class="badge b-law">'+esc(l.ref)+'</span></h3><p>'+esc(l.txt)+'</p><p class="mut">Délai : '+esc(l.delai)+'</p>'+
   '<div class="row"><button class="jr" data-act="nav" data-k="jr">⚖️ JusteRepère</button><button data-act="nav" data-k="droitsmart">🧠 Auto-Droit</button></div></div>'}).join('')+'</div>'}
 function resultsHTML(c,extraQ){
  const pan=applyFilters(c.faults,extraQ);
- const rap=PF.rappel?c.recalls.filter(function(r){return !extraQ||matchText(r.t+' '+r.risk+' '+(r.dtc||[]).join(' '),extraQ)}):[];
- const tsb=PF.tsb?c.tsb.filter(function(t){return !extraQ||matchText(t.ref+' '+t.s+' '+t.sys+' '+(t.dtc||[]).join(' ')+' '+(t.e||[]).join(' '),extraQ)}):[];
+ const rap=PF.rappel?A.arr(c.recalls).filter(function(r){return r&&(!extraQ||matchText(r.t+' '+r.risk+' '+A.dtc(r.dtc).join(' '),extraQ))}):[];
+ const tsb=PF.tsb?A.arr(c.tsb).filter(function(t){return t&&(!extraQ||matchText(t.ref+' '+t.s+' '+t.sys+' '+A.dtc(t.dtc).join(' ')+' '+A.arr(t.e).join(' '),extraQ))}):[];
  const s=c.sig;
  return '<div class="card"><h2>🎯 Résultats corrélés — '+esc(s.brand)+' '+esc(s.model||'')+' '+esc(s.engine||'')+(s.ch?' '+s.ch+' ch':'')+'</h2>'+
  '<p class="mut">Mode '+(PF.strict?'<b>STRICT</b>':'élargi')+' · <b>'+pan.length+' panne(s)</b> · '+c.dtc.length+' DTC · '+rap.length+' rappel(s) · '+tsb.length+' TSB'+(extraQ?' · filtre « '+esc(extraQ)+' »':'')+'</p>'+
@@ -217,18 +224,17 @@ function renderStudyPanel(){
  const host=$('#vehPanel');if(!host)return;const c=currentCorr();
  if(!c){host.innerHTML='<div class="card mut">Sélectionne marque → modèle → motorisation pour la corrélation.</div>';return}
  host.innerHTML=traceCard(c)+'<div class="card"><h2>🔗 Filtres de corrélation</h2>'+filterBar(c.faults)+'</div>'+(PF.dtc?dtcCard(c):'')+resultsHTML(c,'')}
-/* ---------- ÉTUDE AUTONOME (correctif erreur) ---------- */
+/* ---------- étude autonome ---------- */
 function studyForm(){
  const g=function(id){const e=$('#'+id);return e?e.value:''};
  const v=resolvedVehicle()||{};
- return{brand:v.brand||'',model:v.model||'',engine:v.engine||'',ch:v.ch||null,fuel:v.fuel||'',y:v.y||null,
+ return{brand:v.brand||'',model:v.model||'',engine:v.engine||'',ch:A.num(v.ch),fuel:v.fuel||'',y:A.yrs(v.y),
   vendeur:g('stVendeur')||'pro',achat:g('stAchat'),neuf:g('stNeuf')||'occasion',prix:g('stPrix'),
   constats:Array.prototype.map.call(document.querySelectorAll('#stConstats input:checked'),function(i){return i.value}),
-  dtc:(String(g('stDtc')||'').toUpperCase().match(/[PCBU][0-9]{4}/g)||[]),
-  ctx:String(g('stCtx')||'').trim()}}
+  dtc:A.dtc(g('stDtc')),ctx:String(g('stCtx')||'').trim()}}
 function qualifySafe(f,form){
  const out=[],add=function(id,why){const l=lawOf(id);if(l&&!out.some(function(x){return x.id===l.id}))out.push(Object.assign({},l,{why:why}))};
- const grave=form.constats.indexOf('incendie')>=0||form.constats.indexOf('véhicule immobilisé')>=0||f.some(function(k){return k.g==='Critique'});
+ const grave=form.constats.indexOf('incendie')>=0||form.constats.indexOf('véhicule immobilisé')>=0||A.arr(f).some(function(k){return k&&k.g==='Critique'});
  const months=form.achat?Math.floor((Date.now()-new Date(form.achat).getTime())/2629800000):null;
  if(form.vendeur==='pro'){add('CONSO2173','Vendeur professionnel → garantie légale de conformité');
   if(months!==null&&months<=(form.neuf==='occasion'?12:24))add('CONSO2177','Présomption d\'antériorité ('+(form.neuf==='occasion'?12:24)+' mois)')}
@@ -238,7 +244,7 @@ function qualifySafe(f,form){
   add('CC1245','Dommage par défaut de sécurité du produit');add('CONSOL4213','Obligation générale de sécurité — vérifier les rappels');
   if(/propag|voisin|tiers/i.test(form.ctx))add('CC1240','Dommages causés à des tiers')}
  if(/dissimul|menti|maquill|tromp|compteur/i.test(form.ctx))add('CC1137','Indices de dissimulation intentionnelle → dol');
- f.forEach(function(k){(k.law||[]).forEach(function(id){add(id,'Fondement rattaché à la panne corrélée : '+k.t)})});
+ A.arr(f).forEach(function(k){if(!k)return;A.arr(k.law).forEach(function(id){add(id,'Fondement rattaché à la panne corrélée : '+k.t)})});
  if(!out.length)add('CC1641','À qualifier selon gravité et antériorité du défaut');
  return out}
 function runStudySafe(focusId){
@@ -247,24 +253,27 @@ function runStudySafe(focusId){
   const form=studyForm();
   if(!form.brand){host.innerHTML='<div class="card"><h2 class="st-warn">🚗 Véhicule requis</h2><p class="mut">Sélectionne marque → modèle → motorisation avant de lancer l\'étude.</p></div>';return}
   const c=KFCorr.correlate(form,{strict:PF.strict,readDtc:form.dtc});
-  let top=c.faults.slice(0,8);
-  if(focusId){const one=c.faults.find(function(x){return x.id===focusId});if(one)top=[one].concat(top.filter(function(x){return x.id!==focusId})).slice(0,8)}
+  let top=A.arr(c.faults).filter(function(k){return k&&typeof k==='object'}).slice(0,8);
+  if(focusId){const one=c.faults.find(function(x){return x&&x.id===focusId});
+   if(one)top=[one].concat(top.filter(function(x){return x.id!==focusId})).slice(0,8)}
   const laws=qualifySafe(top,form);
-  const best=top.length?top[0].sc:0;
+  const best=top.length?(top[0].sc||0):0;
   const level=best>=15?'PROBABLE — faisceau fort, confirmer par preuves':best>=10?'PROBABLE':best>=6?'POSSIBLE — hypothèse à vérifier':'INDÉTERMINÉ — données insuffisantes';
   const fires=top.filter(function(k){return k.f});
-  const study={ts:new Date().toISOString(),version:'5.2.0',form:form,signature:c.sig,
-   top:top.map(function(k){return{id:k.id,t:k.t,s:k.s,g:k.g,f:k.f,dtc:k.dtc,mec:k.mec,ch:k.ch,cons:k.cons,sym:k.sym,prv:k.prv,tst:k.tst,sec:k.sec,sc:k.sc,why:k.why,relevance:k.relevance,law:k.law}}),
-   laws:laws.map(function(l){return{id:l.id,ref:l.ref,t:l.t,why:l.why,delai:l.delai}}),
-   fires:fires.map(function(k){return{id:k.id,t:k.t,ch:k.ch}}),
-   recalls:c.recalls.map(function(r){return{t:r.t,src:r.src,risk:r.risk,y:r.y,dtc:r.dtc}}),
-   tsb:c.tsb.map(function(t){return{ref:t.ref,sys:t.sys,s:t.s,y:t.y,dtc:t.dtc}}),
-   dtc:c.dtc,level:level,trace:c.trace};
+  const study={ts:new Date().toISOString(),version:'5.3.0',form:form,signature:c.sig,
+   top:top.map(function(k){return{id:k.id,t:k.t,s:k.s,g:k.g,f:!!k.f,dtc:A.dtc(k.dtc),mec:k.mec||'',ch:k.ch||'',
+    cons:A.txt(k.cons),sym:A.txt(k.sym),prv:A.txt(k.prv),tst:A.txt(k.tst),sec:k.sec||'',sc:k.sc||0,why:A.txt(k.why),relevance:k.relevance||'',law:A.arr(k.law)}}),
+   laws:laws.map(function(l){return{id:l.id,ref:l.ref,t:l.t,why:l.why,delai:l.delai,txt:l.txt}}),
+   fires:fires.map(function(k){return{id:k.id,t:k.t,ch:k.ch||'',sec:k.sec||''}}),
+   recalls:A.arr(c.recalls).map(function(r){return{t:r.t,src:r.src,risk:r.risk,y:A.yrs(r.y)||[1990,2030],dtc:A.dtc(r.dtc)}}),
+   tsb:A.arr(c.tsb).map(function(t){return{ref:t.ref,sys:t.sys,s:t.s,y:A.yrs(t.y)||[1990,2030],dtc:A.dtc(t.dtc),e:A.arr(t.e),g:t.g}}),
+   dtc:A.arr(c.dtc).map(function(d){return{code:d.code,faults:A.txt(d.faults),read:!!d.read,fromModel:!!d.fromModel}}),
+   level:level,trace:c.trace};
   S.study=study;S.lastCorr=c;
   const h=ls.get('studies',[]);h.unshift(study);ls.set('studies',h.slice(0,20));
   host.innerHTML='<div class="card"><h2>🧠 Étude corrélée — <span class="'+(best>=10?'st-warn':'st-ok')+'">'+esc(level)+'</span></h2>'+
    '<p class="mut">'+esc(form.brand)+' '+esc(form.model)+' '+esc(form.engine)+(form.ch?' · '+form.ch+' ch':'')+' · vendeur '+esc(form.vendeur==='pro'?'professionnel':'particulier')+(form.achat?' · achat '+esc(form.achat):'')+(form.prix?' · '+esc(form.prix)+' €':'')+'</p>'+
-   '<p class="mut">Constatations : '+esc(form.constats.join(', ')||'—')+' · DTC : '+esc(form.dtc.join(', ')||'—')+'</p>'+
+   '<p class="mut">Constatations : '+esc(A.txt(form.constats).join(', ')||'—')+' · DTC : '+esc(A.dtc(form.dtc).join(', ')||'—')+'</p>'+
    (form.ctx?'<p class="mut">'+esc(form.ctx)+'</p>':'')+
    '<div class="row"><button class="pri" data-ps="studyPdf">🖨️ Rapport PDF</button><button data-ps="studyJson">📤 Export JSON</button><button data-ps="studyDoss">📁 Créer le dossier</button><button class="jr" data-ps="studyJR">⚖️ JusteRepère</button></div></div>'+
    '<div class="card"><h2>🔧 Causes corrélées ('+top.length+')</h2>'+
@@ -274,12 +283,12 @@ function runStudySafe(focusId){
     return '<div class="card"><h3>'+esc(l.t)+' <span class="badge b-law">'+esc(l.ref)+'</span></h3><p>'+esc(l.txt)+'</p><p class="mut"><b>Délai :</b> '+esc(l.delai)+'</p><p class="b-law"><b>Application au cas :</b> '+esc(l.why)+'</p></div>'}).join('')+'</div>'+
    (c.recalls.length?'<div class="card"><h2>📣 Rappels à vérifier ('+c.recalls.length+')</h2>'+c.recalls.map(recallCard).join('')+'</div>':'')+
    (c.tsb.length?'<div class="card"><h2>🧰 TSB applicables ('+c.tsb.length+')</h2>'+c.tsb.map(tsbCard).join('')+'</div>':'')+
-   '<div class="card"><h2>🧭 Méthode & réserves</h2><p class="mut">Qualifier → Inférer → Corréler → Analyser → Tester → Conclure (Certain / Probable / Possible / Indéterminé). Document d\'aide à l\'expertise issu des bases fusionnées ; ne constitue pas une expertise judiciaire contradictoire.</p></div>';
+   '<div class="card"><h2>🧭 Méthode & réserves</h2><p class="mut">Qualifier → Inférer → Corréler → Analyser → Tester → Conclure. Aide à l\'expertise issue des bases fusionnées ; ne constitue pas une expertise judiciaire contradictoire.</p></div>';
   toast('🧠 Étude corrélée générée');
   host.scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){log('error','study '+e.message);
   host.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Étude interrompue</h2><p class="mut">'+esc(e.message)+'</p>'+
-  '<div class="row"><button class="pri" data-ps="study">↻ Relancer</button><button data-ps="widen">🧪 Élargir le périmètre</button></div></div>'}}
+  '<div class="row"><button class="pri" data-ps="study">↻ Relancer</button><button data-ps="widen">🧪 Élargir le périmètre</button><button data-ps="repair">🛠️ Normaliser les bases</button></div></div>'}}
 function studyPdf(){
  const s=S.study;if(!s){toast('Lance d\'abord une étude');return}
  const f=s.form;
@@ -287,24 +296,24 @@ function studyPdf(){
  '<p>'+new Date(s.ts).toLocaleString('fr-FR')+' · v'+s.version+' · '+esc(S.role==='admin'?'Kevin (admin)':(S.prenom||''))+'</p>'+
  '<h2>1. Véhicule</h2><p>'+esc(f.brand)+' '+esc(f.model)+' '+esc(f.engine)+(f.ch?' · '+f.ch+' ch':'')+' · '+esc(f.fuel||'')+'</p>'+
  '<p>Vendeur '+esc(f.vendeur==='pro'?'professionnel':'particulier')+' · achat '+esc(f.achat||'?')+' ('+esc(f.neuf)+') · '+esc(f.prix||'?')+' €</p>'+
- '<p>Constatations : '+esc(f.constats.join(', ')||'—')+' · DTC : '+esc(f.dtc.join(', ')||'—')+'</p><p>'+esc(f.ctx||'')+'</p>'+
+ '<p>Constatations : '+esc(A.txt(f.constats).join(', ')||'—')+' · DTC : '+esc(A.dtc(f.dtc).join(', ')||'—')+'</p><p>'+esc(f.ctx||'')+'</p>'+
  '<h2>2. Signature technique</h2><p>Famille '+esc(s.signature.familyLabel)+' · énergie '+esc(s.signature.fuelGroup||'déduite')+' · cylindrée '+esc(s.signature.disp||'—')+'</p>'+
- '<h2>3. Causes corrélées ('+esc(s.level)+')</h2>'+s.top.map(function(k){
-  return '<p><b>'+esc(k.t)+'</b> ('+esc(k.relevance)+', score '+k.sc+')<br>Mécanisme : '+esc(k.mec)+'<br>DTC : '+esc((k.dtc||[]).join(', '))+'<br>Conséquences : '+esc((k.cons||[]).join(' ; '))+'<br>Preuves : '+esc((k.prv||[]).join(' ; '))+' · Tests : '+esc((k.tst||[]).join(' ; '))+'<br>Sécurité : '+esc(k.sec||'—')+'</p>'}).join('')+
- '<h2>4. Chaînes incendie</h2>'+(s.fires.length?s.fires.map(function(k){return '<p>🔥 <b>'+esc(k.t)+'</b> : '+esc(k.ch||'—')+'</p>'}).join(''):'<p>Aucune.</p>')+
- '<h2>5. Qualification juridique</h2>'+s.laws.map(function(l){return '<p><b>'+esc(l.t)+'</b> — '+esc(l.ref)+'<br>Délai : '+esc(l.delai)+'<br>Application : '+esc(l.why)+'</p>'}).join('')+
- '<h2>6. Rappels</h2>'+(s.recalls.length?s.recalls.map(function(r){return '<p>'+esc(r.t)+' ('+esc(r.src)+') — '+esc(r.risk)+' · '+r.y[0]+'–'+r.y[1]+'</p>'}).join(''):'<p>Aucun.</p>')+
- '<h2>7. TSB</h2>'+(s.tsb.length?s.tsb.map(function(t){return '<p>'+esc(t.ref)+' — '+esc(t.s)+'</p>'}).join(''):'<p>Aucun.</p>')+
- '<h2>8. Méthode</h2><p>Qualifier → Inférer → Corréler → Analyser → Tester → Conclure. Aide à l\'expertise, ne constitue pas une expertise judiciaire contradictoire.</p>';
+ '<h2>3. Causes corrélées ('+esc(s.level)+')</h2>'+A.arr(s.top).map(function(k){
+  return '<p><b>'+esc(k.t)+'</b> ('+esc(k.relevance)+', score '+k.sc+')<br>Mécanisme : '+esc(k.mec)+'<br>DTC : '+esc(A.dtc(k.dtc).join(', '))+'<br>Conséquences : '+esc(A.txt(k.cons).join(' ; '))+'<br>Preuves : '+esc(A.txt(k.prv).join(' ; '))+' · Tests : '+esc(A.txt(k.tst).join(' ; '))+'<br>Sécurité : '+esc(k.sec||'—')+'</p>'}).join('')+
+ '<h2>4. Chaînes incendie</h2>'+(A.arr(s.fires).length?A.arr(s.fires).map(function(k){return '<p>🔥 <b>'+esc(k.t)+'</b> : '+esc(k.ch||'—')+'</p>'}).join(''):'<p>Aucune.</p>')+
+ '<h2>5. Qualification juridique</h2>'+A.arr(s.laws).map(function(l){return '<p><b>'+esc(l.t)+'</b> — '+esc(l.ref)+'<br>Délai : '+esc(l.delai)+'<br>Application : '+esc(l.why)+'</p>'}).join('')+
+ '<h2>6. Rappels</h2>'+(A.arr(s.recalls).length?A.arr(s.recalls).map(function(r){const Y=A.yrs(r.y)||[1990,2030];return '<p>'+esc(r.t)+' ('+esc(r.src)+') — '+esc(r.risk)+' · '+Y[0]+'–'+Y[1]+'</p>'}).join(''):'<p>Aucun.</p>')+
+ '<h2>7. TSB</h2>'+(A.arr(s.tsb).length?A.arr(s.tsb).map(function(t){return '<p>'+esc(t.ref)+' — '+esc(t.s)+'</p>'}).join(''):'<p>Aucun.</p>')+
+ '<h2>8. Méthode</h2><p>Qualifier → Inférer → Corréler → Analyser → Tester → Conclure. Aide à l\'expertise.</p>';
  document.body.classList.add('printing');window.print();setTimeout(function(){document.body.classList.remove('printing')},800)}
 function studyDoss(){
  const s=S.study;if(!s){toast('Lance d\'abord une étude');return}
- const first=s.laws[0]?s.laws[0].id:'CC1641';
+ const first=A.arr(s.laws)[0]?s.laws[0].id:'CC1641';
  const cat=(typeof CAT2LAW==='object'&&CAT2LAW[first])||'autre';
  const d=newDossier({cat:cat,titre:(s.form.brand+' '+s.form.model+' — '+(PROCEDURES[cat]?PROCEDURES[cat].label:'Litige')).trim(),
   veh:{marque:s.form.brand,modele:s.form.model,motor:s.form.engine,annee:s.form.y?s.form.y[1]:'',vin:S.veh?S.veh.vin:'',prix:s.form.prix,achat:s.form.achat,neuf:s.form.neuf},
   vendeur:{nom:'',adresse:'',type:s.form.vendeur},decouverte:new Date().toISOString().slice(0,10),
-  faits:(s.form.ctx||'')+(s.top.length?' Constatations : '+s.top.map(function(x){return x.t}).join(' ; '):''),
+  faits:(s.form.ctx||'')+(A.arr(s.top).length?' Constatations : '+A.arr(s.top).map(function(x){return x.t}).join(' ; '):''),
   etude:{level:s.level,top:s.top,fires:s.fires}});
  saveDossier(d);S.doss=d;switchView('dossiers');openDossier(d.id);toast('📁 Dossier créé depuis l\'étude')}
 function studyJR(){
@@ -314,27 +323,28 @@ function studyJR(){
   const a=$('#jrVehMarque'),b=$('#jrVehMotor'),t=$('#jrTitre'),f=$('#jrFaits');
   if(a)a.value=s.form.brand+' '+s.form.model;
   if(b)b.value=s.form.engine+(s.form.ch?' '+s.form.ch+' ch':'');
-  if(t)t.value=s.form.brand+' '+s.form.model+' — '+s.top.map(function(x){return x.t}).slice(0,2).join(' / ');
-  if(f)f.value=(s.form.ctx||'')+' '+(s.form.constats.join(', '))+' '+(s.top.length?'Causes corrélées : '+s.top.map(function(x){return x.t}).join(' ; '):'')},80)}
+  if(t)t.value=s.form.brand+' '+s.form.model+' — '+A.arr(s.top).map(function(x){return x.t}).slice(0,2).join(' / ');
+  if(f)f.value=(s.form.ctx||'')+' '+A.txt(s.form.constats).join(', ')+' '+(A.arr(s.top).length?'Causes corrélées : '+A.arr(s.top).map(function(x){return x.t}).join(' ; '):'')},80)}
 function fiche(id){
- const c=currentCorr();if(!c)return;const k=c.faults.find(function(x){return x.id===id});if(!k)return;
+ const c=currentCorr();if(!c)return;const k=A.arr(c.faults).find(function(x){return x&&x.id===id});if(!k)return;
  openModal('<h2>📋 '+esc(k.t)+'</h2>'+
- '<div><span class="badge b-crit">'+esc(k.relevance)+'</span><span class="badge">'+esc(k.s)+'</span><span class="badge '+(k.g==='Critique'?'b-crit':'b-elev')+'">'+esc(k.g)+'</span>'+(k.dtc||[]).map(function(d){return '<span class="badge b-dtc">'+esc(d)+'</span>'}).join('')+'</div>'+
- '<p class="mut"><b>Marques :</b> '+esc((k.b||[]).join(', '))+'</p>'+
- '<p><b>Mécanisme :</b> '+esc(k.mec)+'</p>'+(k.ch?'<p class="b-fire"><b>Chaîne incendie :</b> '+esc(k.ch)+'</p>':'')+
- '<p><b>Conséquences :</b> '+esc((k.cons||[]).join(' · '))+'</p>'+
- '<p><b>Symptômes :</b> '+esc((k.sym||[]).join(' · '))+'</p>'+
- '<p><b>Preuves :</b> '+esc((k.prv||[]).join(' · '))+'</p>'+
- '<p><b>Tests :</b> '+esc((k.tst||[]).join(' · '))+'</p>'+
+ '<div><span class="badge b-crit">'+esc(k.relevance||'—')+'</span><span class="badge">'+esc(k.s||'—')+'</span><span class="badge '+(k.g==='Critique'?'b-crit':'b-elev')+'">'+esc(k.g||'—')+'</span>'+A.dtc(k.dtc).map(function(d){return '<span class="badge b-dtc">'+esc(d)+'</span>'}).join('')+'</div>'+
+ '<p class="mut"><b>Marques :</b> '+esc(A.arr(k.b).join(', '))+'</p>'+
+ '<p><b>Mécanisme :</b> '+esc(k.mec||'—')+'</p>'+(k.ch?'<p class="b-fire"><b>Chaîne incendie :</b> '+esc(k.ch)+'</p>':'')+
+ '<p><b>Conséquences :</b> '+esc(A.txt(k.cons).join(' · '))+'</p>'+
+ '<p><b>Symptômes :</b> '+esc(A.txt(k.sym).join(' · '))+'</p>'+
+ '<p><b>Preuves :</b> '+esc(A.txt(k.prv).join(' · '))+'</p>'+
+ '<p><b>Tests :</b> '+esc(A.txt(k.tst).join(' · '))+'</p>'+
  '<p><b>Sécurité :</b> '+esc(k.sec||'—')+'</p>'+
- (k.legal||[]).map(function(l){return '<div class="card"><b>'+esc(l.t)+'</b> <span class="badge b-law">'+esc(l.ref)+'</span><p class="mut">'+esc(l.txt)+'</p><p class="mut">Délai : '+esc(l.delai)+'</p></div>'}).join('')+
- (k.linkTsb||[]).map(tsbCard).join('')+(k.linkRec||[]).map(recallCard).join('')+
+ A.arr(k.legal).filter(function(l){return l&&l.ref}).map(function(l){return '<div class="card"><b>'+esc(l.t)+'</b> <span class="badge b-law">'+esc(l.ref)+'</span><p class="mut">'+esc(l.txt)+'</p><p class="mut">Délai : '+esc(l.delai)+'</p></div>'}).join('')+
+ A.arr(k.linkTsb).filter(function(t){return t&&t.ref}).map(tsbCard).join('')+
+ A.arr(k.linkRec).filter(function(r){return r&&r.t}).map(recallCard).join('')+
  '<div class="row"><button class="pri" data-ps="studyOne" data-k="'+esc(k.id)+'">🧠 Étudier ce cas</button><button data-act="closeModal">Fermer</button></div>')}
 /* ---------- vues ---------- */
 window.doSearch=function(){if(isSearch())runSearch()};
 window.scoreKB=function(inp){
  try{const v={brand:inp.marque,model:inp.modele,engine:inp.motor,ch:S.vehicle&&S.vehicle.ch,fuel:inp.energie,y:S.vehicle&&S.vehicle.y};
-  const c=KFCorr.correlate(v,{strict:true,readDtc:inp.dtc||[]});S.lastCorr=c;return c.faults.slice(0,8)}
+  const c=KFCorr.correlate(v,{strict:true,readDtc:inp.dtc||[]});S.lastCorr=c;return A.arr(c.faults).slice(0,8)}
  catch(e){log('error','scoreKB '+e.message);return[]}};
 window.runStudy=function(){runStudySafe()};
 window.renderSearch=function(){
@@ -342,7 +352,7 @@ window.renderSearch=function(){
  '<div id="srSel"></div>'+
  '<label>Recherche libre (restreinte au véhicule sélectionné)</label>'+
  '<input id="srQ" placeholder="EGR, courroie, P0016, incendie, fuite, calamine…" autocomplete="off">'+
- '<div class="row"><button class="pri" data-ps="run">🔎 Rechercher</button><button data-ps="clearQ">✖ Effacer</button></div></div>'+
+ '<div class="row"><button class="pri" data-ps="run">🔎 Rechercher</button><button data-ps="clearQ">✖ Effacer</button><button data-ps="repair">🛠️ Normaliser les bases</button></div></div>'+
  '<div id="srPanel"></div><div id="srRes"></div>';
  mountSelector($('#srSel'));
  const q=$('#srQ');if(q)q.addEventListener('input',runSearch);
@@ -355,9 +365,9 @@ window.renderStudy=function(){
  '<div><label>Neuf/occasion</label><select id="stNeuf"><option value="occasion">Occasion</option><option value="neuf">Neuf</option></select></div>'+
  '<div><label>Prix €</label><input id="stPrix" type="number"></div></div>'+
  '<label>Constatations</label><div class="constats" id="stConstats">'+CONSTATS.map(function(c){return '<label><input type="checkbox" value="'+c+'">'+c+'</label>'}).join('')+'</div>'+
- '<label>DTC lus sur le véhicule</label><input id="stDtc" value="'+(S.dtc||[]).join(' ')+'" placeholder="P0016 P0400…">'+
+ '<label>DTC lus sur le véhicule</label><input id="stDtc" value="'+A.dtc(S.dtc).join(' ')+'" placeholder="P0016 P0400…">'+
  '<label>Contexte</label><textarea id="stCtx" placeholder="Historique, interventions, dissimulation suspectée…"></textarea>'+
- '<div class="row"><button class="pri" data-ps="study">⚙️ Lancer l\'étude corrélée</button><button data-ps="widen">🧪 Élargir</button></div></div>'+
+ '<div class="row"><button class="pri" data-ps="study">⚙️ Lancer l\'étude corrélée</button><button data-ps="widen">🧪 Élargir</button><button data-ps="repair">🛠️ Normaliser les bases</button></div></div>'+
  '<div id="vehPanel"></div><div id="stResult"></div>';
  mountSelector($('#selStudy'));syncStudy();paint()};
 const _home=window.renderHome;
@@ -372,8 +382,9 @@ document.addEventListener('change',function(e){const p=e.target.dataset.ps;if(!p
 document.addEventListener('input',function(e){if(e.target.dataset.ps==='q'){PF.q=e.target.value;paint()}});
 document.addEventListener('click',async function(e){
  const b=e.target.closest('[data-ps]');if(!b)return;const p=b.dataset.ps,k=b.dataset.k;
- if(p==='study'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe()},80)}else runStudySafe();return}
- if(p==='studyOne'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe(k)},80)}else runStudySafe(k);return}
+ if(p==='repair'){try{if(window.KFsanitize){KFsanitize.migrate();KFsanitize.wrap()}toast('🛠️ Bases normalisées');paint()}catch(x){toast('Normalisation : '+x.message)}return}
+ if(p==='study'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe()},90)}else runStudySafe();return}
+ if(p==='studyOne'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe(k)},90)}else runStudySafe(k);return}
  if(p==='studyPdf'){studyPdf();return}
  if(p==='studyJson'){if(S.study)download('etude-correlee-'+Date.now()+'.json',S.study);else toast('Lance une étude');return}
  if(p==='studyDoss'){studyDoss();return}
@@ -383,18 +394,18 @@ document.addEventListener('click',async function(e){
  if(p==='strict'||p==='fire'||p==='rappel'||p==='tsb'||p==='dtc'){PF[p]=!PF[p];paint();return}
  if(p==='clearQ'){PF.q='';PF.sys='';PF.grav='';PF.fire=false;PF.strict=true;const q=$('#srQ');if(q)q.value='';paint();return}
  if(p==='fiche'){fiche(k);return}
- if(p==='injectDtc'){const c=currentCorr();if(!c)return;S.dtc=c.dtc.map(function(d){return d.code});
-  if(S.view!=='etude'){switchView('etude');setTimeout(function(){const t=$('#stDtc');if(t)t.value=S.dtc.join(' ')},80)}
+ if(p==='injectDtc'){const c=currentCorr();if(!c)return;S.dtc=A.arr(c.dtc).map(function(d){return d.code});
+  if(S.view!=='etude'){switchView('etude');setTimeout(function(){const t=$('#stDtc');if(t)t.value=S.dtc.join(' ')},90)}
   else{const t=$('#stDtc');if(t)t.value=S.dtc.join(' ')}
   toast('🔢 '+S.dtc.length+' DTC corrélés injectés');return}
  if(p==='copyDtc'){const c=currentCorr();if(!c)return;
-  try{await navigator.clipboard.writeText(c.dtc.map(function(d){return d.code}).join(' '));toast('📋 DTC copiés')}catch(x){toast('Copie impossible')}return}
- if(p==='toJR'){const kb=KBall().find(function(x){return x.id===k});S.jr.dom='route';S.jr.result=null;switchView('jr');
+  try{await navigator.clipboard.writeText(A.arr(c.dtc).map(function(d){return d.code}).join(' '));toast('📋 DTC copiés')}catch(x){toast('Copie impossible')}return}
+ if(p==='toJR'){const kb=A.arr(KBall()).find(function(x){return x&&x.id===k});S.jr.dom='route';S.jr.result=null;switchView('jr');
   setTimeout(function(){const a=$('#jrVehMarque'),b2=$('#jrVehMotor'),f=$('#jrFaits');
    if(a)a.value=S.vehicle?S.vehicle.brand+' '+S.vehicle.model:'';
    if(b2)b2.value=S.vehicle?S.vehicle.engine:'';
-   if(f)f.value=kb?kb.t+' : '+kb.mec:''},80);return}
- if(p==='toAD'){const kb=KBall().find(function(x){return x.id===k});switchView('droitsmart');
-  setTimeout(function(){const t=$('#adText');if(t)t.value=(S.vehicle?S.vehicle.brand+' '+S.vehicle.model+' '+S.vehicle.engine+' : ':'')+(kb?kb.t+' — '+kb.mec:'')},80);return}});
+   if(f)f.value=kb?kb.t+' : '+kb.mec:''},90);return}
+ if(p==='toAD'){const kb=A.arr(KBall()).find(function(x){return x&&x.id===k});switchView('droitsmart');
+  setTimeout(function(){const t=$('#adText');if(t)t.value=(S.vehicle?S.vehicle.brand+' '+S.vehicle.model+' '+S.vehicle.engine+' : ':'')+(kb?kb.t+' — '+kb.mec:'')},90);return}});
 window.KFPredictive={brands:brands,models:models,engines:engines,correlate:currentCorr,runSearch:runSearch,study:runStudySafe};
 })();
