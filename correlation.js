@@ -1,6 +1,7 @@
-/* KEV FUSION 2026 — correlation.js v4.5.0
-   Corrélation stricte marque + modèle + motorisation + puissance + énergie + systèmes.
-   v4.5 : infraction-safe, liens par fiche (TSB / rappels / articles), résolution énergie par catalogue. */
+/* KEV FUSION 2026 — correlation.js v5.1.0
+   Corrélation INGÉNIEUR : marque → modèle → motorisation → puissance → énergie → systèmes.
+   v5.1 : énergie/famille résolues même sur catalogues aspirés, plus aucun verdict vide,
+   trace d'ingénieur (comptage par filtre) et repli automatique marque+modèle. */
 (function(){
 'use strict';
 if(typeof KBall!=='function'){console.warn('correlation.js: base indisponible');return}
@@ -45,43 +46,49 @@ const BRAND_FAM={
  'Mitsubishi':{d:['FCA_D'],e:['NIS_E']},'Suzuki':{d:['FCA_D'],e:['TOY_E']},'Chevrolet':{d:['HK_D'],e:['HK_E']}};
 const COMMON=['Batterie 12V','Faisceau électrique','Électronique / Calculateurs','Boîte de vitesses','Freinage','ADAS','Suspension','Transmission','Multimédia','Climatisation','Sécurité (airbag/ceintures)','Direction','Refroidissement'];
 const ENGINE=['Distribution','Lubrification','Injection','Suralimentation','Bloc moteur','Embrayage'];
+const ALLSYS=COMMON.concat(['Alternateur / B+'],ENGINE,['EGR','FAP / catalyseur','AdBlue / SCR','Pack HT','Charge']);
 function systemsFor(g){
  if(g==='ev')return COMMON.concat(['Pack HT','Charge']);
  if(g==='diesel')return COMMON.concat(['Alternateur / B+'],ENGINE,['EGR','FAP / catalyseur','AdBlue / SCR']);
  if(g==='essence')return COMMON.concat(['Alternateur / B+'],ENGINE,['EGR','FAP / catalyseur']);
  if(g==='hyb')return COMMON.concat(['Alternateur / B+'],ENGINE,['EGR','FAP / catalyseur','Pack HT','Charge']);
- return COMMON.concat(['Alternateur / B+'],ENGINE,['EGR','FAP / catalyseur','AdBlue / SCR','Pack HT','Charge'])}
+ return ALLSYS.slice()}
 function fuelGroup(f){const n=norm(f);
- if(/electri|\bev\b|kwh/.test(n))return'ev';
- if(/hybride|hybrid|phev|e-tech|e:hev/.test(n))return'hyb';
- if(/diesel|flexfuel|gpl|hdi|tdi|dci|cdti|crdi|bluehdi/.test(n))return'diesel';
- if(/essence|puretech|thp|tsi|tfsi|tce|ecoboost|vtec|gdi|mpi/.test(n))return'essence';
+ if(/electri|\bev\b|kwh|e-208|e-2008|leaf|tesla/.test(n))return'ev';
+ if(/hybride|hybrid|phev|e-tech|e:hev|e:hev|hybrid/.test(n))return'hyb';
+ if(/diesel|flexfuel|gpl|hdi|tdi|dci|cdti|crdi|bluehdi|ecoblue|multijet|jtd|d-4d|skyactiv-d|cdi/.test(n))return'diesel';
+ if(/essence|puretech|thp|tsi|tfsi|tce|ecoboost|vtec|gdi|mpi|t-gdi|skyactiv-g|boxer|vvt-i|twinair|fire|vti|sce/.test(n))return'essence';
  return''}
 function signature(v){
  v=v||{};const label=norm(v.engine||v.motor||'');
  let g=fuelGroup(v.fuel||v.energie||'')||fuelGroup(label);
- if(!g)g='';
+ const unknown=!g;
  const dm=label.match(/(\d\.\d)/);const disp=dm?dm[1]:'';
  const lp=label.match(/(\d{2,3})\s*(?:ch|cv|hp)?\s*$/);
  const ch=v.ch||(lp?+lp[1]:null);
- const families=famsOf(label);const bf=BRAND_FAM[v.brand];
- if(bf&&g)(g==='diesel'?bf.d:g==='essence'?bf.e:[]).forEach(function(x){families.add(x)});
+ const families=famsOf(label);
+ const bf=BRAND_FAM[v.brand];
+ if(bf){if(g==='diesel')bf.d.forEach(function(x){families.add(x)});
+  else if(g==='essence')bf.e.forEach(function(x){families.add(x)});
+  else if(g==='ev')families.add('EV');
+  else{bf.d.concat(bf.e).forEach(function(x){families.add(x)})}}
  if(g==='ev')families.add('EV');
  if(g==='hyb'){if(/toyota|lexus/.test(norm(v.brand)))families.add('TOY_H');if(/honda/.test(norm(v.brand)))families.add('HON_H')}
- const model=norm(v.model||''),brand=norm(v.brand||'');
- if(/peugeot|citroen|ds|opel/.test(brand)&&g==='diesel')families.add('PSA_D');
- if(/nissan/.test(brand)&&g==='diesel')families.add('REN_D');
+ const brand=norm(v.brand||''),model=norm(v.model||'');
+ if(/peugeot|citroen|ds|opel/.test(brand)&&(g==='diesel'||unknown))families.add('PSA_D');
+ if(/peugeot|citroen|ds|opel/.test(brand)&&(g==='essence'||unknown))families.add('PSA_E');
+ if(/nissan/.test(brand)&&(g==='diesel'||unknown))families.add('REN_D');
  if(/mercedes/.test(brand)&&g==='diesel'&&disp&&parseFloat(disp)<=1.6)families.add('REN_D');
- if(/mini/.test(brand)&&g==='essence')families.add('PSA_E');
- if(/toyota/.test(brand)&&/proace/.test(model)&&g==='diesel')families.add('PSA_D');
- if(/opel|vauxhall/.test(brand)&&/movano/.test(model)&&g==='diesel')families.add('REN_D');
- if(/peugeot/.test(brand)&&/boxer/.test(model)&&g==='diesel')families.add('FCA_D');
- if(/citroen/.test(brand)&&/jumper/.test(model)&&g==='diesel')families.add('FCA_D');
+ if(/mini/.test(brand)&&(g==='essence'||unknown))families.add('PSA_E');
+ if(/toyota/.test(brand)&&/proace/.test(model)&&(g==='diesel'||unknown))families.add('PSA_D');
+ if(/opel|vauxhall/.test(brand)&&/movano/.test(model)&&(g==='diesel'||unknown))families.add('REN_D');
+ if(/peugeot/.test(brand)&&/boxer/.test(model)&&(g==='diesel'||unknown))families.add('FCA_D');
+ if(/citroen/.test(brand)&&/jumper/.test(model)&&(g==='diesel'||unknown))families.add('FCA_D');
  const years=v.y||(v.annee?[+v.annee,+v.annee]:WIN);
  return{brand:v.brand||'',model:v.model||'',engine:v.engine||v.motor||'',ch:ch,kw:ch?Math.round(ch*0.7355):null,
-  disp:disp,fuelGroup:g,systemList:systemsFor(g||'all'),families:families,years:years,
+  disp:disp,fuelGroup:g,fuelUnknown:unknown,systemList:systemsFor(g),families:families,years:years,
   familyLabel:Array.from(families).join(', ')||'famille non identifiée'}}
-const D_MARK=/bluehdi|\bhdi\b|\bdci\b|\btdi\b|cdti|d-4d|multijet|jtdm|\bjtd\b|ecoblue|skyactiv-d|crdi|diesel|adblue|\bscr\b|\bnox\b|suies|coking|common rail|\begr\b|eolys|\bdpf\b/;
+const D_MARK=/bluehdi|\bhdi\b|\bdci\b|\btdi\b|cdti|d-4d|multijet|jtdm|\bjtd\b|ecoblue|skyactiv-d|crdi|diesel|adblue|\bscr\b|\bnox\b|suies|coking|common rail|\begr\b|eolys|\bdpf\b|\bcdi\b/;
 const E_MARK=/puretech|\bthp\b|\btsi\b|tfsi|\btce\b|ecoboost|vtec|skyactiv-g|\bgdi\b|t-gdi|\bmpi\b|boxer|lspi|calamine|\bgpf\b|essence|allumage|bougie|twinair|\bfire\b|vvt-i/;
 const V_MARK=/pack ht|\bbms\b|\bsoh\b|dc\/dc|dcdc|li-ion|runaway|charge impossible|\bleaf\b|tesla/;
 const H_MARK=/hybride|hybrid|e:hev|e-tech|phev|inverter|i-mmd|\bths\b/;
@@ -117,7 +124,7 @@ function tsbMatch(t,v,sig){
  if(v.engine){const sel=norm(v.engine);
   const hit=(t.e||[]).some(function(e){const n=norm(e);
    return sel.indexOf(n.split(' ')[0])>=0||n.indexOf(sel.split(' ')[0])>=0||Array.from(famsOf(n)).some(function(f){return sig.families.has(f)})});
-  if(!hit)return false}
+  if(!hit&&!sig.fuelUnknown)return false}
  if(!yearOK(t.y,sig.years))return false;
  if(!powerOK(powersOf((t.e||[]).join(' ')+' '+(t.s||'')),sig.ch))return false;
  return true}
@@ -125,49 +132,70 @@ function correlate(v,opts){
  opts=opts||{};const strict=opts.strict!==false;
  const read=(opts.readDtc||[]).map(function(x){return String(x).toUpperCase()});
  const sig=signature(v);
- const empty={sig:sig,faults:[],dtc:[],recalls:[],tsb:[],modelDtc:[]};
+ const trace={total:0,brand:0,system:0,energy:0,family:0,power:0,strict:0,kept:0,fallback:false};
+ const empty={sig:sig,faults:[],dtc:[],recalls:[],tsb:[],modelDtc:[],trace:trace};
  if(!v||!v.brand)return empty;
  let recalls=[],tsb=[];
  try{recalls=Rall().filter(function(r){return recallMatch(r,v,sig)})}catch(e){}
  try{tsb=(typeof TSBDB!=='undefined'?TSBDB:[]).filter(function(t){return tsbMatch(t,v,sig)})}catch(e){}
  const md=[];recalls.forEach(function(r){(r.dtc||[]).forEach(function(d){if(md.indexOf(d)<0)md.push(d)})});
  tsb.forEach(function(t){(t.dtc||[]).forEach(function(d){if(md.indexOf(d)<0)md.push(d)})});
- const faults=[];
- KBall().forEach(function(k){
+ const pool=KBall();trace.total=pool.length;
+ const kept=[],soft=[];
+ pool.forEach(function(k){
   const brandOK=(k.b||[]).indexOf(v.brand)>=0,generic=(k.b||[]).indexOf('*')>=0;
   if(!brandOK&&!generic)return;
+  trace.brand++;
   const a=annotate(k);
-  if(sig.systemList.indexOf(a.system)<0)return;
-  if(!fuelOK(a.fuel,sig.fuelGroup))return;
+  const sysOK=sig.systemList.indexOf(a.system)>=0;
+  if(!sysOK)return;
+  trace.system++;
+  const eOK=fuelOK(a.fuel,sig.fuelGroup);
+  if(!eOK)return;
+  trace.energy++;
   const famMatch=a.families.size>0&&Array.from(a.families).some(function(f){return sig.families.has(f)});
-  if(a.families.size>0&&!famMatch)return;
+  const famBlock=a.families.size>0&&!famMatch&&!sig.fuelUnknown;
+  if(famBlock){if(brandOK)soft.push({k:k,a:a,reason:'famille différente'});return}
+  trace.family++;
   if(strict&&!powerOK(a.powers,sig.ch))return;
+  trace.power++;
   const blob=norm((k.t||'')+' '+(k.mec||'')+' '+(k.ch||''));
   const modelDirect=!!v.model&&blob.indexOf(norm(v.model))>=0;
   const modelIndirect=!modelDirect&&(k.dtc||[]).some(function(d){return md.indexOf(d)>=0});
   const engineExact=!!sig.engine&&blob.indexOf(norm(sig.engine))>=0;
-  const fuelSpecific=a.fuel!=='any'&&a.fuel===sig.fuelGroup;
-  if(strict&&!famMatch&&!brandOK&&!modelDirect&&!modelIndirect&&!engineExact&&!fuelSpecific)return;
+  const fuelSpecific=a.fuel!=='any'&&(a.fuel===sig.fuelGroup||sig.fuelUnknown);
+  const pass=brandOK||famMatch||modelDirect||modelIndirect||engineExact||fuelSpecific;
+  if(strict&&!pass){soft.push({k:k,a:a,reason:'générique hors périmètre'});return}
+  trace.strict++;
   let sc=0;const why=[];
   if(engineExact){sc+=5;why.push('motorisation exacte')}
   if(famMatch){sc+=6;why.push('famille moteur')}
   if(modelDirect){sc+=4;why.push('modèle direct')}else if(modelIndirect){sc+=3;why.push('modèle via TSB/rappel')}
-  if(brandOK){sc+=3;why.push('marque')}
+  if(brandOK){sc+=4;why.push('marque')}else{sc+=1;why.push('générique compatible')}
   if(a.fuel&&a.fuel===sig.fuelGroup){sc+=3;why.push('énergie')}
+  if(sig.fuelUnknown)why.push('énergie déduite du catalogue');
   if(sig.disp&&blob.indexOf(sig.disp)>=0){sc+=2;why.push('cylindrée '+sig.disp)}
   if(sig.ch&&a.powers.indexOf(+sig.ch)>=0){sc+=3;why.push('puissance '+sig.ch+' ch')}
   const hits=(k.dtc||[]).filter(function(d){return read.indexOf(d)>=0});
   if(hits.length){sc+=3;why.push('DTC lus '+hits.join(','))}
-  if(!brandOK&&!famMatch&&!modelDirect&&!modelIndirect&&!engineExact){sc+=1;why.push('générique compatible énergie')}
   const relevance=sc>=15?'DIRECT motorisation':sc>=10?'FORT marque+modèle':sc>=6?'COMPATIBLE système':'GÉNÉRIQUE compatible';
   const linkTsb=tsb.filter(function(t){return (t.dtc||[]).some(function(d){return (k.dtc||[]).indexOf(d)>=0})||norm(t.sys)===norm(k.s)});
   const linkRec=recalls.filter(function(r){return (r.dtc||[]).some(function(d){return (k.dtc||[]).indexOf(d)>=0})});
   const legal=(k.law||[]).map(function(id){try{return txtById(id)}catch(e){return null}}).filter(Boolean);
-  faults.push(Object.assign({},k,{sc:sc,why:why,relevance:relevance,famMatch:famMatch,modelDirect:modelDirect,
+  kept.push(Object.assign({},k,{sc:sc,why:why,relevance:relevance,famMatch:famMatch,modelDirect:modelDirect,
    modelIndirect:modelIndirect,engineExact:engineExact,readHits:hits,energy:a.fuel,linkTsb:linkTsb,linkRec:linkRec,legal:legal}))});
- faults.sort(function(a,b){return b.sc-a.sc||String(a.t).localeCompare(String(b.t))});
- const map={};faults.forEach(function(f){(f.dtc||[]).forEach(function(d){(map[d]=map[d]||[]).push(f.t)})});
+ /* repli ingénieur : jamais de résultat vide pour une marque valide */
+ if(!kept.length&&soft.length){
+  trace.fallback=true;
+  soft.slice(0,14).forEach(function(s){
+   const k=s.k,a=s.a;
+   const legal=(k.law||[]).map(function(id){try{return txtById(id)}catch(e){return null}}).filter(Boolean);
+   kept.push(Object.assign({},k,{sc:4,why:['marque','repli ingénieur : '+s.reason],relevance:'COMPATIBLE marque (repli)',
+    famMatch:false,modelDirect:false,modelIndirect:false,engineExact:false,readHits:[],energy:a.fuel,linkTsb:[],linkRec:[],legal:legal}))})}
+ kept.sort(function(a,b){return b.sc-a.sc||String(a.t).localeCompare(String(b.t))});
+ trace.kept=kept.length;
+ const map={};kept.forEach(function(f){(f.dtc||[]).forEach(function(d){(map[d]=map[d]||[]).push(f.t)})});
  const dtc=Object.keys(map).sort().map(function(d){return{code:d,faults:map[d],read:read.indexOf(d)>=0,fromModel:md.indexOf(d)>=0}});
- return{sig:sig,faults:faults,dtc:dtc,recalls:recalls,tsb:tsb,modelDtc:md}}
+ return{sig:sig,faults:kept,dtc:dtc,recalls:recalls,tsb:tsb,modelDtc:md,trace:trace}}
 window.KFCorr={correlate:correlate,signature:signature,annotate:annotate,systemsFor:systemsFor,norm:norm,powersOf:powersOf,fuelGroup:fuelGroup,WIN:WIN};
 })();
