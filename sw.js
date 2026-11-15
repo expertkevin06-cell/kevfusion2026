@@ -1,6 +1,6 @@
-/* KEV FUSION 2026 — SW v3.5.0 */
-const V='kf2026-v3.5.0';
-const SHELL=['./','./index.html','./data.js','./app.js','./extra.js','./updates.js','./diffusion.js','./manifest.webmanifest','./firebase-config.js','./icon-192.png','./icon-512.png'];
+/* KEV FUSION 2026 — SW v4.0.0 */
+const V='kf2026-v4.0.0';
+const SHELL=['./','./index.html','./data.js','./app.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./predictive.js','./manifest.webmanifest','./firebase-config.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{for(const u of SHELL){try{await k.add(u)}catch(x){}}}).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(x=>x!==V&&x.startsWith('kf2026')).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('message',e=>{if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting()});
@@ -14,3 +14,6 @@ self.addEventListener('push',e=>{let d={};try{d=e.data.json()}catch(x){}const n=
  e.waitUntil(self.registration.showNotification(n.title||'🔥 KEV FUSION',{body:n.body||d.body||'Notification',icon:'./icon-192.png',data:n.data||d.data||{}}))});
 self.addEventListener('notificationclick',e=>{e.notification.close();const url=(e.notification.data&&e.notification.data.url)||'./index.html';
  e.waitUntil(clients.matchAll({type:'window'}).then(ws=>{for(const w of ws){if('focus'in w)return w.focus()}return clients.openWindow(url)}))});
+try{importScripts('./firebase-config.js');const C=self.KF_FIREBASE;
+ if(C&&C.enabled&&C.apiKey){importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+  firebase.initializeApp(C);firebase.messaging().setBackgroundMessageHandler(p=>self.registration.showNotification((p.notification&&p.notification.title)||'🔥 KEV FUSION',{body:(p.notification&&p.notification.body)||'',icon:'./icon-192.png',data:p.data||{}}))}}catch(x){}
