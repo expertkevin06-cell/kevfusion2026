@@ -1,8 +1,15 @@
-/* KEV FUSION 2026 — app.js v3.0.0 · tout intégré nativement */
+/* KEV FUSION 2026 — app.js v3.4.0 · connectivité robuste par preuve + retry + re-classement */
 'use strict';
-const VERSION='3.0.0';
+const VERSION='3.4.0';
 const ADMIN_HASH='e5682532ab2709e2d15f265baef5e1668513ed68d808ba55fe0b5f6e98f2ec61';
 const PEPPER='6eb2cb140545f6f0ea5073e0d9edec82';
+const CORE=['Base technique fusion','Catalogue juridique','localStorage','IndexedDB','HTTPS + crypto','Manifest','Version'];
+const MODULE_FALLBACKS={
+ mrt:['https://expertkevin06-cell.github.io/new-mrt-kevin/','https://expertkevin06-cell.github.io/new-mrt-kevin/index.html','https://expertkevin06-cell.github.io/new-mrt-kevin'],
+ tech:['https://expertkevin06-cell.github.io/2026tech/','https://expertkevin06-cell.github.io/2026tech/index.html'],
+ diag:['https://expertkevin06-cell.github.io/kev-diag-incendie/','https://expertkevin06-cell.github.io/kev-diag-incendie/index.html'],
+ form:['https://expertkevin06-cell.github.io/autodiag-formation-auto/','https://expertkevin06-cell.github.io/autodiag-formation-auto/index.html'],
+ aide:['https://expertkevin06-cell.github.io/appli-aide-technique/','https://expertkevin06-cell.github.io/appli-aide-technique/index.html']};
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ls={get(k,d){try{const v=JSON.parse(localStorage.getItem('kf_'+k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem('kf_'+k,JSON.stringify(v))}catch(e){log('error','storage '+e.message)}}};
@@ -11,7 +18,7 @@ const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random()
 const today8=()=>new Date().toISOString().slice(0,10).replace(/-/g,'');
 function toast(m,ms=3200){const t=$('#toast');t.textContent=m;t.classList.remove('hid');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.add('hid'),ms)}
 function download(name,obj){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([typeof obj==='string'?obj:JSON.stringify(obj,null,2)],{type:typeof obj==='string'?'text/plain':'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
-const S={role:null,prenom:'',access:null,cfg:Object.assign({opacity:55,apkUrl:'',contact:'',revoked:{},wall:null,anim:true},ls.get('cfg',{})),logs:[],check:null,dtc:[],net:{},db:null,auth:null,adminCloud:false,swReg:null,deferred:null,bt:{dev:null,chW:null,buf:'',wait:null},openMod:null,doss:null,veh:null,aspUnlocked:false,jr:{dom:'quotidien',role:'demandeur',result:null,tab:'analyse',photos:[]}};
+const S={role:null,prenom:'',access:null,cfg:Object.assign({opacity:55,apkUrl:'',contact:'',revoked:{},wall:null,anim:true,moduleUrls:{},moduleOff:{}},ls.get('cfg',{})),logs:[],check:null,dtc:[],net:{verified:false,real:false,evidence:false},db:null,auth:null,adminCloud:false,swReg:null,deferred:null,bt:{dev:null,chW:null,buf:'',wait:null},openMod:null,doss:null,veh:null,aspUnlocked:false,upUnlocked:false,modStatus:{},jr:{dom:'quotidien',role:'demandeur',result:null,tab:'analyse',photos:[]}};
 function log(l,m){S.logs.push({t:new Date().toISOString(),l,m:String(m).slice(0,300)});if(S.logs.length>120)S.logs.shift()}
 window.addEventListener('error',e=>log('error',(e.message||'')+' @'+(e.filename||'').split('/').pop()+':'+e.lineno));
 window.addEventListener('unhandledrejection',e=>log('error','Promise '+((e.reason&&e.reason.message)||e.reason)));
@@ -21,15 +28,30 @@ const PHall=()=>ls.get('photox',[]);
 const Rall=()=>RECALLS.concat(ls.get('recx',[]));
 const ALLTEXTS=()=>LEGAL.concat(JR_TEXTS);
 const txtById=id=>ALLTEXTS().find(x=>x.id===id);
-/* ---- connectivité ---- */
-function netState(){const c=navigator.connection;const on=navigator.onLine;let l,cl;
- if(!on){l='⛔ Hors ligne · cache';cl='off'}else if(c&&c.type==='wifi'){l='📶 WiFi';cl='on'}
+const moduleUrl=m=>(S.cfg.moduleUrls&&S.cfg.moduleUrls[m.k])||m.u;
+const moduleOff=m=>!!(S.cfg.moduleOff&&S.cfg.moduleOff[m.k]);
+function moduleCandidates(m){const base=moduleUrl(m);const fb=MODULE_FALLBACKS[m.k]||[];return[base,...fb.filter(u=>u!==base)]}
+/* ---- connectivité robuste par preuve ---- */
+function setNetReal(ok){if(ok){S.net.real=true;S.net.verified=true;S.net.evidence=true}else if(!navigator.onLine){S.net.real=false}netState()}
+function netState(){const c=navigator.connection;const on=navigator.onLine||S.net.real;let l,cl;
+ if(!on){l='⛔ Hors ligne · cache';cl='off'}
+ else if(!S.net.verified){l=(c&&c.type==='wifi'?'📶 WiFi':c&&c.type==='cellular'?'📡 '+((c.effectiveType||'4g').toUpperCase()):'🌐 En ligne')+' · vérif…';cl='on'}
+ else if(c&&c.type==='wifi'){l='📶 WiFi';cl='on'}
  else if(c&&c.type==='cellular'){l='📡 '+((c.effectiveType||'4g').toUpperCase());cl='on'}
  else{l='🌐 En ligne'+(c&&c.effectiveType?' '+c.effectiveType.toUpperCase():' 4G/5G/WiFi');cl='on'}
- S.net={on,type:c?c.type:'?',eff:c?c.effectiveType:'?',down:c?c.downlink:'?',rtt:c?c.rtt:'?'};
- const ch=$('#netChip');ch.textContent=l;ch.className='chip '+cl;return S.net}
-async function heartbeat(){try{const r=await fetch('manifest.webmanifest?hb='+Date.now(),{cache:'no-store'});S.net.real=r.ok}catch(e){S.net.real=false}netState()}
-function initNet(){netState();heartbeat();setInterval(heartbeat,30000);['online','offline'].forEach(ev=>window.addEventListener(ev,()=>{netState();toast(navigator.onLine?'✅ Réseau rétabli':'⛔ Hors ligne — cache');if(navigator.onLine)heartbeat()}));const c=navigator.connection;if(c&&c.addEventListener)c.addEventListener('change',netState)}
+ S.net=Object.assign(S.net,{on,type:c?c.type:'?',eff:c?c.effectiveType:'?',down:c?c.downlink:'?',rtt:c?c.rtt:'?'});
+ const ch=$('#netChip');if(ch){ch.textContent=l;ch.className='chip '+cl}return S.net}
+async function probe(url,ms=4000){try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);const r=await fetch(url,{cache:'no-store',signal:ctl.signal});clearTimeout(t);if(r.ok)setNetReal(true);return r.ok}catch(e){return false}}
+async function heartbeat(){const stamp=Date.now();let ok=false;
+ for(const u of['manifest.webmanifest?hb='+stamp,'index.html?hb='+stamp,'./?hb='+stamp]){if(await probe(u)){ok=true;break}}
+ if(!ok){try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),4000);await fetch('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js?hb='+stamp,{mode:'no-cors',cache:'no-store',signal:ctl.signal});clearTimeout(t);ok=true}catch(e){}}
+ if(ok)setNetReal(true);else{S.net.verified=true;if(!navigator.onLine)S.net.real=false;netState()}
+ return S.net}
+function scheduleNetRecheck(){[2500,6000,12000].forEach(t=>setTimeout(async()=>{await heartbeat();upgradeNetLine()},t))}
+function initNet(){netState();heartbeat();setInterval(heartbeat,30000);
+ ['online','offline'].forEach(ev=>window.addEventListener(ev,()=>{S.net.verified=false;netState();heartbeat().then(()=>{upgradeNetLine();toast(navigator.onLine||S.net.real?'✅ Réseau vérifié':'⛔ Hors ligne — cache actif')})}));
+ const c=navigator.connection;if(c&&c.addEventListener)c.addEventListener('change',()=>{S.net.verified=false;heartbeat().then(upgradeNetLine)});
+ if('serviceWorker'in navigator)navigator.serviceWorker.ready.then(()=>heartbeat().then(upgradeNetLine)).catch(()=>{})}
 /* ---- cloud ---- */
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error(src));document.head.appendChild(s)})}
 async function ensureCloud(){if(S.db)return true;const C=globalThis.KF_FIREBASE;if(!C||!C.enabled||!C.apiKey)return false;
@@ -54,7 +76,19 @@ async function doRequest(){const p=$('#gPrenom').value.trim().replace(/[^A-Za-z�
 async function doValCode(){const p=$('#gCode').value.trim().split('-');if(p.length!==4||p[0]!=='KF1'){toast('Format KF1-Prenom-AAAAMMJJ-xxxxxxxx');return}const a={prenom:p[1],exp:p[2],sig:p[3]};if(await validAccess(a)){S.access=a;ls.set('access',a);toast('🔓 Bienvenue '+a.prenom);enterApp()}else toast('❌ Invalide/expiré/révoqué')}
 async function doAdminLogin(){const v=$('#gPass')?$('#gPass').value:($('#mPass')?$('#mPass').value:'');if(await sha256(v)===ADMIN_HASH){S.role='admin';ls.set('session',{ts:Date.now()});closeModal();toast('🛡️ Admin activé');enterApp();switchView('admin')}else{toast('❌ Mot de passe incorrect');log('warn','admin échec')}}
 /* ---- auto-vérif ---- */
-async function fetchStatus(u,ms=6000){const c=new AbortController();const h=setTimeout(()=>c.abort(),ms);try{const r=await fetch(u,{signal:c.signal,cache:'no-store'});clearTimeout(h);return{ok:r.ok,st:r.status}}catch(e){clearTimeout(h);try{await fetch(u,{mode:'no-cors'});return{ok:true,st:'opaque'}}catch(e2){return{ok:false,st:'injoignable'}}}}
+async function fetchStatus(u,ms=6000){const c=new AbortController();const h=setTimeout(()=>c.abort(),ms);try{const r=await fetch(u,{signal:c.signal,cache:'no-store'});clearTimeout(h);if(r.ok)setNetReal(true);return{ok:r.ok,st:r.status}}catch(e){clearTimeout(h);try{await fetch(u,{mode:'no-cors'});setNetReal(true);return{ok:true,st:'opaque'}}catch(e2){return{ok:false,st:'injoignable'}}}}
+async function probeModule(m){if(moduleOff(m))return{st:'warn',info:'désactivé (admin)',url:moduleUrl(m)};
+ let last='injoignable';
+ for(const u of moduleCandidates(m)){const r=await fetchStatus(u);last=r.st;
+  if(r.ok){setNetReal(true);if(u!==moduleUrl(m)){S.cfg.moduleUrls[m.k]=u;ls.set('cfg',S.cfg)}return{st:'ok',info:'HTTP '+r.st+(u!==m.u?' (secours)':''),url:u}}
+  if(r.st===404)continue}
+ return{st:'warn',info:'indisponible ('+last+') — URL configurable dans Admin',url:moduleUrl(m)}}
+function withTimeout(p,ms=9000){return Promise.race([p,new Promise(res=>setTimeout(()=>res({st:'warn',info:'délai dépassé'}),ms))])}
+function renderVerdict(){if(!S.check)return;const res=S.check.results;const coreFail=res.filter(r=>r.st==='fail'&&CORE.includes(r.name)).length;const warns=res.filter(r=>r.st==='warn').length;const modOk=res.filter(r=>r.name.startsWith('Module ')&&r.st==='ok').length;const down=MODULES.filter(m=>S.modStatus[m.k]&&S.modStatus[m.k].st!=='ok').map(m=>m.n);
+ const v=coreFail?'CRITIQUE — mode dégradé':warns?'DÉGRADÉ — fonctionnel ('+modOk+'/'+MODULES.length+' modules)':'CONFORME — opérationnel';const cls=coreFail?'st-fail':warns?'st-warn':'st-ok';S.check.verdict=v;
+ const vd=$('#verdict');if(vd)vd.innerHTML=`<span class="${cls}">${coreFail?'❌':warns?'⚠️':'✅'} ${v}</span>${down.length?`<p class="mut">Modules indisponibles : ${esc(down.join(', '))} (configurables dans Admin → Modules).</p>`:''}`}
+function upgradeNetLine(){if(!S.check)return;const r=S.check.results.find(x=>x.name==='Réseau réel');if(!r)return;
+ if((S.net.real||S.net.evidence)&&r.st!=='ok'){r.st='ok';r.info=$('#netChip').textContent;const li=$('#netLine');if(li)li.innerHTML=`<span class="st-ok">✅</span><span><b>Réseau réel</b> — <span class="mut">${esc(r.info)}</span></span>`;renderVerdict()}}
 async function runChecks(){const list=$('#checkList');list.innerHTML='';$('#verdict').textContent='';$('#btnEnter').disabled=true;const res=[];
  const tests=[
  ['Base technique fusion',async()=>({st:KBall().length>=50?'ok':'warn',info:KBall().length+' pannes'})],
@@ -72,17 +106,24 @@ async function runChecks(){const list=$('#checkList');list.innerHTML='';$('#verd
  ['HTTPS + crypto',async()=>isSecureContext&&crypto.subtle?{st:'ok',info:'OK'}:{st:'fail',info:'HTTPS requis'}],
  ['Service Worker',async()=>{const r=await navigator.serviceWorker.getRegistration();return r?{st:'ok',info:'enregistré'}:{st:'warn',info:'1er lancement'}}],
  ['Cache',async()=>{const k=await caches.keys();return k.some(x=>x.startsWith('kf2026'))?{st:'ok',info:k.find(x=>x.startsWith('kf2026'))}:{st:'warn',info:'en création'}}],
- ['Réseau réel',async()=>{await heartbeat();return S.net.real?{st:'ok',info:$('#netChip').textContent}:{st:'warn',info:'hors ligne'}}],
+ ['Réseau réel',async()=>{await heartbeat();if(!S.net.real){await new Promise(r=>setTimeout(r,700));await heartbeat()}
+   if(S.net.real)return{st:'ok',info:$('#netChip').textContent};
+   if(navigator.onLine)return{st:'warn',info:'en ligne — vérification partielle (réessai auto)'};
+   return{st:'warn',info:'hors ligne — cache actif (réessai auto)'}}],
  ['Bluetooth OBD',async()=>navigator.bluetooth?{st:'ok',info:'disponible'}:{st:'warn',info:'non supporté'}],
  ['Notifications',async()=>!('Notification'in window)?{st:'warn',info:'non supportées'}:Notification.permission==='granted'?{st:'ok',info:'autorisées'}:{st:'warn',info:Notification.permission}],
- ['Manifest',async()=>{const r=await fetch('manifest.webmanifest?hb='+Date.now(),{cache:'no-store'});const m=await r.json();return m.name?{st:'ok',info:m.short_name}:{st:'fail',info:'illisible'}}],
+ ['Manifest',async()=>{const r=await fetch('manifest.webmanifest?hb='+Date.now(),{cache:'no-store'});const m=await r.json();if(m.name)setNetReal(true);return m.name?{st:'ok',info:m.short_name}:{st:'fail',info:'illisible'}}],
  ['Fond animé véhicule',async()=>$('#scene')&&$('#car')?{st:'ok',info:'actif'}:{st:'warn',info:'absent'}],
- ['Cloud',async()=>{const C=globalThis.KF_FIREBASE;return C&&C.enabled?((await ensureCloud())?{st:'ok',info:'connecté'}:{st:'warn',info:'injoignable'}):{st:'warn',info:'mode local'}}],
- ...MODULES.map(m=>['Module '+m.n,async()=>{const r=await fetchStatus(m.u);return r.ok?{st:'ok',info:'HTTP '+r.st}:{st:'fail',info:r.st}}])];
- for(const[n,fn]of tests){let r;try{r=await fn()}catch(e){r={st:'fail',info:e.message}}res.push({name:n,...r});const li=document.createElement('li');li.innerHTML=`<span class="st-${r.st}">${r.st==='ok'?'✅':r.st==='warn'?'⚠️':'❌'}</span><span><b>${esc(n)}</b> — <span class="mut">${esc(r.info)}</span></span>`;list.appendChild(li)}
- const f=res.filter(r=>r.st==='fail').length,w=res.filter(r=>r.st==='warn').length;const v=f?'CRITIQUE — mode dégradé':w?'DÉGRADÉ — fonctionnel':'CONFORME — opérationnel';
- S.check={ts:new Date().toISOString(),version:VERSION,verdict:v,results:res,ua:navigator.userAgent};const h=ls.get('reports',[]);h.unshift(S.check);ls.set('reports',h.slice(0,10));
- $('#verdict').innerHTML=`<span class="${f?'st-fail':w?'st-warn':'st-ok'}">${f?'❌':w?'⚠️':'✅'} ${v}</span>`;$('#btnEnter').disabled=false;log('info','verif '+v)}
+ ['Cloud',async()=>{const C=globalThis.KF_FIREBASE;if(!C||!C.enabled)return{st:'ok',info:'mode local (choix)'};return(await ensureCloud())?{st:'ok',info:'connecté'}:{st:'warn',info:'configuré mais injoignable'}}],
+ ...MODULES.map(m=>['Module '+m.n,async()=>{const r=await probeModule(m);S.modStatus[m.k]=r;return r}])];
+ for(const[n,fn]of tests){let r;try{r=await withTimeout(fn())}catch(e){r={st:CORE.includes(n)?'fail':'warn',info:e.message}}res.push({name:n,...r});
+  const li=document.createElement('li');if(n==='Réseau réel')li.id='netLine';li.innerHTML=`<span class="st-${r.st}">${r.st==='ok'?'✅':r.st==='warn'?'⚠️':'❌'}</span><span><b>${esc(n)}</b> — <span class="mut">${esc(r.info)}</span></span>`;list.appendChild(li)}
+ S.check={ts:new Date().toISOString(),version:VERSION,verdict:'',results:res,ua:navigator.userAgent,modulesDown:[]};
+ const h=ls.get('reports',[]);h.unshift(S.check);ls.set('reports',h.slice(0,10));
+ if(S.net.real||S.net.evidence)upgradeNetLine();
+ renderVerdict();
+ $('#btnEnter').disabled=false;log('info','verif '+S.check.verdict);
+ scheduleNetRecheck()}
 /* ---- fond ---- */
 function applyWall(){const b=$('#bgLayer');b.style.backgroundImage=S.cfg.wall?`url(${S.cfg.wall})`:'none';b.style.opacity=(S.cfg.opacity??55)/100;document.body.classList.toggle('noanim',S.cfg.anim===false)}
 function compressImg(f,max,cb){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');const s=Math.min(1,max/Math.max(i.width,i.height));c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',0.72))};i.src=r.result};r.readAsDataURL(f)}
@@ -135,10 +176,10 @@ function vinCountry(c){if(/[1-5]/.test(c))return'Amérique du Nord';if(/[6-7]/.t
 function decodeVIN(raw){const v=raw.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'');if(v.length!==17)return{err:'VIN = 17 caractères (hors I,O,Q). Reçu : '+v.length};
  const wmi3=v.slice(0,3),wmi2=v.slice(0,2);const w=WMI[wmi3]||WMI[wmi2]||null;const cd=vinCheckDigit(v);
  return{vin:v,wmi:wmi3,make:w?w[0]:null,country:w?w[1]:vinCountry(v[0]),year:vinYear(v[9]),plant:v[10],serial:v.slice(11),checkDigit:cd,checkOk:cd===null?null:cd===v[8],vds:v.slice(3,9)}}
-async function vinOnline(v){try{const r=await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVINValues/'+v+'?format=json');const j=await r.json();const x=(j.Results||[])[0]||{};const keep=['Make','Model','ModelYear','EngineConfiguration','EngineCylinders','DisplacementL','FuelTypePrimary','TransmissionStyle','DriveType','BodyClass','VehicleType','PlantCity','PlantCountry','Manufacturer','Series','Trim','GVWR'];const o={};keep.forEach(k=>{if(x[k]&&x[k]!=='Not Applicable')o[k]=x[k]});return o}catch(e){return null}}
+async function vinOnline(v){try{const r=await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVINValues/'+v+'?format=json');const j=await r.json();if(r.ok)setNetReal(true);const x=(j.Results||[])[0]||{};const keep=['Make','Model','ModelYear','EngineConfiguration','EngineCylinders','DisplacementL','FuelTypePrimary','TransmissionStyle','DriveType','BodyClass','VehicleType','PlantCity','PlantCountry','Manufacturer','Series','Trim','GVWR'];const o={};keep.forEach(k=>{if(x[k]&&x[k]!=='Not Applicable')o[k]=x[k]});return o}catch(e){return null}}
 async function vinRecalls(make,model,year){const out=[];
- try{const r=await fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${year}`);const j=await r.json();(j.results||[]).slice(0,8).forEach(x=>out.push({src:'NHTSA',t:x.Component||x.Subject,d:(x.Summary||'').slice(0,200)}))}catch(e){}
- try{const r=await fetch(`https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso0/records?where=search(marque_des_produits,"${encodeURIComponent(make)}")&limit=8`);const j=await r.json();(j.results||[]).forEach(x=>out.push({src:'RappelConso',t:x.noms_des_modeles||x.libelle_affichage||x.marque_des_produits,d:(x.risques_encourus||x.motif_du_rappel||'').slice(0,200)}))}catch(e){}
+ try{const r=await fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${year}`);const j=await r.json();if(r.ok)setNetReal(true);(j.results||[]).slice(0,8).forEach(x=>out.push({src:'NHTSA',t:x.Component||x.Subject,d:(x.Summary||'').slice(0,200)}))}catch(e){}
+ try{const r=await fetch(`https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso0/records?where=search(marque_des_produits,"${encodeURIComponent(make)}")&limit=8`);const j=await r.json();if(r.ok)setNetReal(true);(j.results||[]).forEach(x=>out.push({src:'RappelConso',t:x.noms_des_modeles||x.libelle_affichage||x.marque_des_produits,d:(x.risques_encourus||x.motif_du_rappel||'').slice(0,200)}))}catch(e){}
  Rall().filter(r=>(r.b.includes('*')||r.b.some(b=>b.toLowerCase()===String(make).toLowerCase()))&&(!year||(year>=r.y[0]&&year<=r.y[1]))).forEach(r=>out.push({src:'Base fusion',t:r.t,d:r.risk,fire:r.fire}));return out}
 async function runVin(){const raw=$('#vinIn').value.trim();const d=decodeVIN(raw);if(d.err){toast(d.err);return}S.vin=d;
  $('#vinRes').innerHTML='<div class="card"><p class="mut">⏳ Décodage NHTSA vPIC + rappels…</p></div>';
@@ -152,7 +193,7 @@ async function runVin(){const raw=$('#vinIn').value.trim();const d=decodeVIN(raw
  <p class="mut">🇪🇺 <a href="https://ec.europa.eu/safety-gate-alerts/screen/search" target="_blank" rel="noopener" style="color:var(--ac2)">Safety Gate</a></p></div>
  <div class="row"><button class="pri" data-act="vinToStudy">🧠 Étudier</button><button data-act="vinToJR">⚖️ JusteRepère</button><button data-act="vinToDoss">📁 Dossier</button></div>`;
  const h=ls.get('vins',[]);h.unshift({vin:d.vin,make,model,year,ts:Date.now()});ls.set('vins',h.slice(0,12));toast('🔎 VIN décodé')}
-/* ---- Juridix auto (dossiers) ---- */
+/* ---- Juridix auto ---- */
 function getDossiers(){return ls.get('dossiers',[])}
 function saveDossier(d){const ds=getDossiers();const i=ds.findIndex(x=>x.id===d.id);d.updated=Date.now();if(i>=0)ds[i]=d;else ds.unshift(d);ls.set('dossiers',ds)}
 function echeances(d){const out=[];const add=(t,dt,l)=>{if(!dt)return;out.push({t,date:dt,jours:Math.ceil((new Date(dt)-Date.now())/864e5),law:l})};const v=d.veh||{};const plus=(b,m)=>{if(!b)return null;const x=new Date(b);x.setMonth(x.getMonth()+m);return x.toISOString().slice(0,10)};
@@ -203,7 +244,7 @@ function printDossier(d){const P=PROCEDURES[d.cat];$('#printArea').innerHTML=`<h
  document.body.classList.add('printing');window.print();setTimeout(()=>document.body.classList.remove('printing'),800)}
 function alertEcheances(){const soon=[];getDossiers().forEach(d=>echeances(d).forEach(e=>{if(e.jours>=0&&e.jours<=30)soon.push(d.ref+' : '+e.t+' ('+e.jours+' j)')}));
  if(soon.length&&ls.get('alertDay','')!==today8()){ls.set('alertDay',today8());notify('⏳ Échéances juridiques',soon.slice(0,3).join(' · '));toast('⏳ '+soon.length+' échéance(s) ≤30 j',5000)}}
-/* ---- JUSTEREPÈRE (natif, fidèle aux captures) ---- */
+/* ---- JusteRepère ---- */
 function parseFRDate(s){s=String(s||'');let m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);
  m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);
  const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
@@ -320,7 +361,7 @@ function obdCmd(cmd,ms=2000){return new Promise(async res=>{S.bt.buf='';S.bt.wai
 function decodeDTC(b){const o=[];for(let i=0;i+1<b.length;i+=2){const a=b[i],c=b[i+1];if(!a&&!c)continue;o.push('PCBU'[a>>6]+((a>>4)&3)+(a&15).toString(16).toUpperCase()+(c>>4).toString(16).toUpperCase()+(c&15).toString(16).toUpperCase())}return o}
 async function obdRead(){if(!S.bt.chW){toast('Connecte l\'adaptateur');return}const r=await obdCmd('03',3000);const lines=r.split(/[\r\n]+/).map(l=>l.trim()).filter(l=>/^[0-9A-F ]+$/.test(l)&&l.replace(/ /g,'').includes('43'));let dtc=[];for(const l of lines){const h=l.replace(/ /g,'');const i=h.indexOf('43');const b=[];for(let j=i+2;j+1<h.length;j+=2)b.push(parseInt(h.substr(j,2),16));dtc=dtc.concat(decodeDTC(b))}
  S.dtc=[...new Set(dtc)];$('#obdStatus').textContent=S.dtc.length?'Défauts : '+S.dtc.join(' · '):'Aucun défaut ('+r.slice(0,50)+')';if(S.dtc.length)toast('📥 '+S.dtc.length+' défaut(s)')}
-/* ---- ASPIRATION + CANAL AUTO ---- */
+/* ---- aspiration + canal ---- */
 function classify(rec){const out={kb:[],veh:{},ph:[],rec:[]};const arr=Array.isArray(rec)?rec:[rec];
  for(const it of arr){if(!it||typeof it!=='object')continue;
   const t=it.t||it.titre||it.title||it.panne||it.nom||it.label;const dtc=it.dtc||it.DTC||it.codes;const mec=it.mec||it.mecanisme||it.mechanism||it.description;
@@ -352,9 +393,9 @@ function extractArrays(code){const res=[];const re=/(?:const|let|var)\s+[A-Za-z_
   if(depth===0){const sn=code.slice(start,i+1);if(sn.length>200){try{const val=new Function('return('+sn+')')();if(Array.isArray(val)&&val.length){res.push(val);count++}}catch(e){}}}}
  return res}
 async function aspSource(){const out={kb:[],veh:{},ph:[],rec:[]};const origin=location.origin;
- for(const m of MODULES){let u;try{u=new URL(m.u)}catch(e){continue}if(u.origin!==origin)continue;
-  try{const r=await fetch(m.u,{cache:'no-store'});const html=await r.text();const scripts=[...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)].map(x=>x[1]);
-   const targets=[m.u,...scripts.map(s=>new URL(s,m.u).href).filter(s=>new URL(s).origin===origin)];
+ for(const m of MODULES){let u;try{u=new URL(moduleUrl(m))}catch(e){continue}if(u.origin!==origin)continue;
+  try{const r=await fetch(u.href,{cache:'no-store'});const html=await r.text();if(r.ok)setNetReal(true);const scripts=[...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g)].map(x=>x[1]);
+   const targets=[u.href,...scripts.map(s=>new URL(s,u.href).href).filter(s=>{try{return new URL(s).origin===origin}catch(e){return false}})];
    for(const t of targets.slice(0,8)){let code;try{const rr=await fetch(t,{cache:'no-store'});code=await rr.text()}catch(e){continue}if(code.length>3000000)continue;
     extractArrays(code).forEach(a=>{const c=classify(a);out.kb.push(...c.kb);for(const b in c.veh){out.veh[b]=out.veh[b]||{};for(const mm in c.veh[b])out.veh[b][mm]=[...new Set([...(out.veh[b][mm]||[]),...c.veh[b][mm]])]}out.ph.push(...c.ph);out.rec.push(...c.rec)})}}catch(e){log('warn','aspSource '+m.k+' '+e.message)}}
  return out}
@@ -364,16 +405,16 @@ const Sync={
   let m=raw.match(/kvdb\.io\/([A-Za-z0-9]{12,40})/);if(m)return{service:'kvdb',bucket:m[1],key:'state',from:key};
   m=raw.match(/jsonblob\.com\/api\/jsonBlob\/([A-Za-z0-9-]+)/);if(m)return{service:'jsonblob',bucket:m[1],key:'',from:key};
   if(/kvdb|canal|channel|bucket|sync|blob/i.test(key)){let v=raw;try{const j=JSON.parse(raw);v=(j&&(j.bucket||j.code||j.canal||j.channel||j.id))||raw}catch(e){}v=String(v).replace(/["']/g,'').trim();if(/^[A-Za-z0-9]{12,40}$/.test(v))return{service:'kvdb',bucket:v,key:'state',from:key}}}}catch(e){}return null},
- async create(){try{const r=await fetch(KV,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:''});if(r.ok){const b=(await r.text()).trim().replace(/["'\s]/g,'');if(/^[A-Za-z0-9]{12,40}$/.test(b)){const c={service:'kvdb',bucket:b,key:'state',created:Date.now()};ls.set('sync',c);return c}}}catch(e){}
-  try{const r=await fetch(JB,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({pannes:[],photos:[],ts:Date.now()})});if(r.ok||r.status===201){const loc=r.headers.get('Location')||'';let id=(loc.match(/jsonBlob\/([A-Za-z0-9-]+)/)||[])[1];if(!id){try{const j=await r.json();id=j.id||j.blobId}catch(e){}}if(id){const c={service:'jsonblob',bucket:id,key:'',created:Date.now()};ls.set('sync',c);return c}}}catch(e){}
+ async create(){try{const r=await fetch(KV,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:''});if(r.ok){setNetReal(true);const b=(await r.text()).trim().replace(/["'\s]/g,'');if(/^[A-Za-z0-9]{12,40}$/.test(b)){const c={service:'kvdb',bucket:b,key:'state',created:Date.now()};ls.set('sync',c);return c}}}catch(e){}
+  try{const r=await fetch(JB,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({pannes:[],photos:[],ts:Date.now()})});if(r.ok||r.status===201){setNetReal(true);const loc=r.headers.get('Location')||'';let id=(loc.match(/jsonBlob\/([A-Za-z0-9-]+)/)||[])[1];if(!id){try{const j=await r.json();id=j.id||j.blobId}catch(e){}}if(id){const c={service:'jsonblob',bucket:id,key:'',created:Date.now()};ls.set('sync',c);return c}}}catch(e){}
   throw new Error('Création impossible (kvdb/jsonblob injoignables) → aspiration same-origin ou import dump.')},
  async resolve(manual,key){if(manual)return{service:'kvdb',bucket:manual,key:key||'state'};const s=ls.get('sync',null);if(s&&s.bucket)return s;const d=Sync.detect();if(d){ls.set('sync',d);return d}return await Sync.create()},
  url(c){return c.service==='jsonblob'?JB+'/'+c.bucket:KV+c.bucket+'/'+(c.key||'state')},
- async pull(c){const r=await fetch(Sync.url(c),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();const out={kb:[],veh:{},ph:[],rec:[]};
+ async pull(c){const r=await fetch(Sync.url(c),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);setNetReal(true);const j=await r.json();const out={kb:[],veh:{},ph:[],rec:[]};
   const add=x=>{const cc=classify(x);out.kb.push(...cc.kb);for(const b in cc.veh){out.veh[b]=out.veh[b]||{};for(const m in cc.veh[b])out.veh[b][m]=[...new Set([...(out.veh[b][m]||[]),...cc.veh[b][m]])]}out.ph.push(...cc.ph);out.rec.push(...cc.rec)};
   if(Array.isArray(j))add(j);['pannes','photos','base','kb','rec'].forEach(k=>{if(j[k])add(j[k])});
   if(j.veh)for(const b in j.veh){out.veh[b]=out.veh[b]||{};for(const m in j.veh[b])out.veh[b][m]=[...new Set([...(out.veh[b][m]||[]),...j.veh[b][m]])]}return out},
- async push(c){const data={pannes:KBall(),base:KBall(),photos:PHall(),rec:Rall(),veh:VEHall(),ts:Date.now(),source:'KEV FUSION '+VERSION};const r=await fetch(Sync.url(c),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('HTTP '+r.status);return true}};
+ async push(c){const data={pannes:KBall(),base:KBall(),photos:PHall(),rec:Rall(),veh:VEHall(),ts:Date.now(),source:'KEV FUSION '+VERSION};const r=await fetch(Sync.url(c),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw new Error('HTTP '+r.status);setNetReal(true);return true}};
 function flattenDump(dump){const items=[];const push=v=>{if(Array.isArray(v))items.push(...v);else if(v&&typeof v==='object')items.push(v)};
  if(dump.localStorage)for(const k in dump.localStorage){try{push(JSON.parse(dump.localStorage[k]))}catch(e){}}
  if(dump.indexedDB)for(const db in dump.indexedDB)for(const st in dump.indexedDB[db])push(dump.indexedDB[db][st]);
@@ -406,7 +447,7 @@ function renderHome(){const ok=S.check?S.check.results.filter(r=>r.st==='ok').le
  <button data-act="nav" data-k="vin">🔎 VIN</button><button data-act="nav" data-k="dossiers">📁 Dossiers</button>
  <button data-act="nav" data-k="photos">📷 Photos</button><button data-act="nav" data-k="obd">🔵 OBD</button><button data-act="shareOpen">📤 Partager/APK</button></div></div>
  <div class="card"><h2>📡 Connexion</h2><p class="mut">${esc(JSON.stringify(S.net))} · OBD : ${S.bt.dev?'lié':'non'} · Cloud : ${S.db?'actif':'local'}</p></div>
- <div class="card mut">Fusion massive : 7 modules + base native + aspiration + JusteRepère. Fond animé véhicule. Aide à l'expertise, ne remplace pas un avis judiciaire.</div>`}
+ <div class="card mut">Fusion massive : modules + base native + aspiration + JusteRepère. Fond animé véhicule. Aide à l'expertise, ne remplace pas un avis judiciaire.</div>`}
 function renderSearch(){$('#view').innerHTML=`<div class="card"><h2>🔎 Recherche fusionnée</h2><input id="q" placeholder="EGR, courroie, P0016, incendie, vice caché, 3008…">
  <div class="grid g3"><select id="fSys"><option value="">Tous systèmes</option>${[...new Set(KBall().map(k=>k.s))].map(s=>`<option>${s}</option>`).join('')}</select>
  <select id="fG"><option value="">Toutes gravités</option><option>Critique</option><option>Élevé</option><option>Modéré</option></select>
@@ -441,18 +482,22 @@ function renderPhotos(){const ph=PHall();$('#view').innerHTML=`<div class="card"
  <div class="row"><input id="wmQ" placeholder="Wikimedia : ex Peugeot 3008 engine" style="max-width:260px"><button data-act="wmSearch">🌐 Wikimedia</button></div></div>
  <div id="phGrid" class="grid g4">${ph.map(p=>`<div class="card"><img class="ph" src="${esc(p.src)}" loading="lazy"><p class="mut">${esc(p.leg||'')} ${p.panne?'· '+esc(p.panne):''}</p>${S.role==='admin'?`<button class="danger" data-act="phDel" data-k="${p.id}">🗑️</button>`:''}</div>`).join('')||'<p class="mut">Aucune photo.</p>'}</div><div id="wmRes"></div>`}
 async function wmSearch(){const q=$('#wmQ').value.trim();if(!q)return;$('#wmRes').innerHTML='<p class="mut">⏳ Wikimedia…</p>';
- try{const r=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`);const j=await r.json();const pages=Object.values((j.query&&j.query.pages)||{});
+ try{const r=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`);const j=await r.json();if(r.ok)setNetReal(true);const pages=Object.values((j.query&&j.query.pages)||{});
   $('#wmRes').innerHTML=`<div class="card"><h3>🌐 Wikimedia Commons</h3><div class="grid g4">${pages.map(p=>{const ii=p.imageinfo&&p.imageinfo[0];if(!ii)return'';return`<div class="card"><img class="ph" src="${esc(ii.thumburl||ii.url)}" loading="lazy"><p class="mut">${esc(p.title.replace('File:',''))}</p>${S.role==='admin'?`<button data-act="wmAdd" data-k="${esc(ii.url)}" data-t="${esc(p.title)}">➕ Base</button>`:''}</div>`}).join('')}</div></div>`}
  catch(e){$('#wmRes').innerHTML='<p class="st-fail">Wikimedia : '+esc(e.message)+'</p>'}}
 function renderObd(){$('#view').innerHTML=`<div class="card"><h2>🔵 OBD Bluetooth ELM327 BLE</h2><p class="mut">Contact mis, moteur à l'arrêt. Chrome Android.</p>
  <div class="row"><button class="pri" data-act="obdConnect">🔗 Connecter</button><button data-act="obdRead">📥 Lire défauts</button><button data-act="obdInject">🧠 Injecter étude</button></div>
  <p id="obdStatus" class="mut">${S.bt.dev?'Connecté : '+esc(S.bt.dev.name||'OBD'):'Non connecté.'}</p></div>`}
-function renderModules(){if(S.openMod){const m=MODULES.find(x=>x.k===S.openMod);$('#view').innerHTML=`<div class="row" style="margin-bottom:8px"><button data-act="closeModule">← Modules</button><b>${m.i} ${esc(m.n)}</b><button data-act="reloadModule">↻</button><a href="${m.u}" target="_blank" rel="noopener"><button>↗ Externe</button></a>${m.k==='juridix'?'<button data-act="jrOpen">🔑 Admin (copie MDP)</button>':''}</div>
- <iframe class="mod" id="modFrame" src="${m.u}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"></iframe>
+function renderModules(){if(S.openMod){const m=MODULES.find(x=>x.k===S.openMod);const u=moduleUrl(m);
+  if(moduleOff(m)){$('#view').innerHTML=`<div class="card"><h2>${m.i} ${esc(m.n)}</h2><p class="st-warn">⚠️ Module désactivé dans l'Admin.</p><button data-act="closeModule">← Retour</button></div>`;return}
+  $('#view').innerHTML=`<div class="row" style="margin-bottom:8px"><button data-act="closeModule">← Modules</button><b>${m.i} ${esc(m.n)}</b><button data-act="reloadModule">↻</button><a href="${esc(u)}" target="_blank" rel="noopener"><button>↗ Externe</button></a>${m.k==='juridix'?'<button data-act="jrOpen">🔑 Admin (copie MDP)</button>':''}</div>
+ <iframe class="mod" id="modFrame" src="${esc(u)}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"></iframe>
  <p class="mut">Écran vide ou portail d'accès → « ↗ Externe ». JusteRepère : mot de passe admin Kevin83600.</p>`;return}
- const st={};(S.check?S.check.results:[]).forEach(r=>{const m=MODULES.find(x=>r.name==='Module '+x.n);if(m)st[m.k]=r});
- $('#view').innerHTML=`<div class="grid g2">${MODULES.map(m=>{const r=st[m.k];return`<div class="card"><h3>${m.i} ${esc(m.n)}</h3><p class="mut">${esc(m.d)}</p><p class="${r?(r.st==='ok'?'st-ok':'st-fail'):'mut'}">${r?(r.st==='ok'?'✅':'❌')+' '+esc(r.info):'⏳'}</p>
- <div class="row"><button class="pri" data-act="openModule" data-k="${m.k}">Intégré</button><a href="${m.u}" target="_blank" rel="noopener"><button>↗</button></a></div></div>`}).join('')}</div>`}
+ const st=S.modStatus||{};
+ $('#view').innerHTML=`<div class="grid g2">${MODULES.map(m=>{const r=st[m.k];const off=moduleOff(m);return`<div class="card"><h3>${m.i} ${esc(m.n)}</h3><p class="mut">${esc(m.d)}</p>
+ <p class="${off?'st-warn':r?(r.st==='ok'?'st-ok':'st-warn'):'mut'}">${off?'⚠️ désactivé':r?(r.st==='ok'?'✅':'⚠️')+' '+esc(r.info):'⏳ non vérifié'}</p>
+ <div class="row">${off?'':`<button class="pri" data-act="openModule" data-k="${m.k}">Intégré</button>`}<a href="${esc(moduleUrl(m))}" target="_blank" rel="noopener"><button>↗</button></a></div></div>`}).join('')}</div>
+ <div class="card mut">Un module indisponible (404) n'empêche pas l'application. Renseigne son URL ou désactive-le dans Admin → Modules.</div>`}
 function renderCheckView(){const r=S.check;$('#view').innerHTML=`<div class="card"><h2>🛡️ Auto-vérification</h2><p>${r?new Date(r.ts).toLocaleString('fr-FR'):'—'} — <b>${r?esc(r.verdict):''}</b></p>
  <button class="pri" data-act="rerunCheck">↻ Relancer</button><button data-act="exportCheck">📤 Rapport</button></div>
  <div class="card"><ul id="checkList2">${r?r.results.map(x=>`<li class="st-${x.st}">${x.st==='ok'?'✅':x.st==='warn'?'⚠️':'❌'} <b>${esc(x.name)}</b> — <span class="mut">${esc(x.info)}</span></li>`).join(''):''}</ul></div>`}
@@ -461,8 +506,12 @@ function openAdminModal(){openModal(`<h2>🛡️ Connexion admin</h2><label>Mot 
 function renderAdmin(){const reqs=S.reqs||{};const bugs=Object.entries(S.bugsCloud||{}).map(([id,b])=>({id,...b})).concat(ls.get('bugs',[]));const issued=ls.get('issued',[]);const sync=ls.get('sync',null);
  $('#view').innerHTML=`<div class="card"><h2>🛡️ Administration</h2><p class="mut">Cloud : ${S.db?(S.adminCloud?'✅ admin':'⚠️ anonyme'):'local'} · <button data-act="logout">Quitter</button></p>
  ${S.db&&!S.adminCloud?`<div class="row"><input id="acEmail" placeholder="Email Firebase" style="max-width:220px"><input id="acPass" type="password" placeholder="MDP Firebase" style="max-width:180px"><button data-act="adminCloud">☁️ Connexion</button></div>`:''}</div>
+ <div class="card"><h2>🧩 Modules — URLs & activation</h2>
+ <p class="mut">Un module 404 = avertissement (pas bloquant). Corrige l'URL ou désactive-le.</p>
+ ${MODULES.map(m=>`<div class="row" style="margin-bottom:6px"><b style="min-width:150px">${m.i} ${esc(m.n)}</b><input data-modurl="${m.k}" value="${esc(moduleUrl(m))}" style="flex:1;min-width:220px"><label class="row" style="gap:4px"><input type="checkbox" data-modoff="${m.k}" ${moduleOff(m)?'':'checked'} style="width:auto"> actif</label></div>`).join('')}
+ <div class="row"><button class="pri" data-act="modSave">💾 Enregistrer</button><button data-act="modTest">🧪 Tester les modules</button></div></div>
  <div class="card"><h2>🧲 Aspiration massive (mot de passe admin)</h2>
- <p class="mut">localStorage + IndexedDB + code source (same-origin) + canal auto + import dump. Cross-origin (lovable/base44) : snippet console puis import dump.</p>
+ <p class="mut">localStorage + IndexedDB + code source (same-origin) + canal auto + import dump. Cross-origin : snippet console puis import dump.</p>
  <input id="aspPass" type="password" placeholder="Mot de passe admin (Kevin83600)" autocomplete="off">
  <div class="row"><button class="pri" data-act="asp" data-k="local">🧲 localStorage</button><button data-act="asp" data-k="idb">🗄️ IndexedDB</button><button data-act="asp" data-k="source">📜 Code source</button><button data-act="baseImport">📥 Import JSON</button><button data-act="dumpImport">📥 Import dump source</button><button data-act="baseExport">📤 Export base</button></div>
  <div class="card"><h3>🪄 Canal auto — sans code à saisir</h3>
@@ -579,6 +628,8 @@ async function handleAct(act,el){const k=el.dataset.k;switch(act){
  case'baseExport':download('base-fusion.json',{kb:ls.get('kbx',[]),veh:ls.get('vehx',{}),ph:PHall(),rec:ls.get('recx',[])});break;
  case'baseImport':$('#fileBase').click();break;
  case'dumpImport':$('#fileDump').click();break;
+ case'modSave':{S.cfg.moduleUrls=S.cfg.moduleUrls||{};S.cfg.moduleOff=S.cfg.moduleOff||{};$$('[data-modurl]').forEach(i=>{S.cfg.moduleUrls[i.dataset.modurl]=i.value.trim()});$$('[data-modoff]').forEach(i=>{S.cfg.moduleOff[i.dataset.modoff]=!i.checked});await publishCfg();toast('🧩 Modules enregistrés');break}
+ case'modTest':{toast('🧪 Test des modules…');for(const m of MODULES){S.modStatus[m.k]=await probeModule(m)}const ok=MODULES.filter(m=>S.modStatus[m.k].st==='ok').length;toast('🧪 '+ok+'/'+MODULES.length+' modules OK',5000);renderAdmin();break}
  case'bugOpen':openBug();break;case'bugSend':await sendBug();break;
  case'bugShare':{const b=S._bug||{titre:$('#bugTitle')?.value,desc:$('#bugDesc')?.value,ctx:bugContext()};const txt='BUG KEV FUSION — '+(b.titre||'')+'\n'+(b.desc||'')+'\n'+JSON.stringify(b.ctx).slice(0,1500);if(navigator.share)navigator.share({title:'Bug',text:txt}).catch(()=>{});else{await navigator.clipboard.writeText(txt);toast('📋 Copié')}break}
  case'bugResolve':if(S.db&&S.adminCloud){await S.db.ref('bugs/'+k+'/status').set('résolu');toast('✅')}break;
@@ -614,9 +665,13 @@ async function gateOrApp(){const sess=ls.get('session',null);if(sess&&Date.now()
  const a=ls.get('access',null);if(await validAccess(a)){S.access=a;S.prenom=a.prenom;enterApp();return}$('#gate').classList.remove('hid')}
 function enterApp(){$('#boot').classList.add('hid');$('#gate').classList.add('hid');$('#app').classList.remove('hid');
  const v=new URLSearchParams(location.search).get('view');switchView(v&&['recherche','etude','jr','vin','photos','dossiers','obd','modules','check'].includes(v)?v:'home');
- if(v==='bug')openBug();if(v==='admin'&&S.role!=='admin')openAdminModal();alertEcheances();toast('Bienvenue '+(S.role==='admin'?'Kevin 🛡️':S.prenom))}
-async function init(){initNet();applyWall();
- if('serviceWorker'in navigator){try{S.swReg=await navigator.serviceWorker.register('./sw.js')}catch(e){log('warn','SW '+e.message)}}
+ if(v==='bug')openBug();if(v==='admin'&&S.role!=='admin')openAdminModal();alertEcheances();heartbeat().then(upgradeNetLine);scheduleNetRecheck();toast('Bienvenue '+(S.role==='admin'?'Kevin 🛡️':S.prenom))}
+async function init(){
+ if('serviceWorker'in navigator){
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(refreshing)return;refreshing=true;location.reload()});
+  try{S.swReg=await navigator.serviceWorker.register('./sw.js');S.swReg.update().catch(()=>{})}catch(e){log('warn','SW '+e.message)}}
+ initNet();applyWall();
  $('#fileWall').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;compressImg(f,1600,d=>{if(d.length>900000){toast('Image trop lourde');return}S.cfg.wall=d;applyWall();toast('🖼️ Appliqué — Publier')})});
  $('#filePack').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);if(p.type!=='KF-PACK')throw new Error('pack invalide');Object.assign(S.cfg,p.cfg);ls.set('cfg',S.cfg);applyWall();toast('📥 Pack importé')}catch(x){toast('Pack : '+x.message)}};r.readAsText(f)});
  $('#fileDoss').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);const arr=Array.isArray(p)?p:[p];const ds=getDossiers();let n=0;arr.forEach(d=>{if(d&&d.id&&d.steps&&!ds.find(x=>x.id===d.id)){ds.push(d);n++}});ls.set('dossiers',ds);renderDossiers();toast('📥 '+n+' dossier(s)')}catch(x){toast('Import : '+x.message)}};r.readAsText(f)});
