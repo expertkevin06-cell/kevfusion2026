@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>Icônes KEV FUSION</title>
+<body style="font-family:sans-serif;background:#0b1220;color:#fff;padding:20px">
+<h2>Générateur d'icônes</h2><canvas id="c" width="512" height="512"></canvas><br><br>
+<button onclick="gen(192,false)">icon-192.png</button>
+<button onclick="gen(512,false)">icon-512.png</button>
+<button onclick="gen(512,true)">icon-512-maskable.png</button>
+<script>
+function gen(size,mask){const c=document.getElementById('c');c.width=c.height=size;const x=c.getContext('2d');
+const g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#0b1220');g.addColorStop(1,'#1e3a5f');x.fillStyle=g;x.fillRect(0,0,size,size);
+const pad=mask?size*0.18:0,s=size-2*pad;
+x.fillStyle='#ff7a1a';x.beginPath();x.arc(size/2,size/2,s*0.42,0,Math.PI*2);x.fill();
+x.fillStyle='#0b1220';x.textAlign='center';x.textBaseline='middle';
+x.font='bold '+Math.round(s*0.34)+'px system-ui';x.fillText('KF',size/2,size/2);
+x.font=Math.round(s*0.15)+'px system-ui';x.fillText('2026',size/2,size/2+s*0.27);
+const a=document.createElement('a');a.download=mask?'icon-512-maskable.png':'icon-'+size+'.png';a.href=c.toDataURL('image/png');a.click()}
+</script>
