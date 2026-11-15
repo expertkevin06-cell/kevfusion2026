@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<meta name="description" content="KEV FUSION 2026 — APK unique technique & juridique : corrélation précise marque/modèle/motorisation, DTC, pannes, rappels, TSB, étude incendie, JusteRepère, Auto-Droit, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — APK unique technique & juridique : corrélation stricte marque/modèle/motorisation/puissance, DTC, pannes, rappels, TSB, étude incendie, JusteRepère, Auto-Droit, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -34,6 +34,7 @@ body.noanim #scene *{animation:none!important}
 @media (prefers-reduced-motion:reduce){#scene *{animation:none!important}}
 #topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#0b1220ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 #topbar b{font-size:16px;white-space:nowrap}.ver{color:var(--ac);font-weight:700}
+#brandTap{cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;gap:6px}
 .chips{display:flex;gap:6px;flex:1;flex-wrap:wrap}
 .chip{font-size:12px;padding:3px 8px;border-radius:20px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
 .chip.on{border-color:var(--ok);color:var(--ok)}.chip.off{border-color:var(--bad);color:var(--bad)}.chip.bt{border-color:var(--ac2);color:var(--ac2)}
@@ -84,6 +85,21 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 .vehread{margin-top:8px;padding:10px 12px;border:1px dashed var(--ac2);border-radius:10px;background:#0d1526}
 .chipf{border-radius:18px;padding:6px 12px;font-size:13px}
 .chipf.on{background:var(--ac);border-color:var(--ac);color:#111;font-weight:700}
+.gatehead{background:linear-gradient(120deg,#121a2b,#16233c 55%,#1a2340);border-color:var(--line2,#2c3d5c)}
+.tierscard{border-color:var(--jr)}
+.admpanel{border:1px solid var(--ac);background:linear-gradient(160deg,#1a1408,#121a2b 60%);box-shadow:0 0 0 1px #ff7a1a33,0 18px 44px #000a}
+.admpanel.pop{animation:admpop .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes admpop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.admhead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.admshield{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:11px;background:conic-gradient(from 200deg,var(--ac),#ffd166,var(--ac2),var(--ac));color:#160b00;font-size:19px;box-shadow:0 0 18px #ff7a1a66}
+.pwrow{display:flex;gap:8px;align-items:flex-start}
+.pwrow input{flex:1;font-family:ui-monospace,monospace;letter-spacing:.5px;font-size:15px}
+.eye{flex:none;margin-top:4px;padding:9px 11px;border-radius:10px}
+.vaultrow{margin:2px 0 10px}
+.tg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);background:#0d1526;border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none}
+.tg input{width:auto;margin:0;accent-color:var(--ac)}
+.tg.on{color:var(--ac);border-color:var(--ac)}
+.modaladm{padding:14px;border-radius:14px}
 #printArea{display:none}
 @media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:12px/1.45 Georgia,serif;padding:20px}#printArea h1{font-size:18px}#printArea h2{font-size:14px;border-bottom:1px solid #999;margin-top:12px}#printArea pre{white-space:pre-wrap;font:12px/1.5 Georgia,serif}#printArea img{max-width:220px;margin:4px;border:1px solid #ccc}}
 </style>
@@ -113,7 +129,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b>🔥 KEV FUSION <span class="ver">2026</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">2026</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span></div>
  <div class="hbtns"><button id="btnInstall" class="hid" data-act="install">⬇️</button><button data-act="shareOpen">📤</button><button data-act="bugOpen">🐞</button></div>
 </header>
@@ -123,14 +139,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
-<section id="gate" class="hid"><div class="card"><h1>🔑 Accès à KEV FUSION</h1>
- <div class="grid g2">
-  <div class="card"><h2>👤 Accès tiers</h2><label>Prénom</label><input id="gPrenom" maxlength="24" placeholder="Thomas">
-   <div class="row"><button class="pri" data-act="reqAccess">📨 Demander l'accès</button></div><div id="reqZone"></div>
-   <label>Code reçu (KF1-…)</label><input id="gCode" placeholder="KF1-Prenom-20261231-xxxxxxxx"><button data-act="valCode">🔓 Valider</button></div>
-  <div class="card"><h2>🛡️ Administrateur</h2><label>Mot de passe admin</label><input id="gPass" type="password" autocomplete="current-password">
-   <button class="pri" data-act="adminLogin">🛡️ Connexion admin</button><p class="mut">Aspiration, MAJ, sauvegarde, accord tiers, fond, bugs.</p></div>
- </div></div></section>
+<section id="gate" class="hid"></section>
 <main id="app" class="hid"><nav id="nav"></nav><div id="view"></div></main>
 <div id="modal" class="hid"><div id="modalBox"></div></div>
 <div id="toast" class="hid"></div><div id="printArea"></div>
@@ -145,6 +154,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="admingate.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
