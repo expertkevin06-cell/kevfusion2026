@@ -4,13 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<meta name="description" content="KEV FUSION 2026 — diagnostic, incendie, juridique, JusteRepère, Auto-Droit, AutoLitige, DTCDiag, Formation, VIN, photos, rappels. MAJ admin + sauvegarde + diffusion tiers sans canal.">
+<meta name="description" content="KEV FUSION 2026 — APK unique technique & juridique : sélecteur prédictif marque/modèle/motorisation+puissance, pannes/rappels/TSB, étude incendie, JusteRepère, Auto-Droit, VIN, OBD, photos.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#0b1220;--card:#121a2b;--line:#22304a;--tx:#e8eefc;--mut:#93a4c3;--ac:#ff7a1a;--ac2:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--law:#a78bfa;--jr:#1f6f54;--jr2:#3fa382}
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:var(--ac) #0d1526}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0d1526}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--ac),var(--ac2));border-radius:8px;border:2px solid #0d1526}
+::-webkit-scrollbar-thumb:hover{background:var(--ac)}
 body{background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif;min-height:100vh}
 #scene{position:fixed;inset:0;z-index:-3;overflow:hidden;background:linear-gradient(#050a18,#0b1220 55%,#101a30)}
 #scene .aurora{position:absolute;inset:-20%;background:radial-gradient(40% 30% at 30% 20%,#38bdf833,transparent 60%),radial-gradient(40% 30% at 70% 15%,#a78bfa33,transparent 60%),radial-gradient(50% 40% at 50% 10%,#ff7a1a22,transparent 60%);animation:aur 14s ease-in-out infinite alternate}
@@ -71,6 +74,16 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 .drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer}
 .upd-btn{width:100%;padding:14px;font-size:16px;font-weight:700;border-radius:12px;border:1px solid var(--line);background:#2a2f3a;color:#8a919e;cursor:not-allowed}
 .upd-btn.on{background:#2563eb;border-color:#2563eb;color:#fff;cursor:pointer}
+.cbx{position:relative}
+.cbx-in{padding-right:36px}
+.cbx-tgl{position:absolute;right:6px;top:7px;padding:4px 8px;border-radius:8px}
+.cbx-list{position:absolute;left:0;right:0;top:100%;max-height:250px;overflow:auto;background:#0d1526;border:1px solid var(--ac2);border-radius:10px;z-index:70;box-shadow:0 14px 34px #000b}
+.cbx-opt{padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.cbx-opt:hover,.cbx-opt.act{background:#12305a}
+.cbx-opt .pw,.pw{color:var(--ac2);font-family:monospace}
+.vehread{margin-top:8px;padding:10px 12px;border:1px dashed var(--ac2);border-radius:10px;background:#0d1526}
+.chipf{border-radius:18px;padding:6px 12px;font-size:13px}
+.chipf.on{background:var(--ac);border-color:var(--ac);color:#111;font-weight:700}
 #printArea{display:none}
 @media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:12px/1.45 Georgia,serif;padding:20px}#printArea h1{font-size:18px}#printArea h2{font-size:14px;border-bottom:1px solid #999;margin-top:12px}#printArea pre{white-space:pre-wrap;font:12px/1.5 Georgia,serif}#printArea img{max-width:220px;margin:4px;border:1px solid #ccc}}
 </style>
@@ -135,5 +148,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
+<script src="vehicles.js"></script>
+<script src="predictive.js"></script>
 </body>
 </html>
