@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<meta name="description" content="KEV FUSION 2026 — diagnostic, incendie, juridique, JusteRepère, Auto-Droit Smart, Formation, VIN, photos, rappels.">
+<meta name="description" content="KEV FUSION 2026 — diagnostic, incendie, juridique, JusteRepère, Auto-Droit, AutoLitige, DTCDiag, Formation, VIN, photos, rappels. MAJ admin + sauvegarde.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
@@ -104,7 +104,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle à chaque démarrage : intégrité, stockage, réseau, sécurité, VIN, photos, JusteRepère, Auto-Droit, Formation, dossiers, modules.</p>
+ <p class="mut">Contrôle à chaque démarrage : intégrité, stockage, réseau, sécurité, VIN, photos, JusteRepère, Auto-Droit, Formation, dossiers, sauvegardes, modules.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -114,7 +114,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
    <div class="row"><button class="pri" data-act="reqAccess">📨 Demander l'accès</button></div><div id="reqZone"></div>
    <label>Code reçu (KF1-…)</label><input id="gCode" placeholder="KF1-Prenom-20261231-xxxxxxxx"><button data-act="valCode">🔓 Valider</button></div>
   <div class="card"><h2>🛡️ Administrateur</h2><label>Mot de passe admin</label><input id="gPass" type="password" autocomplete="current-password">
-   <button class="pri" data-act="adminLogin">🛡️ Connexion admin</button><p class="mut">Aspiration massive, accès, fond, bugs, diffusion.</p></div>
+   <button class="pri" data-act="adminLogin">🛡️ Connexion admin</button><p class="mut">Aspiration, MAJ, sauvegarde, partage tiers, fond, bugs.</p></div>
  </div></div></section>
 <main id="app" class="hid"><nav id="nav"></nav><div id="view"></div></main>
 <div id="modal" class="hid"><div id="modalBox"></div></div>
@@ -131,5 +131,6 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px}table.kv td{border-b
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="extra.js"></script>
+<script src="updates.js"></script>
 </body>
 </html>
