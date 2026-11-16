@@ -1,6 +1,6 @@
-/* KEV FUSION 2026 — SW v9.5.0 · base 2018+ JLR complet + mises à jour manuelles */
-const V='kf2026-v9.5.0';
-const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./catalog_ext.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./faults_ext.js','./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js'];
+/* KEV FUSION 2026 — SW v9.6.0 · base Renault complète + import auto */
+const V='kf2026-v9.6.0';
+const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./catalog_ext.js','./renault_base.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js','./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-192.png','./icon-512.png','./icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png','./icon-144.png','./icon-96.png','./icon-72.png','./icon-48.png','./icon-32.png','./icon-16.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
  for(const u of SHELL){try{await k.add(u)}catch(x){}}
@@ -11,7 +11,7 @@ self.addEventListener('message',e=>{const d=e.data||{};
  if(d.type==='SKIP_WAITING')self.skipWaiting();
  if(d.type==='NOTIF_TEST')e.waitUntil(self.registration.showNotification(d.title||'🔥 KEV FUSION 2026',{body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-192.png',tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
- if(u.searchParams.has('hb')||u.searchParams.has('probe')){e.respondWith(fetch(r,{cache:'no-store'}));return}
+ if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')){e.respondWith(fetch(r,{cache:'no-store'}));return}
  if(/manifest\.webmanifest$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
  if(/\.png$/.test(u.pathname)&&u.origin===location.origin){
