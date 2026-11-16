@@ -1,9 +1,15 @@
-/* KEV FUSION 2026 — SW v10.3.0 · rappel ressorts arrière Dacia Bigster */
-const V='kf2026-v10.3.0';
-const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js','./models_add.js','./bigster_spring.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js','./family_faults.js','./import2023.js','./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js','./maj-base.json','./maj-tiers.json'];
+/* KEV FUSION 2026 — SW v10.4.0 · correctif ordre de chargement / modules auto-réparants */
+const V='kf2026-v10.4.0';
+const SHELL=['./','./index.html','./firebase-config.js','./data.js','./app.js','./sanitize.js',
+'./catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
+'./access.js','./extra.js','./updates.js','./diffusion.js',
+'./vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
+'./models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
+'./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js',
+'./admingate.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-192.png','./icon-512.png','./icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png','./icon-144.png','./icon-96.png','./icon-72.png','./icon-48.png','./icon-32.png','./icon-16.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
- for(const u of SHELL){try{await k.add(u)}catch(x){}}
+ for(const u of SHELL){try{const r=await fetch(u,{cache:'reload'});if(r.ok)await k.put(u,r.clone())}catch(x){}}
  for(const u of ICONS){try{const r=await fetch(u,{cache:'reload'});if(r.ok)await k.put(u,r.clone())}catch(x){}}
 }).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(x=>x!==V&&x.startsWith('kf2026')).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
@@ -14,7 +20,9 @@ self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;c
  if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')){e.respondWith(fetch(r,{cache:'no-store'}));return}
  if(/manifest\.webmanifest$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
- if(/\.png$/.test(u.pathname)&&u.origin===location.origin){
+ if(u.origin===location.origin&&/\.js$/.test(u.pathname)){
+  e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>caches.match(r)));return}
+ if(u.origin===location.origin&&/\.png$/.test(u.pathname)){
   e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>caches.match(r)));return}
  if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put('./index.html',res.clone()));return res}).catch(()=>caches.match('./index.html')));return}
  if(u.origin===location.origin){e.respondWith(caches.match(r).then(hit=>{const net=fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>hit);return hit||net}));return}
