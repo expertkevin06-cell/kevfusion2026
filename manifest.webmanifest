@@ -1,30 +1,35 @@
 {
-  "name": "KEV FUSION 2026 — Expert Auto & Avocat",
+  "name": "KEV FUSION 2026 — Expert Auto & Droit",
   "short_name": "KEV FUSION",
-  "description": "APK technique & juridique : pannes par code moteur, DTC, rappels, TSB, étude incendie, JusteRepère, Auto-Droit, VIN, OBD, recherche multi-sources avec traduction.",
-  "id": "./",
+  "description": "Expert automobile & avocat : corrélation par code moteur, pannes connues, DTC, campagnes de rappel, TSB, étude incendie, juridique, VIN, OBD.",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "lang": "fr",
   "dir": "ltr",
-  "theme_color": "#0a0f1a",
-  "background_color": "#0a0f1a",
-  "categories": ["productivity", "utilities", "education", "business"],
+  "theme_color": "#04140c",
+  "background_color": "#04140c",
+  "categories": ["productivity", "utilities", "business", "education"],
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
-    {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "icon-48.png", "sizes": "48x48", "type": "image/png", "purpose": "any" },
+    { "src": "icon-32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" },
+    { "src": "icon-16.png", "sizes": "16x16", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    {"name": "JusteRepère", "url": "./index.html?view=jr"},
-    {"name": "Auto-Droit Smart", "url": "./index.html?view=droitsmart"},
-    {"name": "Recherche prédictive", "url": "./index.html?view=recherche"},
-    {"name": "Étude croisée", "url": "./index.html?view=etude"},
-    {"name": "Lecture VIN", "url": "./index.html?view=vin"},
-    {"name": "Dossiers Juridix", "url": "./index.html?view=dossiers"},
-    {"name": "Admin", "url": "./index.html?view=admin"}
+    { "name": "Recherche prédictive", "short_name": "Recherche", "url": "./index.html?view=recherche", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
+    { "name": "Étude corrélée", "short_name": "Étude", "url": "./index.html?view=etude", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
+    { "name": "JusteRepère", "short_name": "Juridique", "url": "./index.html?view=jr", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
+    { "name": "Lecture VIN", "short_name": "VIN", "url": "./index.html?view=vin", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] }
   ]
 }
