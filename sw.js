@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v9.0.0 */
-const V='kf2026-v9.0.0';
+/* KEV FUSION 2026 — SW v9.1.0 */
+const V='kf2026-v9.1.0';
 const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./correlation.js','./predictive.js','./websearch.js','./notifications.js','./manifest.webmanifest','./firebase-config.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{for(const u of SHELL){try{await k.add(u)}catch(x){}}}).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(x=>x!==V&&x.startsWith('kf2026')).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
