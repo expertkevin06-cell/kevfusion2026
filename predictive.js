@@ -1,32 +1,35 @@
-/* KEV FUSION 2026 — predictive.js v6.0.0 · rendu corrélation moteur, étude autonome, filtres live */
+/* KEV FUSION 2026 — predictive.js v8.0.0
+   Sélecteur verrouillé par KFCatalog : marque → modèles RÉELS de cette marque → motorisations
+   RÉELLES de ce modèle avec puissance homologuée. Aucune combinaison inventée. */
 (function(){
 'use strict';
-if(typeof KBall!=='function'||typeof VEHDB==='undefined'||!window.KFCorr){console.warn('predictive.js: prérequis manquants');return}
+if(typeof KBall!=='function'||!window.KFCorr||!window.KFCatalog){console.warn('predictive.js: prérequis manquants');return}
+const C=window.KFCatalog;
 const A=window.KFnorm||{arr:function(v){return Array.isArray(v)?v:(v==null||v===''?[]:[String(v)])},
  dtc:function(v){return Array.isArray(v)?v:(String(v||'').toUpperCase().match(/[PCBU][0-9]{4}/g)||[])},
  txt:function(v){return Array.isArray(v)?v:(v==null||v===''?[]:String(v).split(/\s*[;·\n]\s*/).filter(Boolean))},
- yrs:function(v){return Array.isArray(v)&&v.length>=2?[+v[0],+v[1]]:null},num:function(v){const n=parseInt(String(v||'').replace(/[^\d]/g,''),10);return isFinite(n)&&n>0?n:null}};
+ yrs:function(v){return Array.isArray(v)&&v.length>=2?[+v[0],+v[1]]:null},
+ num:function(v){const n=parseInt(String(v||'').replace(/[^\d]/g,''),10);return isFinite(n)&&n>0?n:null}};
 S.vehicle=null;S.yearFilter=null;
-const WIN=[2015,2027],norm=KFCorr.norm;
+const norm=C.norm;
 const PF={sys:'',grav:'',q:'',fire:false,rappel:true,tsb:true,dtc:true,strict:true};
 const ALIAS={hdi:['bluehdi'],bluehdi:['hdi'],tfsi:['tsi'],tsi:['tfsi'],thp:['puretech'],puretech:['thp'],
- courroie:['belt','distribution'],chaine:['chaîne','distribution'],crepine:['crépine','strainer'],
- bougies:['bougie','allumage'],dephaseurs:['déphaseur','vvt'],adblue:['scr','urée'],fap:['dpf','particules']};
+ courroie:['belt','distribution'],chaine:['chaîne','distribution'],crepine:['crépine'],bougies:['bougie','allumage'],
+ dephaseurs:['déphaseur','vvt'],adblue:['scr','urée'],fap:['dpf','particules'],hybride:['hybrid','phev','e tech']};
 function toks(q){return norm(q).split(' ').filter(Boolean)}
 function matchText(text,q){const t=toks(q);if(!t.length)return true;const L=norm(text);
  return t.every(function(k){return L.indexOf(k)>=0||(ALIAS[k]||[]).some(function(a){return L.indexOf(a)>=0})})}
-function brands(){return Array.from(new Set(Object.keys(VEHDB).concat(Object.keys(VEHall())))).sort()}
-function models(b){if(!b)return[];const s=new Set();
- Object.keys(VEHDB[b]||{}).forEach(function(m){s.add(m)});
- Object.keys(VEHall()[b]||{}).forEach(function(m){s.add(m)});
- return Array.from(s).sort()}
-function engines(b,m){if(!b||!m)return[];const out=[],seen=new Set();
- A.arr((VEHDB[b]||{})[m]).forEach(function(e){if(!e)return;
-  if(typeof e==='string'){if(!seen.has(e)){seen.add(e);out.push({label:e,ch:null,fuel:KFCorr.fuelGroup(e),y:null})}return}
-  if(e.label&&!seen.has(e.label)){seen.add(e.label);out.push(e)}});
- A.arr((VEHall()[b]||{})[m]).forEach(function(x){const lab=typeof x==='string'?x:(x&&x.label);
-  if(lab&&!seen.has(lab)){seen.add(lab);out.push({label:lab,ch:A.num(x&&x.ch),fuel:KFCorr.fuelGroup(lab),y:null})}});
- return out}
+/* ---- catalogue strict ---- */
+function brands(){return C.makes()}
+function models(b){const mk=C.resolveMake(b);if(!mk)return[];
+ let list=C.models(mk);
+ if(S.yearFilter){list=list.filter(function(m){const i=C.info(mk,m);return !i||!i.y||(i.y[0]<=S.yearFilter&&i.y[1]>=S.yearFilter)})}
+ return list}
+function engines(b,m){const mk=C.resolveMake(b),md=C.resolveModel(mk,m);if(!mk||!md)return[];
+ let list=C.engines(mk,md);
+ const y=S.yearFilter;
+ if(y)list=list.filter(function(e){return !e.y||(e.y[0]<=y&&e.y[1]>=y)});
+ return list}
 function makeCombo(mount,cfg){
  mount.innerHTML='<label>'+esc(cfg.label)+'</label><div class="cbx"><input class="cbx-in" autocomplete="off" placeholder="'+esc(cfg.placeholder||'')+'" value="'+esc(cfg.value||'')+'"><button type="button" class="cbx-tgl" tabindex="-1">▾</button><div class="cbx-list hid"></div></div>';
  const wrap=mount.querySelector('.cbx'),inp=mount.querySelector('.cbx-in'),list=mount.querySelector('.cbx-list'),tgl=mount.querySelector('.cbx-tgl');
@@ -52,69 +55,83 @@ function makeCombo(mount,cfg){
  return{refresh:function(){if(open)renderList()},setValue:function(v){inp.value=v},focus:function(){inp.focus()}}}
 function mountSelector(host){
  if(!host)return;
+ const yrs=[];for(let y=2027;y>=1995;y--)yrs.push(y);
  host.innerHTML='<div class="grid g3"><div id="cbBrand"></div><div id="cbModel"></div><div id="cbEngine"></div></div>'+
- '<div class="row" style="margin-top:8px"><div style="max-width:180px"><label>Année</label><select id="pfYear"><option value="">Toutes</option>'+
- Array.from({length:WIN[1]-WIN[0]+1},function(_,i){return WIN[0]+i}).map(function(y){return '<option '+(S.yearFilter===y?'selected':'')+'>'+y+'</option>'}).join('')+'</select></div>'+
+ '<div class="row" style="margin-top:8px"><div style="max-width:170px"><label>Année</label><select id="pfYear"><option value="">Toutes</option>'+
+ yrs.map(function(y){return '<option '+(S.yearFilter===y?'selected':'')+'>'+y+'</option>'}).join('')+'</select></div>'+
  '<div id="vehRead" class="vehread" style="flex:1"></div></div>'+
- '<div class="row" style="margin-top:8px"><button class="pri" data-ps="run">🔎 Afficher pannes / rappels / TSB</button>'+
- '<button data-ps="widen">🧪 Élargir</button><button data-ps="clearQ">✖ Réinitialiser</button></div>';
+ '<div class="row" style="margin-top:8px"><button class="pri" data-ps="run">🔎 Pannes / rappels / TSB</button>'+
+ '<button data-ps="widen">🧪 Élargir</button><button data-ps="clearQ">✖ Réinitialiser</button>'+
+ '<button data-ps="purge">🛠️ Purger données invalides</button></div>';
  makeCombo($('#cbBrand'),{label:'Marque',placeholder:'Tape une marque…',value:S.vehicle?S.vehicle.brand:'',empty:'Aucune marque',
   options:function(){return brands().map(function(b){return{label:b}})},
-  onPick:function(o){S.vehicle={brand:o.label,model:'',engine:'',ch:null,fuel:'',y:null};mountSelector(host);vehChanged()}});
- makeCombo($('#cbModel'),{label:'Modèle',placeholder:S.vehicle&&S.vehicle.brand?'Modèles '+S.vehicle.brand:'Choisis la marque',value:S.vehicle?S.vehicle.model:'',empty:'Choisis la marque',
-  options:function(){return models(S.vehicle?S.vehicle.brand:'').map(function(m){return{label:m}})},
+  onPick:function(o){S.vehicle={brand:C.resolveMake(o.label)||o.label,model:'',engine:'',ch:null,fuel:'',y:null};
+   mountSelector(host);vehChanged();
+   const m=$('#cbModel .cbx-in');if(m)m.focus()}});
+ makeCombo($('#cbModel'),{label:'Modèle (catalogue officiel)',placeholder:S.vehicle&&S.vehicle.brand?'Modèles '+S.vehicle.brand:'Choisis la marque d\'abord',value:S.vehicle?S.vehicle.model:'',empty:S.vehicle&&S.vehicle.brand?'Aucun modèle pour cette marque/année':'Choisis la marque d\'abord',
+  options:function(){return models(S.vehicle?S.vehicle.brand:'').map(function(m){const i=C.info(S.vehicle.brand,m);
+   return{label:m,sub:i&&i.y?i.y[0]+'–'+i.y[1]:''}})},
   onPick:function(o){S.vehicle.model=o.label;S.vehicle.engine='';S.vehicle.ch=null;S.vehicle.fuel='';
    const es=engines(S.vehicle.brand,o.label);
-   if(es.length===1){S.vehicle.engine=es[0].label;S.vehicle.ch=es[0].ch;S.vehicle.fuel=es[0].fuel;S.vehicle.y=es[0].y}
+   if(es.length===1){S.vehicle.engine=es[0].l;S.vehicle.ch=es[0].ch;S.vehicle.fuel=es[0].f;S.vehicle.y=es[0].y}
+   mountSelector(host);vehChanged();
+   const e=$('#cbEngine .cbx-in');if(e&&!S.vehicle.engine)e.focus()}});
+ makeCombo($('#cbEngine'),{label:'Motorisation + puissance homologuée',placeholder:S.vehicle&&S.vehicle.model?'Motorisations '+S.vehicle.model:'Choisis le modèle d\'abord',value:S.vehicle?S.vehicle.engine:'',empty:S.vehicle&&S.vehicle.model?'Catalogue moteur à compléter':'Choisis le modèle d\'abord',
+  options:function(){return engines(S.vehicle?S.vehicle.brand:'',S.vehicle?S.vehicle.model:'').map(function(e){
+   return{label:e.l,sub:e.ch+' ch · '+e.kw+' kW',_e:e}})},
+  onPick:function(o){const e=o._e;if(!e)return;
+   const v=C.engineValid(S.vehicle.brand,S.vehicle.model,e.l,e.ch);
+   if(!v.ok){toast('❌ '+v.reason);return}
+   S.vehicle.engine=e.l;S.vehicle.ch=e.ch;S.vehicle.fuel=e.f;S.vehicle.y=e.y;S.vehicle.code=e.code;
    mountSelector(host);vehChanged()}});
- makeCombo($('#cbEngine'),{label:'Motorisation + puissance réelle',placeholder:S.vehicle&&S.vehicle.model?'Motorisations '+S.vehicle.model:'Choisis le modèle',value:S.vehicle?S.vehicle.engine:'',empty:'Choisis le modèle',
-  options:function(){return engines(S.vehicle?S.vehicle.brand:'',S.vehicle?S.vehicle.model:'').map(function(e){return{label:e.label,sub:e.ch?e.ch+' ch':'',_e:e}})},
-  onPick:function(o){const e=o._e||{label:o.label,ch:null};S.vehicle.engine=e.label;S.vehicle.ch=A.num(e.ch);
-   S.vehicle.fuel=e.fuel||KFCorr.fuelGroup(e.label);S.vehicle.y=e.y;mountSelector(host);vehChanged()}});
  const ys=$('#pfYear');
- if(ys)ys.addEventListener('change',function(e){S.yearFilter=e.target.value?+e.target.value:null;vehChanged()});
+ if(ys)ys.addEventListener('change',function(e){S.yearFilter=e.target.value?+e.target.value:null;
+  if(S.vehicle){
+   if(S.vehicle.model&&models(S.vehicle.brand).indexOf(S.vehicle.model)<0){S.vehicle.model='';S.vehicle.engine='';S.vehicle.ch=null}
+   if(S.vehicle.engine&&!engines(S.vehicle.brand,S.vehicle.model).some(function(x){return x.l===S.vehicle.engine})){S.vehicle.engine='';S.vehicle.ch=null}}
+  mountSelector(host);vehChanged()});
  readout()}
-function resolvedVehicle(){
- const v=S.vehicle;if(!v||!v.brand)return null;const o=Object.assign({},v);
- if(o.brand&&o.model){const es=engines(o.brand,o.model);
-  if(!o.fuel){const cnt={};es.forEach(function(e){const f=e.fuel||KFCorr.fuelGroup(e.label);if(f)cnt[f]=(cnt[f]||0)+1});
-   const best=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})[0];
-   if(best)o.fuel=best==='electrique'?'Électrique':best==='hybride'?'Hybride':best==='diesel'?'Diesel':'Essence'}
-  if(!o.engine&&es.length===1){o.engine=es[0].label;o.ch=A.num(es[0].ch);o.y=es[0].y;
-   if(!o.fuel)o.fuel=es[0].fuel||KFCorr.fuelGroup(es[0].label)}}
- if(!o.fuel&&o.engine)o.fuel=KFCorr.fuelGroup(o.engine);
- if(S.yearFilter)o.y=[S.yearFilter,S.yearFilter];
- return o}
-function readout(){const el=$('#vehRead');if(!el)return;const v=resolvedVehicle();
- if(!v){el.innerHTML='<span class="mut">Marque → modèle → motorisation : les pannes, rappels et TSB du moteur s\'affichent.</span>';return}
- const sig=KFCorr.signature(v);
- el.innerHTML='🚗 <b>'+esc(v.brand)+'</b> '+esc(v.model||'')+' '+esc(v.engine||'')+
- (sig.ch?' · <b class="pw">'+sig.ch+' ch</b> ('+sig.kw+' kW)':'')+
- ' · '+esc((sig.fuelGroup||'?').toUpperCase())+' · codes moteur <b>'+esc(sig.codeLabel)+'</b>'}
-function syncStudy(){const v=resolvedVehicle()||{};
+function readout(){const el=$('#vehRead');if(!el)return;const v=S.vehicle;
+ if(!v||!v.brand){el.innerHTML='<span class="mut">Marque → modèle → motorisation : uniquement des combinaisons réelles du catalogue.</span>';return}
+ const ok=C.isPairValid(v.brand,v.model);
+ const ev=v.engine?C.engineValid(v.brand,v.model,v.engine,v.ch):null;
+ const info=C.info(v.brand,v.model);
+ el.innerHTML='🚗 <b>'+esc(v.brand)+'</b> '+esc(v.model||'')+
+ (info&&info.body?' <span class="badge">'+esc(info.body)+'</span>':'')+
+ (info&&info.y?' <span class="badge">'+info.y[0]+'–'+info.y[1]+'</span>':'')+
+ ' '+esc(v.engine||'')+
+ (v.ch?' · <b class="pw">'+v.ch+' ch</b> ('+Math.round(v.ch*0.7355)+' kW)':'')+
+ (v.fuel?' · '+esc(v.fuel.toUpperCase()):'')+
+ (v.code?' · <span class="badge b-dtc">'+esc(v.code)+'</span>':'')+
+ (v.model&&!ok?' <span class="badge b-crit">❌ combinaison invalide</span>':'')+
+ (ev&&!ev.ok?' <span class="badge b-crit">❌ '+esc(ev.reason)+'</span>':'')+
+ (ok&&ev&&ev.ok?' <span class="badge b-mod">✅ validé catalogue</span>':'')}
+function syncStudy(){const v=S.vehicle||{};
  const set=function(id,val){const e=$('#'+id);if(e)e.value=val==null?'':val};
  set('stMarque',v.brand);set('stModele',v.model);set('stMotor',v.engine);
  set('stAnnee',S.yearFilter||(v.y?v.y[1]:''));set('stEnergie',v.fuel||'');
  S.veh={marque:v.brand||'',modele:v.model||'',motor:v.engine||'',annee:S.yearFilter||(v.y?v.y[1]:''),vin:S.veh?S.veh.vin:''}}
-function currentCorr(){const v=resolvedVehicle();if(!v)return null;
+function currentCorr(){const v=S.vehicle;if(!v||!v.brand)return null;
+ if(v.model&&!C.isPairValid(v.brand,v.model))return null;
+ if(v.engine){const e=C.engineValid(v.brand,v.model,v.engine,v.ch);if(!e.ok)return null}
  try{return KFCorr.correlate(v,{strict:PF.strict,readDtc:S.dtc||[]})}catch(e){log('error','correlate '+e.message);return null}}
 function isSearch(){return S.view==='recherche'}
 function vehChanged(){syncStudy();readout();paint();document.dispatchEvent(new CustomEvent('kf:vehicle',{detail:S.vehicle}))}
 function paint(){try{if(isSearch()){renderSearchPanel();runSearch()}else renderStudyPanel()}
  catch(e){log('error','paint '+e.message);const h=$('#srRes')||$('#vehPanel');
-  if(h)h.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Erreur d\'affichage</h2><p class="mut">'+esc(e.message)+'</p><button data-ps="clearQ">↻ Réinitialiser</button></div>'}}
+  if(h)h.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Erreur</h2><p class="mut">'+esc(e.message)+'</p><button data-ps="clearQ">↻</button></div>'}}
 function traceCard(c){const t=c.trace,s=c.sig;
- return '<div class="card"><h2>🧬 Signature moteur</h2><table class="kv">'+
+ return '<div class="card"><h2>🧬 Signature moteur validée</h2><table class="kv">'+
  '<tr><td>Véhicule</td><td><b>'+esc(s.brand)+' '+esc(s.model)+'</b> '+esc(s.engine)+'</td></tr>'+
- '<tr><td>Puissance</td><td>'+(s.ch?'<b class="pw">'+s.ch+' ch</b> / '+s.kw+' kW':'non précisée')+'</td></tr>'+
+ '<tr><td>Puissance homologuée</td><td>'+(s.ch?'<b class="pw">'+s.ch+' ch</b> / '+s.kw+' kW':'non précisée')+'</td></tr>'+
  '<tr><td>Cylindrée / énergie</td><td>'+esc(s.disp||'—')+' · '+esc((s.fuelGroup||'?').toUpperCase())+'</td></tr>'+
- '<tr><td>Codes moteur résolus</td><td><b>'+esc(s.codeLabel)+'</b></td></tr>'+
+ '<tr><td>Codes moteur</td><td><b>'+esc(s.codeLabel)+'</b></td></tr>'+
  '<tr><td>Base analysée</td><td class="mut">'+t.total+' fiches · énergie '+t.fuel+' · années '+t.year+' · code moteur '+t.engine+' · modèle '+t.model+' · puissance '+t.power+'</td></tr>'+
  '<tr><td>Résultat</td><td><b>'+t.kept+' panne(s)</b> · '+c.dtc.length+' DTC · '+c.recalls.length+' rappel(s) · '+c.tsb.length+' TSB'+(t.fallback?' <span class="badge b-elev">repli</span>':'')+'</td></tr></table></div>'}
 function filterBar(pool){
  const sys=Array.from(new Set(A.arr(pool).map(function(k){return k&&k.s}).filter(Boolean))).sort();
  return '<div class="row" style="margin-bottom:8px"><button class="chipf '+(PF.strict?'on':'')+'" data-ps="strict">🎯 Strict</button>'+
- '<span class="mut">Filtrage par code moteur, modèle, puissance, énergie, années.</span></div>'+
+ '<span class="mut">Corrélation code moteur + modèle + puissance + énergie + années.</span></div>'+
  '<div class="grid g3"><div><label>Système</label><select data-ps="sys"><option value="">Tous</option>'+
  sys.map(function(s){return '<option '+(PF.sys===s?'selected':'')+'>'+esc(s)+'</option>'}).join('')+'</select></div>'+
  '<div><label>Gravité</label><select data-ps="grav"><option value="">Toutes</option>'+
@@ -136,10 +153,10 @@ function dtcCard(c){const L=A.arr(c.dtc).filter(function(d){return d&&d.code});
  return '<div class="card"><h2>🔢 Codes défauts — '+L.length+'</h2>'+
  (L.length?'<div class="row">'+L.map(function(d){return '<span class="badge '+(d.fromModel?'b-crit':'b-dtc')+'" title="'+esc(A.txt(d.faults).join(' | '))+'">'+esc(d.code)+(d.read?' ✅':'')+(d.fromModel?' ★':'')+'</span>'}).join('')+'</div>'+
  '<p class="mut">★ issu d\'un TSB/rappel · ✅ lu sur le véhicule.</p>'+
- '<div class="row"><button data-ps="injectDtc">🧠 Injecter dans l\'étude</button><button data-ps="copyDtc">📋 Copier</button></div>':'<p class="mut">Aucun DTC.</p>')+'</div>'}
+ '<div class="row"><button data-ps="injectDtc">🧠 Injecter dans l\'étude</button><button data-ps="copyDtc">📋 Copier</button></div>':'<p class="mut">Aucun DTC corrélé.</p>')+'</div>'}
 function faultFull(k){
  const rel=String(k.relevance||'').indexOf('DIRECT')===0?'b-crit':String(k.relevance||'').indexOf('FORT')===0?'b-elev':'b-mod';
- const D=A.dtc(k.dtc),Y=A.yrs(k.y)||WIN;
+ const D=A.dtc(k.dtc),Y=A.yrs(k.y)||[1995,2027];
  return '<div class="card faultcard"><h3>'+esc(k.t)+'</h3>'+
  '<div><span class="badge '+rel+'">'+esc(k.relevance||'—')+'</span>'+
  '<span class="badge '+(k.g==='Critique'?'b-crit':k.g==='Élevé'?'b-elev':'b-mod')+'">'+esc(k.g)+'</span>'+
@@ -164,10 +181,10 @@ function faultFull(k){
  '<button data-ps="studyOne" data-k="'+esc(k.id)+'">🧠 Étudier</button>'+
  '<button data-ps="toJR" data-k="'+esc(k.id)+'">⚖️ JusteRepère</button>'+
  '<button data-ps="toAD" data-k="'+esc(k.id)+'">🧠 Auto-Droit</button></div></div>'}
-function recallCard(r){const Y=A.yrs(r.y)||WIN;
+function recallCard(r){const Y=A.yrs(r.y)||[1995,2027];
  return '<div class="card"><b>'+(r.fire?'🔥 ':'')+esc(r.t)+'</b> <span class="badge">'+esc(r.src||'Campagne')+'</span>'+
  '<p class="mut">'+esc(r.risk||'—')+'</p><p class="mut">'+Y[0]+'–'+Y[1]+' · '+esc(A.dtc(r.dtc).join(', ')||'—')+'</p></div>'}
-function tsbCard(t){const Y=A.yrs(t.y)||WIN;
+function tsbCard(t){const Y=A.yrs(t.y)||[1995,2027];
  return '<div class="card"><b>'+esc(t.ref)+'</b> <span class="badge '+(t.g==='Critique'?'b-crit':'b-elev')+'">'+esc(t.g||'—')+'</span>'+
  '<p>'+esc(t.s||'—')+'</p><p class="mut">'+esc(t.sys||'—')+' · '+esc(A.dtc(t.dtc).join(', ')||'—')+' · '+Y[0]+'–'+Y[1]+'</p></div>'}
 function resultsHTML(c,q){
@@ -177,23 +194,31 @@ function resultsHTML(c,q){
  const s=c.sig;
  return '<div class="card"><h2>🎯 '+esc(s.brand)+' '+esc(s.model||'')+' '+esc(s.engine||'')+(s.ch?' '+s.ch+' ch':'')+'</h2>'+
  '<p class="mut"><b>'+pan.length+' panne(s)</b> · '+c.dtc.length+' DTC · '+rap.length+' rappel(s) · '+tsb.length+' TSB'+(q?' · « '+esc(q)+' »':'')+'</p>'+
- '<div class="row"><button class="pri" data-ps="study">🧠 Lancer l\'étude corrélée</button><button data-ps="injectDtc">🔢 Injecter DTC</button><button data-ps="widen">🧪 Élargir</button></div></div>'+
+ '<div class="row"><button class="pri" data-ps="study">🧠 Lancer l\'étude corrélée</button><button data-ps="injectDtc">🔢 Injecter DTC</button><button data-ps="web">🌐 Recherche internet</button></div></div>'+
  '<div class="card"><h2>🔧 Pannes connues ('+pan.length+')</h2>'+(pan.length?pan.map(faultFull).join(''):'<p class="mut">Aucune panne avec ces filtres — « 🧪 Élargir » ou « ✖ Réinitialiser ».</p>')+'</div>'+
  (PF.rappel?'<div class="card"><h2>📣 Campagnes de rappel ('+rap.length+')</h2>'+(rap.length?rap.map(recallCard).join(''):'<p class="mut">Aucun rappel.</p>')+'</div>':'')+
  (PF.tsb?'<div class="card"><h2>🧰 TSB ('+tsb.length+')</h2>'+(tsb.length?tsb.map(tsbCard).join(''):'<p class="mut">Aucun TSB.</p>')+'</div>':'')}
-function renderSearchPanel(){const h=$('#srPanel');if(!h)return;const c=currentCorr();
- if(!c){h.innerHTML='<div class="card mut">Sélectionne une marque.</div>';return}
+function renderSearchPanel(){const h=$('#srPanel');if(!h)return;
+ if(S.vehicle&&S.vehicle.model&&!C.isPairValid(S.vehicle.brand,S.vehicle.model)){
+  h.innerHTML='<div class="card accent"><h2 class="st-fail">❌ Combinaison inexistante</h2><p class="mut">« '+esc(S.vehicle.model)+' » n\'est pas un modèle '+esc(S.vehicle.brand)+'. Marques possibles : <b>'+esc(C.modelOwner(S.vehicle.model).join(', ')||'inconnu')+'</b>.</p></div>';return}
+ const c=currentCorr();
+ if(!c){h.innerHTML='<div class="card mut">Sélectionne marque → modèle → motorisation.</div>';return}
  h.innerHTML=traceCard(c)+'<div class="card"><h2>🔗 Filtres</h2>'+filterBar(c.faults)+'</div>'+(PF.dtc?dtcCard(c):'')}
 function runSearch(){const h=$('#srRes');if(!h)return;
- try{const qe=$('#srQ'),q=qe?qe.value.trim():'';const c=currentCorr();
-  if(!c){h.innerHTML='<div class="card"><h2>🔎 Recherche</h2><p class="mut">Choisis marque → modèle → motorisation.</p></div>';return}
+ try{const qe=$('#srQ'),q=qe?qe.value.trim():'';
+  if(S.vehicle&&S.vehicle.model&&!C.isPairValid(S.vehicle.brand,S.vehicle.model)){h.innerHTML='';return}
+  const c=currentCorr();
+  if(!c){h.innerHTML='<div class="card"><h2>🔎 Recherche</h2><p class="mut">Choisis marque → modèle → motorisation dans le catalogue officiel.</p></div>';return}
   h.innerHTML=resultsHTML(c,q)}catch(e){log('error','runSearch '+e.message);
   h.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Interrompu</h2><p class="mut">'+esc(e.message)+'</p><button data-ps="clearQ">↻</button></div>'}}
-function renderStudyPanel(){const h=$('#vehPanel');if(!h)return;const c=currentCorr();
+function renderStudyPanel(){const h=$('#vehPanel');if(!h)return;
+ if(S.vehicle&&S.vehicle.model&&!C.isPairValid(S.vehicle.brand,S.vehicle.model)){
+  h.innerHTML='<div class="card accent"><h2 class="st-fail">❌ Combinaison inexistante</h2><p class="mut">« '+esc(S.vehicle.model)+' » n\'appartient pas à '+esc(S.vehicle.brand)+'. Marques réelles : <b>'+esc(C.modelOwner(S.vehicle.model).join(', ')||'—')+'</b>.</p></div>';return}
+ const c=currentCorr();
  if(!c){h.innerHTML='<div class="card mut">Sélectionne marque → modèle → motorisation.</div>';return}
  h.innerHTML=traceCard(c)+'<div class="card"><h2>🔗 Filtres</h2>'+filterBar(c.faults)+'</div>'+(PF.dtc?dtcCard(c):'')+resultsHTML(c,'')}
-function studyForm(){const g=function(id){const e=$('#'+id);return e?e.value:''};const v=resolvedVehicle()||{};
- return{brand:v.brand||'',model:v.model||'',engine:v.engine||'',ch:A.num(v.ch),fuel:v.fuel||'',y:A.yrs(v.y),
+function studyForm(){const g=function(id){const e=$('#'+id);return e?e.value:''};const v=S.vehicle||{};
+ return{brand:v.brand||'',model:v.model||'',engine:v.engine||'',ch:A.num(v.ch),fuel:v.fuel||'',y:A.yrs(v.y),code:v.code||'',
   vendeur:g('stVendeur')||'pro',achat:g('stAchat'),neuf:g('stNeuf')||'occasion',prix:g('stPrix'),
   constats:Array.prototype.map.call(document.querySelectorAll('#stConstats input:checked'),function(i){return i.value}),
   dtc:A.dtc(g('stDtc')),ctx:String(g('stCtx')||'').trim()}}
@@ -214,23 +239,27 @@ function qualifySafe(f,form){const out=[],add=function(id,why){const l=lawOf(id)
 function runStudySafe(focusId){const h=$('#stResult');if(!h)return;
  try{const form=studyForm();
   if(!form.brand){h.innerHTML='<div class="card"><h2 class="st-warn">🚗 Véhicule requis</h2><p class="mut">Sélectionne marque → modèle → motorisation.</p></div>';return}
+  if(form.model&&!C.isPairValid(form.brand,form.model)){
+   h.innerHTML='<div class="card accent"><h2 class="st-fail">❌ Combinaison inexistante</h2><p class="mut">« '+esc(form.model)+' » n\'est pas un modèle '+esc(form.brand)+'. Marques réelles : '+esc(C.modelOwner(form.model).join(', ')||'—')+'</p></div>';return}
+  if(form.engine){const e=C.engineValid(form.brand,form.model,form.engine,form.ch);
+   if(!e.ok){h.innerHTML='<div class="card accent"><h2 class="st-fail">❌ Motorisation non homologuée</h2><p class="mut">'+esc(e.reason)+'</p></div>';return}}
   const c=KFCorr.correlate(form,{strict:PF.strict,readDtc:form.dtc});
   let top=A.arr(c.faults).slice(0,10);
   if(focusId){const one=c.faults.find(function(x){return x&&x.id===focusId});if(one)top=[one].concat(top.filter(function(x){return x.id!==focusId})).slice(0,10)}
   const laws=qualifySafe(top,form),best=top.length?(top[0].sc||0):0;
   const level=best>=15?'PROBABLE — faisceau fort':best>=10?'PROBABLE':best>=6?'POSSIBLE':'INDÉTERMINÉ';
   const fires=top.filter(function(k){return k.f});
-  const study={ts:new Date().toISOString(),version:'6.0.0',form:form,signature:c.sig,
+  const study={ts:new Date().toISOString(),version:'8.0.0',form:form,signature:c.sig,
    top:top.map(function(k){return{id:k.id,t:k.t,s:k.s,g:k.g,f:!!k.f,dtc:A.dtc(k.dtc),mec:k.mec||'',ch:typeof k.ch==='string'?k.ch:'',
     cons:A.txt(k.cons),sym:A.txt(k.sym),prv:A.txt(k.prv),tst:A.txt(k.tst),act:A.txt(k.act),sec:k.sec||'',sc:k.sc||0,why:A.txt(k.why),relevance:k.relevance||'',law:A.arr(k.law).map(function(l){return l&&l.id?l.id:l}),tsb:k.tsb,rec:k.rec}}),
    laws:laws.map(function(l){return{id:l.id,ref:l.ref,t:l.t,why:l.why,delai:l.delai,txt:l.txt}}),
    fires:fires.map(function(k){return{t:k.t,ch:typeof k.ch==='string'?k.ch:'',sec:k.sec}}),
-   recalls:A.arr(c.recalls).map(function(r){return{t:r.t,src:r.src,risk:r.risk,y:A.yrs(r.y)||WIN,dtc:A.dtc(r.dtc)}}),
-   tsb:A.arr(c.tsb).map(function(t){return{ref:t.ref,sys:t.sys,s:t.s,y:A.yrs(t.y)||WIN,dtc:A.dtc(t.dtc),g:t.g}}),
+   recalls:A.arr(c.recalls).map(function(r){return{t:r.t,src:r.src,risk:r.risk,y:A.yrs(r.y),dtc:A.dtc(r.dtc)}}),
+   tsb:A.arr(c.tsb).map(function(t){return{ref:t.ref,sys:t.sys,s:t.s,y:A.yrs(t.y),dtc:A.dtc(t.dtc),g:t.g}}),
    dtc:A.arr(c.dtc),level:level,trace:c.trace};
   S.study=study;S.lastCorr=c;const hh=ls.get('studies',[]);hh.unshift(study);ls.set('studies',hh.slice(0,20));
   h.innerHTML='<div class="card"><h2>🧠 Étude — <span class="'+(best>=10?'st-warn':'st-ok')+'">'+esc(level)+'</span></h2>'+
-   '<p class="mut">'+esc(form.brand)+' '+esc(form.model)+' '+esc(form.engine)+(form.ch?' · '+form.ch+' ch':'')+' · '+esc(form.vendeur==='pro'?'vendeur pro':'particulier')+(form.achat?' · achat '+esc(form.achat):'')+'</p>'+
+   '<p class="mut">'+esc(form.brand)+' '+esc(form.model)+' '+esc(form.engine)+(form.ch?' · '+form.ch+' ch':'')+' · '+esc(form.code||'')+' · '+esc(form.vendeur==='pro'?'vendeur pro':'particulier')+'</p>'+
    '<p class="mut">Constatations : '+esc(A.txt(form.constats).join(', ')||'—')+' · DTC : '+esc(A.dtc(form.dtc).join(', ')||'—')+'</p>'+
    '<div class="row"><button class="pri" data-ps="studyPdf">🖨️ PDF</button><button data-ps="studyJson">📤 JSON</button><button data-ps="studyDoss">📁 Dossier</button><button class="jr" data-ps="studyJR">⚖️ JusteRepère</button></div></div>'+
    '<div class="card"><h2>🔧 Causes corrélées ('+top.length+')</h2>'+(top.length?top.map(faultFull).join(''):'<p class="mut">Aucune cause.</p>')+'</div>'+
@@ -243,14 +272,13 @@ function runStudySafe(focusId){const h=$('#stResult');if(!h)return;
   h.innerHTML='<div class="card"><h2 class="st-fail">⚠️ Étude interrompue</h2><p class="mut">'+esc(e.message)+'</p><div class="row"><button class="pri" data-ps="study">↻ Relancer</button><button data-ps="widen">🧪 Élargir</button></div></div>'}}
 function studyPdf(){const s=S.study;if(!s){toast('Lance une étude');return}const f=s.form;
  $('#printArea').innerHTML='<h1>🔥 KEV FUSION — Étude corrélée</h1><p>'+new Date(s.ts).toLocaleString('fr-FR')+' · v'+s.version+'</p>'+
- '<h2>1. Véhicule</h2><p>'+esc(f.brand)+' '+esc(f.model)+' '+esc(f.engine)+(f.ch?' · '+f.ch+' ch':'')+' · '+esc(f.fuel||'')+'</p>'+
+ '<h2>1. Véhicule (catalogue validé)</h2><p>'+esc(f.brand)+' '+esc(f.model)+' '+esc(f.engine)+(f.ch?' · '+f.ch+' ch':'')+' · code '+esc(f.code||'—')+' · '+esc(f.fuel||'')+'</p>'+
  '<p>Vendeur '+esc(f.vendeur==='pro'?'professionnel':'particulier')+' · achat '+esc(f.achat||'?')+' · '+esc(f.prix||'?')+' €</p>'+
  '<p>Constatations : '+esc(A.txt(f.constats).join(', ')||'—')+' · DTC : '+esc(A.dtc(f.dtc).join(', ')||'—')+'</p><p>'+esc(f.ctx||'')+'</p>'+
- '<h2>2. Codes moteur</h2><p>'+esc(s.signature.codeLabel)+' · '+esc(s.signature.disp||'')+'</p>'+
- '<h2>3. Causes ('+esc(s.level)+')</h2>'+A.arr(s.top).map(function(k){return '<p><b>'+esc(k.t)+'</b> ('+esc(k.relevance)+')<br>'+esc(k.mec)+'<br>DTC : '+esc(A.dtc(k.dtc).join(', '))+'<br>Preuves : '+esc(A.txt(k.prv).join(' ; '))+'<br>Tests : '+esc(A.txt(k.tst).join(' ; '))+'<br>Actions : '+esc(A.txt(k.act).join(' ; '))+'<br>Sécurité : '+esc(k.sec)+(k.tsb?'<br>TSB : '+esc(k.tsb):'')+(k.rec?'<br>Rappel : '+esc(k.rec):'')+'</p>'}).join('')+
- '<h2>4. Juridique</h2>'+A.arr(s.laws).map(function(l){return '<p><b>'+esc(l.t)+'</b> — '+esc(l.ref)+'<br>Délai : '+esc(l.delai)+'<br>'+esc(l.why)+'</p>'}).join('')+
- '<h2>5. Rappels</h2>'+(A.arr(s.recalls).length?A.arr(s.recalls).map(function(r){return '<p>'+esc(r.t)+' — '+esc(r.risk)+'</p>'}).join(''):'<p>Aucun.</p>')+
- '<h2>6. TSB</h2>'+(A.arr(s.tsb).length?A.arr(s.tsb).map(function(t){return '<p>'+esc(t.ref)+' — '+esc(t.s)+'</p>'}).join(''):'<p>Aucun.</p>')+
+ '<h2>2. Causes ('+esc(s.level)+')</h2>'+A.arr(s.top).map(function(k){return '<p><b>'+esc(k.t)+'</b> ('+esc(k.relevance)+')<br>'+esc(k.mec)+'<br>DTC : '+esc(A.dtc(k.dtc).join(', '))+'<br>Preuves : '+esc(A.txt(k.prv).join(' ; '))+'<br>Tests : '+esc(A.txt(k.tst).join(' ; '))+'<br>Actions : '+esc(A.txt(k.act).join(' ; '))+'<br>Sécurité : '+esc(k.sec)+(k.tsb?'<br>TSB : '+esc(k.tsb):'')+(k.rec?'<br>Rappel : '+esc(k.rec):'')+'</p>'}).join('')+
+ '<h2>3. Juridique</h2>'+A.arr(s.laws).map(function(l){return '<p><b>'+esc(l.t)+'</b> — '+esc(l.ref)+'<br>Délai : '+esc(l.delai)+'<br>'+esc(l.why)+'</p>'}).join('')+
+ '<h2>4. Rappels</h2>'+(A.arr(s.recalls).length?A.arr(s.recalls).map(function(r){return '<p>'+esc(r.t)+' — '+esc(r.risk)+'</p>'}).join(''):'<p>Aucun.</p>')+
+ '<h2>5. TSB</h2>'+(A.arr(s.tsb).length?A.arr(s.tsb).map(function(t){return '<p>'+esc(t.ref)+' — '+esc(t.s)+'</p>'}).join(''):'<p>Aucun.</p>')+
  '<p><i>Aide à l\'expertise — ne constitue pas une expertise judiciaire contradictoire.</i></p>';
  document.body.classList.add('printing');window.print();setTimeout(function(){document.body.classList.remove('printing')},800)}
 function studyDoss(){const s=S.study;if(!s){toast('Lance une étude');return}
@@ -263,23 +291,24 @@ function studyDoss(){const s=S.study;if(!s){toast('Lance une étude');return}
 function studyJR(){const s=S.study;if(!s){toast('Lance une étude');return}
  S.jr.dom='route';S.jr.result=null;switchView('jr');
  setTimeout(function(){const a=$('#jrVehMarque'),b=$('#jrVehMotor'),t=$('#jrTitre'),f=$('#jrFaits');
-  if(a)a.value=s.form.brand+' '+s.form.model;if(b)b.value=s.form.engine;
+  if(a)a.value=s.form.brand+' '+s.form.model;if(b)b.value=s.form.engine+(s.form.ch?' '+s.form.ch+' ch':'');
   if(t)t.value=s.form.brand+' '+s.form.model+' — '+A.arr(s.top).map(function(x){return x.t}).slice(0,2).join(' / ');
   if(f)f.value=(s.form.ctx||'')+' '+A.arr(s.top).map(function(x){return x.t+' : '+x.mec}).join(' ; ')},90)}
 function fiche(id){const c=currentCorr();if(!c)return;const k=A.arr(c.faults).find(function(x){return x&&x.id===id});if(!k)return;
  openModal('<h2>📋 '+esc(k.t)+'</h2>'+faultFull(k)+'<div class="row"><button class="pri" data-ps="studyOne" data-k="'+esc(k.id)+'">🧠 Étudier</button><button data-act="closeModal">Fermer</button></div>')}
 window.doSearch=function(){if(isSearch())runSearch()};
 window.scoreKB=function(inp){try{const v={brand:inp.marque,model:inp.modele,engine:inp.motor,ch:S.vehicle&&S.vehicle.ch,fuel:inp.energie,y:S.vehicle&&S.vehicle.y};
+ if(v.model&&!C.isPairValid(v.brand,v.model))return[];
  const c=KFCorr.correlate(v,{strict:true,readDtc:inp.dtc||[]});S.lastCorr=c;return A.arr(c.faults).slice(0,10)}catch(e){return[]}};
 window.runStudy=function(){runStudySafe()};
 window.renderSearch=function(){
- $('#view').innerHTML='<div class="card"><h2>🔎 Recherche prédictive — corrélation moteur</h2><div id="srSel"></div>'+
+ $('#view').innerHTML='<div class="card"><h2>🔎 Recherche prédictive — catalogue verrouillé</h2><div id="srSel"></div>'+
  '<label>Recherche libre</label><input id="srQ" placeholder="courroie, crépine, bougies, déphaseurs, AdBlue, FAP, chaîne 7mm, P0016…" autocomplete="off">'+
  '<div class="row"><button class="pri" data-ps="run">🔎 Rechercher</button><button data-ps="clearQ">✖ Effacer</button></div></div>'+
  '<div id="srPanel"></div><div id="srRes"></div>';
  mountSelector($('#srSel'));const q=$('#srQ');if(q)q.addEventListener('input',runSearch);paint()};
 window.renderStudy=function(){
- $('#view').innerHTML='<div class="card"><h2>🧠 Étude croisée — corrélation moteur</h2><div id="selStudy"></div></div>'+
+ $('#view').innerHTML='<div class="card"><h2>🧠 Étude croisée — catalogue verrouillé</h2><div id="selStudy"></div></div>'+
  '<div class="card"><h2>📋 Contexte</h2><div class="grid g3">'+
  '<div><label>Vendeur</label><select id="stVendeur"><option value="pro">Professionnel</option><option value="part">Particulier</option></select></div>'+
  '<div><label>Date d\'achat</label><input id="stAchat" type="date"></div>'+
@@ -294,12 +323,17 @@ window.renderStudy=function(){
 const _home=window.renderHome;
 window.renderHome=function(){_home();const v=$('#view');const c=currentCorr();if(!v||!c)return;
  v.insertAdjacentHTML('afterbegin','<div class="card"><h2>🚗 Véhicule courant</h2><p>'+esc(c.sig.brand)+' '+esc(c.sig.model||'')+' '+esc(c.sig.engine||'')+(c.sig.ch?' · <b class="pw">'+c.sig.ch+' ch</b>':'')+'</p>'+
- '<p class="mut">'+c.faults.length+' panne(s) · '+c.dtc.length+' DTC · '+c.recalls.length+' rappel(s) · '+c.tsb.length+' TSB · codes '+esc(c.sig.codeLabel)+'</p>'+
+ '<p class="mut">'+c.faults.length+' panne(s) · '+c.dtc.length+' DTC · '+c.recalls.length+' rappel(s) · '+c.tsb.length+' TSB · code '+esc(c.sig.codeLabel)+'</p>'+
  '<div class="row"><button class="pri" data-act="nav" data-k="etude">🧠 Étudier</button><button data-act="nav" data-k="recherche">🔎 Recherche</button></div></div>')};
 document.addEventListener('change',function(e){const p=e.target.dataset.ps;if(p==='sys'||p==='grav'){PF[p]=e.target.value;paint()}});
 document.addEventListener('input',function(e){if(e.target.dataset.ps==='q'){PF.q=e.target.value;paint()}});
 document.addEventListener('click',async function(e){
  const b=e.target.closest('[data-ps]');if(!b)return;const p=b.dataset.ps,k=b.dataset.k;
+ if(p==='purge'){const n=C.purge();toast('🛠️ '+n+' entrée(s) invalide(s) purgée(s)');mountSelector($('#srSel')||$('#selStudy'));paint();return}
+ if(p==='web'){if(window.KFWebSearch&&S.vehicle){toast('🌐 Recherche internet…');
+   try{const r=await KFWebSearch.searchWithTranslation(S.vehicle.brand,S.vehicle.model,S.yearFilter||(S.vehicle.y?S.vehicle.y[1]:2020));
+    const h=$('#srRes')||$('#stResult');if(h)h.insertAdjacentHTML('beforeend',KFWebSearch.renderWebResults(r))}catch(x){toast('Web : '+x.message)}}
+  else toast('Sélectionne un véhicule');return}
  if(p==='study'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe()},90)}else runStudySafe();return}
  if(p==='studyOne'){e.preventDefault();closeModal();if(S.view!=='etude'){switchView('etude');setTimeout(function(){runStudySafe(k)},90)}else runStudySafe(k);return}
  if(p==='studyPdf'){studyPdf();return}
@@ -315,11 +349,12 @@ document.addEventListener('click',async function(e){
   if(S.view!=='etude'){switchView('etude');setTimeout(function(){const t=$('#stDtc');if(t)t.value=S.dtc.join(' ')},90)}else{const t=$('#stDtc');if(t)t.value=S.dtc.join(' ')}
   toast('🔢 '+S.dtc.length+' DTC injectés');return}
  if(p==='copyDtc'){const c=currentCorr();if(!c)return;try{await navigator.clipboard.writeText(A.arr(c.dtc).map(function(d){return d.code}).join(' '));toast('📋 Copié')}catch(x){toast('Copie impossible')}return}
- if(p==='toJR'){const kb=A.arr(currentCorr()?currentCorr().faults:[]).find(function(x){return x&&x.id===k});S.jr.dom='route';S.jr.result=null;switchView('jr');
+ if(p==='toJR'){const cc=currentCorr();const kb=cc?A.arr(cc.faults).find(function(x){return x&&x.id===k}):null;
+  S.jr.dom='route';S.jr.result=null;switchView('jr');
   setTimeout(function(){const a=$('#jrVehMarque'),b2=$('#jrVehMotor'),f=$('#jrFaits');
    if(a)a.value=S.vehicle?S.vehicle.brand+' '+S.vehicle.model:'';if(b2)b2.value=S.vehicle?S.vehicle.engine:'';
    if(f)f.value=kb?kb.t+' : '+kb.mec:''},90);return}
- if(p==='toAD'){const kb=A.arr(currentCorr()?currentCorr().faults:[]).find(function(x){return x&&x.id===k});switchView('droitsmart');
+ if(p==='toAD'){const cc=currentCorr();const kb=cc?A.arr(cc.faults).find(function(x){return x&&x.id===k}):null;switchView('droitsmart');
   setTimeout(function(){const t=$('#adText');if(t)t.value=(S.vehicle?S.vehicle.brand+' '+S.vehicle.model+' '+S.vehicle.engine+' : ':'')+(kb?kb.t+' — '+kb.mec:'')},90);return}});
 window.KFPredictive={brands:brands,models:models,engines:engines,correlate:currentCorr,runSearch:runSearch,study:runStudySafe};
 })();
