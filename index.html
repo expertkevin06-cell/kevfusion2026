@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : base Renault/Dacia/Alpine complète 1990-2027, import automatique RappelConso/NHTSA/Safety Gate, corrélation code moteur, pannes, DTC, rappels, TSB, étude incendie, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : base toutes marques 1990-2027, import massif auto 15 jours (modèles 2023+, motorisations, puissances, pannes, campagnes, TSB), corrélation code moteur, étude incendie, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -174,7 +174,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v9.6</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v9.8</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -186,7 +186,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · base Renault/Dacia/Alpine 1990-2027 · import auto RappelConso/NHTSA/Safety Gate · index code moteur · filtres natifs · stockage · réseau · sécurité · notifications · juridique · icônes PWA.</p>
+ <p class="mut">Contrôle intégrité · catalogue toutes marques 1990-2027 · import massif 15 j (modèles 2023+, motorisations, puissances, pannes, campagnes, TSB) · corrélation code moteur · filtres natifs · stockage · réseau · sécurité · juridique · icônes PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -209,6 +209,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
 <script src="renault_base.js"></script>
+<script src="brands_base.js"></script>
 <script src="access.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
@@ -217,6 +218,8 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="faults.js"></script>
 <script src="faults_ext.js"></script>
 <script src="renault_faults.js"></script>
+<script src="family_faults.js"></script>
+<script src="import2023.js"></script>
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
 <script src="websearch.js"></script>
