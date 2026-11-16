@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v9.8.0 · import massif 15 j toutes marques 2023+ */
-const V='kf2026-v9.8.0';
+/* KEV FUSION 2026 — SW v9.9.0 · correctif import/corrélation 2023+ */
+const V='kf2026-v9.9.0';
 const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js','./family_faults.js','./import2023.js','./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-192.png','./icon-512.png','./icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png','./icon-144.png','./icon-96.png','./icon-72.png','./icon-48.png','./icon-32.png','./icon-16.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
