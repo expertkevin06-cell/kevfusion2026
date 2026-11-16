@@ -1,6 +1,6 @@
-/* KEV FUSION 2026 — SW v9.4.0 · icônes sportives vertes + PWABuilder */
-const V='kf2026-v9.4.0';
-const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./correlation.js','./predictive.js','./websearch.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js'];
+/* KEV FUSION 2026 — SW v9.5.0 · base 2018+ JLR complet + mises à jour manuelles */
+const V='kf2026-v9.5.0';
+const SHELL=['./','./index.html','./data.js','./app.js','./sanitize.js','./catalog.js','./catalog_ext.js','./admingate.js','./access.js','./extra.js','./updates.js','./diffusion.js','./vehicles.js','./faults.js','./faults_ext.js','./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./notifications.js','./pwabuilder.js','./manifest.webmanifest','./firebase-config.js'];
 const ICONS=['./icon-192.png','./icon-512.png','./icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png','./icon-144.png','./icon-96.png','./icon-72.png','./icon-48.png','./icon-32.png','./icon-16.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
  for(const u of SHELL){try{await k.add(u)}catch(x){}}
@@ -14,7 +14,7 @@ self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;c
  if(u.searchParams.has('hb')||u.searchParams.has('probe')){e.respondWith(fetch(r,{cache:'no-store'}));return}
  if(/manifest\.webmanifest$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
- if(/\.(png)$/.test(u.pathname)&&u.origin===location.origin){
+ if(/\.png$/.test(u.pathname)&&u.origin===location.origin){
   e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>caches.match(r)));return}
  if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put('./index.html',res.clone()));return res}).catch(()=>caches.match('./index.html')));return}
  if(u.origin===location.origin){e.respondWith(caches.match(r).then(hit=>{const net=fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>hit);return hit||net}));return}
