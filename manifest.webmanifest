@@ -14,22 +14,45 @@
   "background_color": "#04140c",
   "categories": ["productivity", "utilities", "business", "education"],
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
     { "src": "icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
     { "src": "icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
     { "src": "icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "icon-64.png", "sizes": "64x64", "type": "image/png", "purpose": "any" },
     { "src": "icon-48.png", "sizes": "48x48", "type": "image/png", "purpose": "any" },
     { "src": "icon-32.png", "sizes": "32x32", "type": "image/png", "purpose": "any" },
     { "src": "icon-16.png", "sizes": "16x16", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    { "name": "Recherche prédictive", "short_name": "Recherche", "url": "./index.html?view=recherche", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
-    { "name": "Étude corrélée", "short_name": "Étude", "url": "./index.html?view=etude", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
-    { "name": "JusteRepère", "short_name": "Juridique", "url": "./index.html?view=jr", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] },
-    { "name": "Studio icônes", "short_name": "Icônes", "url": "./icons.html", "icons": [{ "src": "icon-96.png", "sizes": "96x96" }] }
+    {
+      "name": "Recherche prédictive",
+      "short_name": "Recherche",
+      "url": "./index.html?view=recherche",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Étude corrélée",
+      "short_name": "Étude",
+      "url": "./index.html?view=etude",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "JusteRepère",
+      "short_name": "Juridique",
+      "url": "./index.html?view=jr",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Lecture VIN",
+      "short_name": "VIN",
+      "url": "./index.html?view=vin",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96", "type": "image/png" }]
+    }
   ]
 }
