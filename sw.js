@@ -1,12 +1,13 @@
-/* KEV FUSION 2026 — SW v10.6.0 · accès tiers simplifié (access.json temps réel) */
-const V='kf2026-v10.6.0';
+/* KEV FUSION 2026 — SW v10.7.0 · jeton GitHub admin-only (stockage local, jamais publié) */
+const V='kf2026-v10.7.0';
 const SHELL=['./','./index.html','./access.json','./firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './access.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js',
-'./admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
+'./admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
+'./manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-16.png','./icon-32.png','./icon-48.png','./icon-64.png','./icon-72.png','./icon-96.png','./icon-128.png','./icon-144.png','./icon-152.png','./icon-192.png','./icon-384.png','./icon-512.png','./icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
  for(const u of SHELL){try{const r=await fetch(u,{cache:'reload'});if(r.ok)await k.put(u,r.clone())}catch(x){}}
@@ -17,7 +18,6 @@ self.addEventListener('message',e=>{const d=e.data||{};
  if(d.type==='SKIP_WAITING')self.skipWaiting();
  if(d.type==='NOTIF_TEST')e.waitUntil(self.registration.showNotification(d.title||'🔥 KEV FUSION 2026',{body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-192.png',tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
- /* accès + maj + manifest : TOUJOURS réseau (temps réel) */
  if(/access\.json$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||/manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
  if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')||u.searchParams.has('g')){e.respondWith(fetch(r,{cache:'no-store'}));return}
