@@ -3,344 +3,579 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0f0a">
-<title>KEV FUSION · Studio d'icônes PWABuilder</title>
+<meta name="theme-color" content="#04140c">
+<title>KEV FUSION · Studio icône rallye — PWABuilder</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{
- --bg:#0a0f0a;--bg2:#0d1410;--surface:#121a14;--surface2:#182219;--overlay:#1d2a1f;
- --line:#2a3a2c;--line2:#3a4f3c;
- --tx:#f2f6ee;--mut:#9db39a;--dim:#6d8469;
- --amber:#ff9500;--amber2:#ff7a1a;--blue:#1e6fff;--blue2:#0a5fd7;--gold:#d8b45a;
- --acid:#a3e635;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--info:#38bdf8;
- --scrim:#000000b0;
+ --ink:#04140c;--ink2:#071c11;--surf:#0c2416;--surf2:#10301e;--over:#16402a;--line:#1e5236;--line2:#2b6b48;
+ --tx:#eefaf1;--tx2:#c2e4cd;--mut:#84b397;--dim:#5b8a70;
+ --grass:#25c257;--acid:#a3e635;--amber:#ffb020;--blue:#38bdf8;--red:#ff4d3d;--gold:#d8b45a;
+ --ok:#25c257;--warn:#ffb020;--bad:#ff4d3d;--info:#38bdf8;
+ --r:16px;--r2:10px;--sh:0 16px 44px #000a,0 0 0 1px #ffffff0a;
 }
-*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:var(--amber) var(--bg2)}
-::-webkit-scrollbar{width:11px;height:11px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--amber),var(--blue));border-radius:9px;border:2px solid var(--bg2)}
-::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{
- background:
-  radial-gradient(60% 40% at 12% 0%,#ff950018,transparent 60%),
-  radial-gradient(50% 40% at 88% 8%,#1e6fff1c,transparent 60%),
-  radial-gradient(70% 60% at 50% 110%,#a3e63510,transparent 60%),
-  linear-gradient(180deg,var(--bg),var(--bg2));
- color:var(--tx);font:15px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
- background-image:radial-gradient(1px 1px at 20% 30%,#ffffff14,transparent),radial-gradient(1px 1px at 70% 20%,#ffffff10,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#ffffff0d,transparent);
- animation:drift 26s linear infinite}
-@keyframes drift{to{transform:translateY(-40px)}}
-header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:14px 22px;
- background:#0a0f0add;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.logo{width:40px;height:40px;border-radius:11px;background:conic-gradient(from 210deg,var(--amber),var(--amber2),var(--blue),var(--gold),var(--amber));
- display:grid;place-items:center;font-weight:900;color:#160b00;box-shadow:0 0 22px #ff950055;flex:none}
-header h1{font-size:19px;letter-spacing:.3px}
-header h1 span{background:linear-gradient(90deg,var(--amber),var(--gold),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
-header p{color:var(--mut);font-size:12px}
-.spacer{flex:1}
-.pill{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--acid);background:#a3e63512;white-space:nowrap}
-main{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;max-width:1280px;margin:0 auto;padding:22px}
-@media(max-width:980px){main{grid-template-columns:1fr}}
-.panel{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 50px #00000066}
-.stage{display:flex;flex-direction:column;gap:16px}
-.previewWrap{position:relative;display:grid;place-items:center;padding:26px;border-radius:16px;
- background:
-  radial-gradient(50% 50% at 50% 40%,#1e6fff14,transparent 70%),
-  repeating-conic-gradient(#141c15 0% 25%,#0f1610 0% 50%) 0 0/26px 26px;
- border:1px solid var(--line)}
-#big{width:min(340px,72vw);height:auto;border-radius:24px;box-shadow:0 24px 60px #000c,0 0 0 1px var(--line2);image-rendering:auto;transition:transform .25s}
-#big:hover{transform:scale(1.02) rotate(-.5deg)}
-.safeNote{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--mut);background:#0a0f0acc;padding:3px 10px;border-radius:12px;border:1px solid var(--line)}
-.strip{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-.thumb{display:flex;flex-direction:column;align-items:center;gap:5px}
-.thumb canvas{border-radius:9px;box-shadow:0 6px 16px #000a,0 0 0 1px var(--line);background:#0f1610}
-.thumb span{font-size:10px;color:var(--dim);font-family:ui-monospace,monospace}
-h2{font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
-.ctl{display:flex;flex-direction:column;gap:13px;max-height:none}
-.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.row label{font-size:12px;color:var(--mut)}
-.row output{font-size:11px;color:var(--acid);font-family:ui-monospace,monospace;min-width:44px;text-align:right}
-input[type=range]{grid-column:1/-1;width:100%;appearance:none;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--amber),var(--blue));outline:none}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:17px;height:17px;border-radius:50%;background:var(--tx);border:3px solid var(--amber);box-shadow:0 0 10px #ff950088;cursor:grab}
-input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--tx);border:3px solid var(--amber);cursor:grab}
-select,input[type=text]{width:100%;background:var(--overlay);border:1px solid var(--line2);color:var(--tx);border-radius:10px;padding:8px 10px;font-size:13px}
-select:focus,input:focus{outline:2px solid var(--blue);outline-offset:1px}
-.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.swatch{display:flex;flex-direction:column;gap:4px;align-items:center}
-.swatch input[type=color]{width:100%;height:34px;border:1px solid var(--line2);border-radius:9px;background:var(--overlay);padding:2px;cursor:pointer}
-.swatch span{font-size:10px;color:var(--dim)}
-.toggles{display:flex;gap:8px;flex-wrap:wrap}
-.tg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);background:var(--overlay);border:1px solid var(--line2);border-radius:20px;padding:6px 11px;cursor:pointer;user-select:none}
-.tg input{accent-color:var(--amber)}
-.tg.on{color:var(--acid);border-color:var(--acid)}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
-button{cursor:pointer;border:1px solid var(--line2);background:var(--overlay);color:var(--tx);border-radius:11px;padding:10px 12px;font-size:13px;font-weight:600;transition:transform .12s,box-shadow .12s,border-color .12s}
-button:hover{border-color:var(--amber);transform:translateY(-1px);box-shadow:0 6px 18px #ff950033}
-button:active{transform:translateY(0)}
-button.primary{grid-column:1/-1;background:linear-gradient(90deg,var(--amber),var(--amber2));border-color:var(--amber);color:#160b00;box-shadow:0 8px 24px #ff950044}
-button.blue{background:linear-gradient(90deg,var(--blue),var(--blue2));border-color:var(--blue);color:#fff}
-button.ghost{background:transparent}
-.manifest{margin-top:14px}
-pre{background:#0b110c;border:1px solid var(--line);border-radius:12px;padding:12px;font:11px/1.5 ui-monospace,monospace;color:var(--acid);max-height:220px;overflow:auto;white-space:pre}
-.hint{font-size:11px;color:var(--dim);margin-top:8px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--overlay);border:1px solid var(--acid);color:var(--acid);padding:10px 18px;border-radius:12px;z-index:90;transition:.25s;pointer-events:none;font-size:13px}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.drop{border:2px dashed var(--line2);border-radius:12px;padding:12px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:.15s}
-.drop:hover,.drop.over{border-color:var(--blue);color:var(--info);background:#1e6fff10}
-footer{position:relative;z-index:1;text-align:center;color:var(--dim);font-size:11px;padding:8px 0 26px}
+body{background:var(--ink);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+ background:radial-gradient(52% 38% at 8% -4%,#25c25726,transparent 62%),radial-gradient(46% 34% at 96% 4%,#38bdf81f,transparent 62%),radial-gradient(70% 50% at 50% 112%,#a3e63514,transparent 62%);
+ animation:drift 22s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(2%,-2%,0) scale(1.06)}}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+ background-image:radial-gradient(#fff 1px,transparent 1px);background-size:3px 3px}
+*{scrollbar-width:thin;scrollbar-color:var(--grass) var(--ink2)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--ink2);border-radius:9px}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--grass),var(--acid));border-radius:9px;border:2px solid var(--ink2)}
+::-webkit-scrollbar-thumb:hover{background:var(--acid)}
+header{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;padding:12px 18px;
+ background:#04140ce8;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.mark{width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:20px;
+ background:conic-gradient(from 200deg,var(--grass),var(--acid),var(--blue),var(--grass));color:#04140c;box-shadow:0 0 22px #25c25766}
+header h1{font-size:17px;font-weight:800;letter-spacing:-.2px}
+header p{font-size:11.5px;color:var(--mut)}
+.grow{flex:1}
+.tag{font-size:10.5px;font-weight:800;letter-spacing:1.2px;padding:5px 10px;border-radius:20px;
+ border:1px solid var(--line2);color:var(--acid);background:#a3e63512;white-space:nowrap}
+main{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:18px;
+ display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:16px;align-items:start}
+@media(max-width:1000px){main{grid-template-columns:1fr}}
+.card{background:linear-gradient(162deg,var(--surf),var(--surf2) 72%);border:1px solid var(--line);
+ border-radius:var(--r);padding:16px;margin-bottom:16px;box-shadow:var(--sh);animation:rise .32s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card.hot{border-color:#25c25766;box-shadow:0 16px 44px #25c25722,0 0 0 1px #25c25733}
+h2{font-size:15.5px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+h2 em{font-style:normal;font-size:11px;font-weight:700;color:var(--mut);margin-left:auto}
+.stage{display:grid;place-items:center;padding:22px;border-radius:14px;border:1px solid var(--line);
+ background:radial-gradient(50% 50% at 50% 38%,#25c25718,transparent 70%),repeating-conic-gradient(#0c2416 0% 25%,#071c11 0% 50%) 0 0/26px 26px}
+#big{width:min(330px,74vw);height:auto;border-radius:26px;box-shadow:0 26px 62px #000d,0 0 0 1px var(--line2);transition:transform .28s}
+#big:hover{transform:scale(1.035) rotate(-.7deg)}
+.strip{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:flex-end;margin-top:16px}
+.th{display:flex;flex-direction:column;align-items:center;gap:5px}
+.th canvas{border-radius:9px;background:var(--ink2);box-shadow:0 6px 16px #000a,0 0 0 1px var(--line)}
+.th span{font:800 9.5px/1 ui-monospace,monospace;color:var(--dim)}
+.dev{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:16px}
+.dv{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.dv>span{font-size:11px;color:var(--mut);line-height:1.45}
+.dv i{font-style:normal;font-size:10px;color:var(--dim)}
+.and{width:94px;height:94px;border-radius:28px;overflow:hidden;box-shadow:0 12px 28px #000b,0 0 0 1px var(--line2)}
+.ios{width:90px;height:90px;border-radius:21px;overflow:hidden;box-shadow:0 12px 28px #000b,0 0 0 1px var(--line2)}
+.and canvas,.ios canvas{width:100%;height:100%;display:block}
+.win{width:106px;height:106px;display:grid;place-items:center;border-radius:8px;box-shadow:0 12px 28px #000b,0 0 0 1px var(--line2)}
+.win canvas{width:66px;height:66px;border-radius:13px}
+.desk{width:112px;padding:10px 6px 8px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:7px;
+ background:#0a1f13cc;border:1px solid var(--line);box-shadow:0 12px 28px #000b}
+.desk canvas{width:52px;height:52px;border-radius:12px}
+.desk b{font-size:9.5px;font-weight:700;color:var(--tx2);text-align:center;line-height:1.2}
+.tab{display:flex;align-items:center;gap:8px;background:var(--ink2);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:8px 12px}
+.tab canvas{width:16px;height:16px;border-radius:3px}
+.tab span{font-size:10.5px;color:var(--mut)}
+.chk{list-style:none;display:flex;flex-direction:column;gap:6px}
+.chk li{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:11px;background:var(--ink2);
+ border:1px solid var(--line);font-size:12.5px}
+.chk li.ok{border-color:#25c25755;background:#25c2570f}
+.chk li.ko{border-color:#ffb02055;background:#ffb0200f}
+.chk .ic{flex:none}
+.chk b{display:block;color:var(--tx)}
+.chk i{display:block;font-style:normal;font-size:11px;color:var(--mut);margin-top:2px;word-break:break-word}
+.score{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.bar{flex:1;height:8px;border-radius:6px;background:var(--ink2);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--grass),var(--acid),var(--blue));transition:width .4s}
+.score b{font-size:13px;white-space:nowrap}
+.panel{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto;border-color:#25c25755;
+ background:linear-gradient(168deg,#06180f,#10301e 66%)}
+@media(max-width:1000px){.panel{position:static;max-height:none}}
+.ctl{margin-bottom:12px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+ font-size:10.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.ctl label b{color:var(--acid);font-family:ui-monospace,monospace;font-size:11px}
+select,input[type=text],input[type=password]{width:100%;background:var(--ink2);border:1px solid var(--line2);color:var(--tx);
+ border-radius:var(--r2);padding:9px 11px;font-size:13px}
+select:focus,input:focus{outline:none;border-color:var(--grass);box-shadow:0 0 0 3px #25c2572e}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;border:0;padding:0;
+ background:linear-gradient(90deg,var(--grass),var(--acid),var(--blue))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--tx);
+ border:3px solid var(--grass);box-shadow:0 0 10px #25c257aa;cursor:grab}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--tx);border:3px solid var(--grass);cursor:grab}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.cols div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cols input[type=color]{width:100%;height:34px;border:1px solid var(--line2);border-radius:9px;background:var(--ink2);padding:2px;cursor:pointer}
+.cols span{font-size:9px;color:var(--dim);text-align:center;line-height:1.2}
+.pres{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.pres button{width:28px;height:28px;border-radius:9px;border:2px solid var(--line2);cursor:pointer;padding:0;transition:.15s}
+.pres button:hover{border-color:var(--acid);transform:scale(1.14)}
+.tgs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.tg{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--mut);background:var(--ink2);
+ border:1px solid var(--line2);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none}
+.tg input{width:auto;margin:0;accent-color:var(--grass)}
+.tg.on{color:var(--acid);border-color:var(--grass);background:#25c25714}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns button{border-radius:var(--r2);padding:11px;font-size:12.5px;font-weight:800;cursor:pointer;
+ border:1px solid var(--line2);background:var(--ink2);color:var(--tx);transition:.16s}
+.btns button:hover{border-color:var(--grass);transform:translateY(-1px)}
+.btns .p{grid-column:1/-1;background:linear-gradient(135deg,var(--grass),var(--acid));border-color:var(--grass);color:#04140c}
+.btns .b{background:linear-gradient(135deg,#1f6f54,#3fa382);border-color:#1f6f54;color:#fff}
+.sep{height:1px;background:linear-gradient(90deg,#25c25766,#38bdf866,transparent);margin:13px 0}
+.note{font-size:11.5px;color:var(--mut);line-height:1.6;margin-top:10px}
+.note b{color:var(--tx)}
+.note code{font-family:ui-monospace,monospace;color:var(--acid);background:#a3e63514;padding:1px 5px;border-radius:5px}
+.prog{display:flex;align-items:center;gap:11px;margin-top:12px}
+.prog span{font-size:11px;color:var(--mut)}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);opacity:0;z-index:200;
+ background:var(--over);border:1px solid var(--grass);color:var(--tx);padding:12px 18px;border-radius:12px;
+ box-shadow:var(--sh);transition:.28s;max-width:92vw;font-size:13px}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+footer{position:relative;z-index:1;text-align:center;color:var(--dim);font-size:11px;padding:6px 0 26px}
 </style>
 </head>
 <body>
 <header>
- <div class="logo">KF</div>
- <div><h1>KEV FUSION · <span>Studio d'icônes</span></h1><p>Génère le jeu d'icônes complet requis par PWABuilder (any + maskable + Apple + favicon)</p></div>
- <div class="spacer"></div>
- <span class="pill">PWABuilder ready</span>
+ <span class="mark">🏁</span>
+ <div><h1>Studio icône rallye</h1><p>Source unique <code style="font-family:ui-monospace,monospace;color:var(--acid)">icon.svg</code> → PNG · PWA · PWABuilder</p></div>
+ <span class="grow"></span>
+ <span class="tag" id="ready">ANALYSE…</span>
 </header>
+
 <main>
- <section class="stage">
-  <div class="panel">
-   <h2>Aperçu live</h2>
-   <div class="previewWrap">
-    <canvas id="big" width="512" height="512"></canvas>
-    <span class="safeNote" id="safeNote">zone de sécurité maskable affichée</span>
-   </div>
+ <section>
+  <div class="card hot">
+   <h2>🏎️ Aperçu live <em id="dim">512 × 512</em></h2>
+   <div class="stage"><canvas id="big" width="512" height="512"></canvas></div>
    <div class="strip" id="strip"></div>
+   <div class="prog"><div class="bar"><i id="prog"></i></div><span id="progTxt">Prêt.</span></div>
+   <p class="note">Le rendu provient <b>du même fichier SVG</b> que celui commité dans le dépôt : ce que tu vois est exactement ce que PWABuilder lira. Après publication, <b>supprime l'ancien raccourci bureau</b> puis réinstalle l'app pour rafraîchir l'icône.</p>
   </div>
-  <div class="panel manifest">
-   <h2>manifest.webmanifest généré</h2>
-   <pre id="manifestOut"></pre>
-   <div class="btns">
-    <button id="copyManifest">📋 Copier le manifest</button>
-    <button id="dlManifest" class="blue">⬇️ manifest.webmanifest</button>
+
+  <div class="card">
+   <h2>📱 Rendu réel sur appareil</h2>
+   <div class="dev">
+    <div class="dv"><div class="and"><canvas id="dAnd" width="192" height="192"></canvas></div><span>Android<br><i>maskable · squircle</i></span></div>
+    <div class="dv"><div class="ios"><canvas id="dIos" width="180" height="180"></canvas></div><span>iOS / iPadOS<br><i>apple-touch-icon</i></span></div>
+    <div class="dv"><div class="win" id="dWinBox"><canvas id="dWin" width="128" height="128"></canvas></div><span>Tuile Windows<br><i>144 · fond plein</i></span></div>
+    <div class="dv"><div class="desk"><canvas id="dDesk" width="96" height="96"></canvas><b>KEV FUSION</b></div><span>Raccourci bureau<br><i>Chrome · URL web</i></span></div>
+    <div class="dv"><div class="tab"><canvas id="dTab" width="32" height="32"></canvas><span>onglet</span></div><span>Navigateur<br><i>favicon 32</i></span></div>
    </div>
-   <p class="hint">Place les PNG téléchargés à la racine du dépôt, puis ce manifest. PWABuilder détectera automatiquement les icônes any + maskable.</p>
+  </div>
+
+  <div class="card">
+   <h2>✅ Préparation PWABuilder <em id="chkSum">—</em></h2>
+   <div class="score"><div class="bar"><i id="scoreBar"></i></div><b id="scoreTxt">—</b></div>
+   <ul class="chk" id="chk"><li class="mut">Analyse du dépôt…</li></ul>
+   <div class="btns" style="margin-top:12px">
+    <button id="recheck">↻ Revérifier</button>
+    <button class="b" id="openPwa">🚀 Ouvrir PWABuilder</button>
+   </div>
+  </div>
+
+  <div class="card">
+   <h2>📦 Livraison</h2>
+   <div class="btns">
+    <button class="p" id="zip">📦 ZIP complet (PNG + manifest + assetlinks + workflow)</button>
+    <button id="png512">🖼️ PNG 512</button>
+    <button id="pngMask">🎭 PNG 512 maskable</button>
+    <button id="dlSvg">🧬 icon.svg</button>
+    <button id="dlMan">📄 manifest</button>
+    <button id="dlAsset">🔗 assetlinks</button>
+    <button id="dlWf">⚙️ workflow YAML</button>
+    <button class="b" id="pub">📡 Publier sur GitHub</button>
+   </div>
+   <p class="note"><b>Sans jeton :</b> télécharge le ZIP, dépose tout à la racine du dépôt (dossier <code>.github/workflows</code> inclus), commit. Le workflow régénère ensuite les PNG à chaque modification de l'icône.<br>
+   <b>Avec jeton :</b> Admin → 🔑 Jeton GitHub, puis « Publier » écrit directement les fichiers.</p>
+   <div class="ctl" style="margin-top:12px"><label>Jeton GitHub (appareil admin uniquement)</label>
+    <input type="password" id="tok" placeholder="github_pat_… — jamais commité" autocomplete="off"></div>
+   <div class="ctl"><label>Package Android</label><input type="text" id="pkg"></div>
+   <div class="ctl"><label>Empreinte SHA-256 du keystore</label><input type="text" id="fp" placeholder="AA:BB:…:99"></div>
   </div>
  </section>
 
- <aside class="panel">
-  <h2>Réglages live</h2>
-  <div class="ctl">
-   <div class="row"><label>Source du visuel</label></div>
-   <select id="source">
-    <option value="supercar">Supercar orange (vectoriel)</option>
-    <option value="rally">Berline rally bleue (vectoriel)</option>
-    <option value="mono">Monogramme KF + flamme</option>
-    <option value="upload">Mes photos (upload)</option>
-   </select>
-   <div class="drop" id="drop">📷 Dépose / clique pour charger tes 2 photos (Lambo, WRX…)</div>
-   <input type="file" id="file" accept="image/*" hidden>
-
-   <div class="row"><label>Fond</label></div>
-   <select id="bgMode"><option value="gradient">Dégradé</option><option value="solid">Uni</option><option value="transparent">Transparent</option></select>
-   <div class="colors">
-    <div class="swatch"><input type="color" id="bg1" value="#0d1410"><span>Fond 1</span></div>
-    <div class="swatch"><input type="color" id="bg2" value="#1e6fff"><span>Fond 2</span></div>
-    <div class="swatch"><input type="color" id="car" value="#ff9500"><span>Carrosserie</span></div>
-    <div class="swatch"><input type="color" id="accent" value="#d8b45a"><span>Accent / jantes</span></div>
-   </div>
-
-   <div class="row"><label>Échelle</label><output id="oScale">100%</output><input type="range" id="scale" min="40" max="160" value="100"></div>
-   <div class="row"><label>Décalage X</label><output id="oDx">0</output><input type="range" id="dx" min="-40" max="40" value="0"></div>
-   <div class="row"><label>Décalage Y</label><output id="oDy">0</output><input type="range" id="dy" min="-40" max="40" value="0"></div>
-   <div class="row"><label>Rotation</label><output id="oRot">0°</output><input type="range" id="rot" min="-30" max="30" value="0"></div>
-   <div class="row"><label>Arrondi des coins</label><output id="oRadius">22%</output><input type="range" id="radius" min="0" max="50" value="22"></div>
-   <div class="row"><label>Marge maskable</label><output id="oPad">12%</output><input type="range" id="pad" min="0" max="30" value="12"></div>
-   <div class="row"><label>Halo (glow)</label><output id="oGlow">35%</output><input type="range" id="glow" min="0" max="100" value="35"></div>
-   <div class="row"><label>Ombre portée</label><output id="oShadow">45%</output><input type="range" id="shadow" min="0" max="100" value="45"></div>
-
-   <div class="toggles">
-    <label class="tg on" id="tgSafe"><input type="checkbox" id="safe" checked> Zone maskable</label>
-    <label class="tg" id="tgBadge"><input type="checkbox" id="badge"> Badge texte</label>
-    <label class="tg on" id="tgWheels"><input type="checkbox" id="wheels" checked> Jantes accent</label>
-   </div>
-   <input type="text" id="badgeText" value="2026" placeholder="Texte du badge">
-
-   <div class="btns">
-    <button id="reset" class="ghost">↺ Réinitialiser</button>
-    <button id="rand" class="ghost">🎲 Aléatoire</button>
-    <button id="png" class="blue">⬇️ PNG 512</button>
-    <button id="zip" class="primary">📦 Télécharger le pack ZIP (toutes icônes + manifest)</button>
-   </div>
+ <aside class="card panel">
+  <h2 style="color:var(--acid)">🎛️ Réglages live</h2>
+  <div class="ctl"><label>Livrée</label><div class="pres" id="pres"></div></div>
+  <div class="cols">
+   <div><input type="color" id="c_car" data-k="car"><span>Carrosserie</span></div>
+   <div><input type="color" id="c_acid" data-k="acid"><span>Bandes</span></div>
+   <div><input type="color" id="c_rim" data-k="rim"><span>Jantes</span></div>
+   <div><input type="color" id="c_red" data-k="red"><span>Bavettes</span></div>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(2,1fr)">
+   <div><input type="color" id="c_bg1" data-k="bg1"><span>Fond 1</span></div>
+   <div><input type="color" id="c_bg2" data-k="bg2"><span>Fond 2</span></div>
+  </div>
+  <div class="ctl"><label>Fond</label><select id="c_bg" data-k="bg">
+   <option value="radial">Projecteur radial</option><option value="linear">Dégradé diagonal</option>
+   <option value="solid">Uni</option><option value="transparent">Transparent</option></select></div>
+  <div class="sep"></div>
+  <div class="ctl"><label>Échelle <b id="o_scale"></b></label><input type="range" id="c_scale" data-k="scale" min="60" max="150"></div>
+  <div class="ctl"><label>Garde au sol / position <b id="o_dy"></b></label><input type="range" id="c_dy" data-k="dy" min="-16" max="16"></div>
+  <div class="ctl"><label>Inclinaison <b id="o_tilt"></b></label><input type="range" id="c_tilt" data-k="tilt" min="-9" max="9"></div>
+  <div class="ctl"><label>Arrondi des coins <b id="o_radius"></b></label><input type="range" id="c_radius" data-k="radius" min="0" max="50"></div>
+  <div class="ctl"><label>Marge maskable <b id="o_pad"></b></label><input type="range" id="c_pad" data-k="pad" min="0" max="30"></div>
+  <div class="ctl"><label>Halo projecteur <b id="o_glow"></b></label><input type="range" id="c_glow" data-k="glow" min="0" max="100"></div>
+  <div class="ctl"><label>Ombre au sol <b id="o_shadow"></b></label><input type="range" id="c_shadow" data-k="shadow" min="0" max="100"></div>
+  <div class="ctl"><label>Terre / boue <b id="o_dirt"></b></label><input type="range" id="c_dirt" data-k="dirt" min="0" max="100"></div>
+  <div class="ctl"><label>Vernis <b id="o_gloss"></b></label><input type="range" id="c_gloss" data-k="gloss" min="0" max="100"></div>
+  <div class="sep"></div>
+  <div class="tgs">
+   <label class="tg" id="t_bar"><input type="checkbox" data-t="bar"> Rampe de phares</label>
+   <label class="tg" id="t_wing"><input type="checkbox" data-t="wing"> Aileron</label>
+   <label class="tg" id="t_num"><input type="checkbox" data-t="num"> Dossard</label>
+   <label class="tg" id="t_flaps"><input type="checkbox" data-t="flaps"> Bavettes</label>
+   <label class="tg" id="t_safe"><input type="checkbox" data-t="safe"> Zone 80 %</label>
+  </div>
+  <div class="ctl"><label>Qualité de rastérisation</label><select id="c_q" data-k="q">
+   <option value="2">Standard ×2</option><option value="3">Haute ×3</option><option value="4">Ultra ×4</option></select></div>
+  <div class="btns">
+   <button id="reset">↺ Réinitialiser</button>
+   <button id="rand">🎲 Aléatoire</button>
+   <button class="p" id="apply">💉 Appliquer au dépôt local</button>
   </div>
  </aside>
 </main>
-<footer>KEV FUSION 2026 · studio d'icônes autonome, sans dépendance — prêt pour PWABuilder / TWA Android.</footer>
-<div class="toast" id="toast"></div>
+<footer>KEV FUSION 2026 · studio d'icône autonome — un seul SVG, tous les PNG, PWABuilder prêt.</footer>
+<div id="toast"></div>
 
 <script>
 'use strict';
-const $=s=>document.querySelector(s);
-const state={source:'supercar',bgMode:'gradient',bg1:'#0d1410',bg2:'#1e6fff',car:'#ff9500',accent:'#d8b45a',
- scale:100,dx:0,dy:0,rot:0,radius:22,pad:12,glow:35,shadow:45,safe:true,badge:false,badgeText:'2026',wheels:true};
-let uploadImg=null;
-const DEF=JSON.parse(JSON.stringify(state));
-const SIZES=[512,192,144,96,72,48,32,16];
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
-function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
-function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0')}
-function wheel(ctx,x,y,r,accent,on){ctx.save();ctx.fillStyle='#0b0d10';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
- ctx.fillStyle=on?accent:'#39424d';ctx.beginPath();ctx.arc(x,y,r*0.55,0,7);ctx.fill();
- ctx.strokeStyle=shade(on?accent:'#39424d',0.6);ctx.lineWidth=r*0.16;
- for(let i=0;i<5;i++){const a=i*Math.PI*2/5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*r*0.5,y+Math.sin(a)*r*0.5);ctx.stroke()}
- ctx.fillStyle='#10141a';ctx.beginPath();ctx.arc(x,y,r*0.16,0,7);ctx.fill();ctx.restore()}
-function supercar(ctx,st){const c=st.car;
- ctx.save();
- ctx.fillStyle=shade(c,0.55);ctx.beginPath();ctx.ellipse(0,15,46,4,0,0,7);ctx.fill();
- const g=ctx.createLinearGradient(0,-16,0,14);g.addColorStop(0,shade(c,1.25));g.addColorStop(0.5,c);g.addColorStop(1,shade(c,0.6));
- ctx.fillStyle=g;ctx.beginPath();
- ctx.moveTo(-46,10);ctx.lineTo(-44,2);ctx.quadraticCurveTo(-30,-2,-18,-4);ctx.quadraticCurveTo(-8,-15,6,-15);
- ctx.quadraticCurveTo(18,-14,26,-6);ctx.quadraticCurveTo(38,-3,46,2);ctx.lineTo(47,8);ctx.quadraticCurveTo(47,12,42,12);
- ctx.lineTo(-42,12);ctx.quadraticCurveTo(-46,12,-46,10);ctx.closePath();ctx.fill();
- ctx.fillStyle='#0e1a26';ctx.beginPath();ctx.moveTo(-14,-5);ctx.quadraticCurveTo(-6,-13,5,-13);ctx.quadraticCurveTo(15,-12,22,-6);ctx.lineTo(2,-6);ctx.closePath();ctx.fill();
- ctx.fillStyle=shade(c,0.45);ctx.beginPath();ctx.moveTo(-24,4);ctx.lineTo(-12,2);ctx.lineTo(-14,9);ctx.lineTo(-26,9);ctx.closePath();ctx.fill();
- ctx.fillStyle='#fff7d6';ctx.beginPath();ctx.moveTo(40,1);ctx.lineTo(46,3);ctx.lineTo(45,6);ctx.lineTo(39,4);ctx.closePath();ctx.fill();
- ctx.fillStyle='#ff3b30';ctx.fillRect(-46,4,3,3);
- wheel(ctx,-27,12,8.5,st.accent,st.wheels);wheel(ctx,29,12,8.5,st.accent,st.wheels);
- ctx.restore()}
-function rally(ctx,st){const c=st.car;
- ctx.save();
- ctx.fillStyle=shade(c,0.55);ctx.beginPath();ctx.ellipse(0,16,46,4,0,0,7);ctx.fill();
- ctx.fillStyle=shade(c,0.8);ctx.fillRect(-47,-14,10,3);ctx.fillRect(-44,-11,3,8);
- const g=ctx.createLinearGradient(0,-14,0,14);g.addColorStop(0,shade(c,1.3));g.addColorStop(0.5,c);g.addColorStop(1,shade(c,0.6));
- ctx.fillStyle=g;ctx.beginPath();
- ctx.moveTo(-46,10);ctx.lineTo(-45,0);ctx.quadraticCurveTo(-32,-3,-22,-4);ctx.quadraticCurveTo(-13,-13,-1,-13);
- ctx.quadraticCurveTo(12,-13,19,-6);ctx.lineTo(33,-4);ctx.quadraticCurveTo(44,-2,46,2);ctx.lineTo(47,8);
- ctx.quadraticCurveTo(47,12,42,12);ctx.lineTo(-42,12);ctx.quadraticCurveTo(-46,12,-46,10);ctx.closePath();ctx.fill();
- ctx.fillStyle='#0e1a26';ctx.beginPath();ctx.moveTo(-18,-5);ctx.quadraticCurveTo(-11,-11,-1,-11);ctx.quadraticCurveTo(10,-11,16,-6);ctx.lineTo(-2,-6);ctx.closePath();ctx.fill();
- ctx.beginPath();ctx.moveTo(2,-6);ctx.lineTo(15,-6);ctx.lineTo(17,-5);ctx.lineTo(3,-5);ctx.closePath();ctx.fill();
- ctx.fillStyle=shade(c,0.5);ctx.fillRect(24,-7,8,3);
- ctx.fillStyle='#fff7d6';ctx.beginPath();ctx.moveTo(40,1);ctx.lineTo(46,3);ctx.lineTo(45,6);ctx.lineTo(39,4);ctx.closePath();ctx.fill();
- ctx.fillStyle='#ff3b30';ctx.fillRect(-46,3,3,4);
- wheel(ctx,-27,12,8.5,st.accent,true);wheel(ctx,29,12,8.5,st.accent,true);
- ctx.restore()}
-function mono(ctx,st){ctx.save();
- const g=ctx.createLinearGradient(-30,-30,30,30);g.addColorStop(0,st.car);g.addColorStop(1,st.accent);
- ctx.fillStyle=g;ctx.font='900 44px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText('KF',0,2);
- ctx.fillStyle=st.car;ctx.beginPath();ctx.moveTo(0,-30);ctx.quadraticCurveTo(7,-22,4,-16);ctx.quadraticCurveTo(10,-19,9,-26);ctx.quadraticCurveTo(14,-18,10,-12);ctx.quadraticCurveTo(4,-8,0,-12);ctx.quadraticCurveTo(-6,-16,-3,-22);ctx.quadraticCurveTo(-2,-18,1,-18);ctx.quadraticCurveTo(-3,-24,0,-30);ctx.closePath();ctx.fill();
- ctx.restore()}
-function drawUpload(ctx,S,st){if(!uploadImg)return;const iw=uploadImg.width,ih=uploadImg.height;
- const base=Math.max(S/iw,S/ih);const sc=base*(st.scale/100);
- const w=iw*sc,h=ih*sc;ctx.drawImage(uploadImg,-w/2,-h/2,w,h)}
-function render(ctx,S,st,maskable){
- ctx.clearRect(0,0,S,S);ctx.save();
- const rad=(st.radius/100)*(S/2);
- if(st.bgMode!=='transparent'){rr(ctx,0,0,S,S,rad);ctx.clip();
-  if(st.bgMode==='gradient'){const g=ctx.createLinearGradient(0,0,S,S);g.addColorStop(0,st.bg1);g.addColorStop(1,st.bg2);ctx.fillStyle=g}
-  else ctx.fillStyle=st.bg1;
-  ctx.fillRect(0,0,S,S);
-  const vg=ctx.createRadialGradient(S/2,S*0.35,S*0.1,S/2,S/2,S*0.75);vg.addColorStop(0,'#ffffff10');vg.addColorStop(1,'#00000055');ctx.fillStyle=vg;ctx.fillRect(0,0,S,S);}
- const content=(maskable?1-(st.pad/100)*1.1:1)*(st.scale/100);
- ctx.translate(S/2+(st.dx/100)*S,S/2+(st.dy/100)*S);
- ctx.rotate(st.rot*Math.PI/180);
- const k=(S/110)*content;ctx.scale(k,k);
- if(st.shadow>0){ctx.shadowColor='#000000';ctx.shadowBlur=st.shadow*0.2;ctx.shadowOffsetY=st.shadow*0.08}
- if(st.glow>0){ctx.shadowColor=st.car;ctx.shadowBlur=st.glow*0.35}
- if(st.source==='supercar')supercar(ctx,st);
- else if(st.source==='rally')rally(ctx,st);
- else if(st.source==='mono')mono(ctx,st);
- else drawUpload(ctx,S/k,st);
- ctx.restore();
- if(st.badge&&st.badgeText){ctx.save();rr(ctx,0,0,S,S,rad);ctx.clip();
-  ctx.fillStyle='#00000099';const bh=S*0.16;ctx.fillRect(0,S-bh,S,bh);
-  ctx.fillStyle=st.accent;ctx.font='700 '+(bh*0.6)+'px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(st.badgeText,S/2,S-bh/2);ctx.restore()}
- if(st.safe&&maskable){ctx.save();ctx.strokeStyle='#a3e635';ctx.setLineDash([6,6]);ctx.lineWidth=Math.max(1,S*0.006);
-  ctx.beginPath();ctx.arc(S/2,S/2,S*0.4,0,7);ctx.stroke();ctx.restore()}
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS={g(k,d){try{const v=JSON.parse(localStorage.getItem('kf_'+k));return v==null?d:v}catch(e){return d}},
+ s(k,v){try{localStorage.setItem('kf_'+k,JSON.stringify(v))}catch(e){}}};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),3000)}
+const DEF={car:'#25c257',acid:'#a3e635',rim:'#d8b45a',red:'#e11d2e',bg1:'#04140c',bg2:'#0d4a2b',
+ bg:'radial',scale:100,dy:0,tilt:0,radius:23,pad:16,glow:60,shadow:70,dirt:50,gloss:62,
+ bar:true,wing:true,num:true,flaps:true,safe:false,q:2};
+let ST=Object.assign({},DEF,LS.g('iconStyle3',{}));
+let SRC='',CAR='',img=new Image(),imgReady=false,raf=0,token=LS.g('ghToken','');
+const ANY=[16,32,48,64,72,96,128,144,152,192,384,512],MASK=[192,512],APPLE=[180,167,152,120];
+const save=()=>LS.s('iconStyle3',ST);
+function shade(h,f){const n=parseInt(h.slice(1),16);return '#'+[(n>>16)&255,(n>>8)&255,n&255]
+ .map(v=>Math.max(0,Math.min(255,Math.round(v*f))).toString(16).padStart(2,'0')).join('')}
+
+/* ---------- construction SVG paramétrée ---------- */
+function buildSVG(size,maskable){
+ let car=CAR;
+ const map=[[DEF.car,ST.car],[DEF.acid,ST.acid],[DEF.rim,ST.rim],[DEF.red,ST.red],
+  ['#8dffb4',shade(ST.car,1.6)],['#3ee077',shade(ST.car,1.18)],['#12833c',shade(ST.car,.62)],['#053a1a',shade(ST.car,.28)],
+  ['#8a6f28',shade(ST.rim,.62)],['#6f5418',shade(ST.rim,.45)],['#fff0bd',shade(ST.rim,1.35)]];
+ map.forEach(([a,b])=>{if(a&&b&&a.toLowerCase()!==b.toLowerCase())car=car.split(a).join(b)});
+ if(!ST.bar)car=car.replace(/<g id="lightbar">[\s\S]*?<\/g>\s*(?=<g id="front">)/,'');
+ if(!ST.wing)car=car.replace(/<g id="wing">[\s\S]*?<\/g>/,'');
+ if(!ST.num)car=car.replace(/<g id="roundel">[\s\S]*?<\/g>\s*<\/g>/,'</g>');
+ if(!ST.flaps)car=car.replace(/<g id="flaps"[\s\S]*?<\/g>/,'');
+ car=car.replace(/(<g id="dirt" opacity=")[\d.]+(")/,'$1'+(ST.dirt/100).toFixed(2)+'$2');
+ car=car.replace(/(<path d="M64 236[^>]*fill="url\(#spec\)" opacity=")[\d.]+(")/,'$1'+(ST.gloss/100).toFixed(2)+'$2');
+ car=car.replace(/(<ellipse cx="256" cy="400"[^>]*opacity=")[\d.]+(")/,'$1'+(ST.shadow/100*.85).toFixed(2)+'$2');
+ const k=(ST.scale/100)*(maskable?(1-ST.pad/100*.85):1);
+ const rx=maskable?0:Math.round(512*ST.radius/100);
+ const g=ST.bg==='transparent'?'':
+  ST.bg==='solid'?`<rect width="512" height="512" rx="${rx}" fill="${ST.bg1}"/>`:
+  ST.bg==='linear'?`<defs><linearGradient id="B" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${ST.bg1}"/><stop offset=".52" stop-color="${shade(ST.bg2,.72)}"/><stop offset="1" stop-color="${ST.bg2}"/></linearGradient></defs><rect width="512" height="512" rx="${rx}" fill="url(#B)"/>`:
+  `<defs><radialGradient id="B" cx=".36" cy=".24" r=".82"><stop offset="0" stop-color="${shade(ST.bg2,1.4)}"/><stop offset=".55" stop-color="${ST.bg2}"/><stop offset="1" stop-color="${ST.bg1}"/></radialGradient></defs><rect width="512" height="512" rx="${rx}" fill="url(#B)"/>`;
+ const spot=(ST.bg==='transparent'||ST.glow<=0)?'':
+  `<defs><radialGradient id="S" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${ST.car}" stop-opacity="${(ST.glow/100*.4).toFixed(3)}"/><stop offset="1" stop-color="${ST.car}" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="${rx}" fill="url(#S)"/>`;
+ const floor=ST.bg==='transparent'?'':
+  `<defs><linearGradient id="F" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${(ST.shadow/100*.6).toFixed(3)}"/></linearGradient></defs><rect y="300" width="512" height="212" rx="${rx}" fill="url(#F)"/>`;
+ const vig=ST.bg==='transparent'?'':
+  `<defs><radialGradient id="V" cx=".5" cy=".46" r=".78"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient></defs><rect width="512" height="512" rx="${rx}" fill="url(#V)"/>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="${size}" height="${size}">
+${g}${spot}${floor}${vig}
+<g transform="translate(256 ${262+ST.dy*2}) rotate(${ST.tilt} 256 262) scale(${k.toFixed(4)}) translate(-256 -262)">${car}</g>
+</svg>`}
+function svgURL(size,mask){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(buildSVG(size,mask))}
+
+/* ---------- rendu ---------- */
+function paintTo(canvas,size,mask){
+ return new Promise(res=>{
+  const im=new Image();
+  im.onload=()=>{const q=mask?2:(+ST.q||2);
+   const off=document.createElement('canvas');off.width=off.height=size*q;
+   const oc=off.getContext('2d');oc.drawImage(im,0,0,size*q,size*q);
+   const c=canvas.getContext('2d');c.clearRect(0,0,canvas.width,canvas.height);
+   c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+   c.drawImage(off,0,0,canvas.width,canvas.height);
+   if(ST.safe&&mask){c.save();c.strokeStyle='#a3e635';c.setLineDash([canvas.width*.02,canvas.width*.014]);
+    c.lineWidth=Math.max(1,canvas.width*.005);c.beginPath();c.arc(canvas.width/2,canvas.height/2,canvas.width*.4,0,7);c.stroke();c.restore()}
+   res()};
+  im.onerror=()=>res();
+  im.src=svgURL(size,mask)})}
+function schedule(){if(raf)return;raf=requestAnimationFrame(async()=>{raf=0;await draw()})}
+async function draw(){
+ const big=$('#big');if(!big)return;
+ await paintTo(big,512,false);
+ for(const c of $$('#strip canvas'))await paintTo(c,+c.dataset.n,false);
+ await paintTo($('#dAnd'),192,true);
+ await paintTo($('#dIos'),180,false);
+ await paintTo($('#dWin'),128,false);
+ await paintTo($('#dDesk'),96,false);
+ await paintTo($('#dTab'),32,false);
+ $('#dWinBox').style.background=ST.bg==='transparent'?'#0c2416':ST.bg1;
+ $('#dim').textContent='512 × 512 · ×'+ST.q;
+ const fav=document.querySelector('link[rel="icon"]');if(fav)fav.href=svgURL(64,false);
 }
-const big=$('#big');const bctx=big.getContext('2d');
-const strip=$('#strip');const thumbs=[];
-[192,144,96,72,48,32,16].forEach(s=>{const d=document.createElement('div');d.className='thumb';
- const c=document.createElement('canvas');c.width=c.height=s;const sp=document.createElement('span');sp.textContent=s+'px';
- d.appendChild(c);d.appendChild(sp);strip.appendChild(d);thumbs.push([s,c.getContext('2d')])});
-let raf=0;
-function paint(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
- render(bctx,512,state,true);
- thumbs.forEach(([s,c])=>render(c,s,state,false));
- $('#safeNote').style.display=state.safe?'block':'none';
- $('#manifestOut').textContent=manifestJSON();})}
-function manifestJSON(){const icons=[];
- SIZES.forEach(s=>icons.push({src:'icon-'+s+'.png',sizes:s+'x'+s,type:'image/png',purpose:'any'}));
- icons.push({src:'icon-192-maskable.png',sizes:'192x192',type:'image/png',purpose:'maskable'});
- icons.push({src:'icon-512-maskable.png',sizes:'512x512',type:'image/png',purpose:'maskable'});
- return JSON.stringify({name:'KEV FUSION 2026 — Technique · Incendie · Juridique',short_name:'KEV FUSION',
-  description:'APK unique technique & juridique : diagnostic, incendie, JusteRepère, Auto-Droit, VIN, OBD, photos, rappels.',
-  id:'./',start_url:'./index.html',scope:'./',display:'standalone',orientation:'any',lang:'fr',
-  theme_color:state.bg1,background_color:state.bg1,categories:['productivity','utilities','education'],icons},null,2)}
-/* ---- controls ---- */
-function bindRange(id,key,fmt){const el=$('#'+id),out=$('#o'+id[0].toUpperCase()+id.slice(1));
- el.addEventListener('input',()=>{state[key]=+el.value;out.textContent=fmt(el.value);paint()})}
-bindRange('scale','scale',v=>v+'%');bindRange('dx','dx',v=>v);bindRange('dy','dy',v=>v);
-bindRange('rot','rot',v=>v+'°');bindRange('radius','radius',v=>v+'%');bindRange('pad','pad',v=>v+'%');
-bindRange('glow','glow',v=>v+'%');bindRange('shadow','shadow',v=>v+'%');
-['bg1','bg2','car','accent'].forEach(id=>$('#'+id).addEventListener('input',e=>{state[id]=e.target.value;paint()}));
-$('#source').addEventListener('change',e=>{state.source=e.target.value;paint()});
-$('#bgMode').addEventListener('change',e=>{state.bgMode=e.target.value;paint()});
-$('#badgeText').addEventListener('input',e=>{state.badgeText=e.target.value;paint()});
-function tg(id,key,cls){const w=$('#'+cls),el=$('#'+id);el.addEventListener('change',()=>{state[key]=el.checked;w.classList.toggle('on',el.checked);paint()})}
-tg('safe','safe','tgSafe');tg('badge','badge','tgBadge');tg('wheels','wheels','tgWheels');
-$('#reset').addEventListener('click',()=>{Object.assign(state,JSON.parse(JSON.stringify(DEF)));syncUI();paint();toast('Réglages réinitialisés')});
-$('#rand').addEventListener('click',()=>{
- const pal=[['#0d1410','#1e6fff','#ff9500','#d8b45a'],['#160b00','#ff7a1a','#ffd166','#0e1a26'],['#0a1a2f','#0a5fd7','#1e6fff','#d8b45a'],['#101418','#a3e635','#ff9500','#38bdf8'],['#1a0d14','#f87171','#fbbf24','#a3e635']];
- const p=pal[Math.floor(Math.random()*pal.length)];
- state.bg1=p[0];state.bg2=p[1];state.car=p[2];state.accent=p[3];
- state.source=['supercar','rally','mono'][Math.floor(Math.random()*3)];
- state.scale=80+Math.floor(Math.random()*50);state.rot=Math.floor(Math.random()*21)-10;
- state.radius=Math.floor(Math.random()*40);state.glow=20+Math.floor(Math.random()*60);
- syncUI();paint();toast('Palette aléatoire appliquée')});
-function syncUI(){$('#source').value=state.source;$('#bgMode').value=state.bgMode;
- ['bg1','bg2','car','accent'].forEach(id=>$('#'+id).value=state[id]);
- [['scale','scale','%'],['dx','dx',''],['dy','dy',''],['rot','rot','°'],['radius','radius','%'],['pad','pad','%'],['glow','glow','%'],['shadow','shadow','%']]
- .forEach(([id,key,f])=>{$('#'+id).value=state[key];$('#o'+id[0].toUpperCase()+id.slice(1)).textContent=state[key]+f});
- $('#safe').checked=state.safe;$('#badge').checked=state.badge;$('#wheels').checked=state.wheels;
- $('#tgSafe').classList.toggle('on',state.safe);$('#tgBadge').classList.toggle('on',state.badge);$('#tgWheels').classList.toggle('on',state.wheels);
- $('#badgeText').value=state.badgeText}
-/* ---- upload ---- */
-const drop=$('#drop'),file=$('#file');
-drop.addEventListener('click',()=>file.click());
-['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
-['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
-drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadImg(e.dataTransfer.files[0])});
-file.addEventListener('change',e=>{if(e.target.files[0])loadImg(e.target.files[0])});
-function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{uploadImg=i;state.source='upload';$('#source').value='upload';drop.textContent='✅ '+f.name+' chargée';paint();toast('Photo chargée comme source')};i.src=r.result};r.readAsDataURL(f)}
-/* ---- export ---- */
-function blobOf(canvas){return new Promise(res=>canvas.toBlob(res,'image/png'))}
-async function pngOf(size,maskable){const c=document.createElement('canvas');c.width=c.height=size;
- const st=JSON.parse(JSON.stringify(state));if(!maskable)st.safe=false;
- render(c.getContext('2d'),size,st,maskable);return new Uint8Array(await (await blobOf(c)).arrayBuffer())}
-$('#png').addEventListener('click',async()=>{const u8=await pngOf(512,false);dl(new Blob([u8],{type:'image/png'}),'icon-512.png');toast('PNG 512 téléchargé')});
-$('#dlManifest').addEventListener('click',()=>{dl(new Blob([manifestJSON()],{type:'application/manifest+json'}),'manifest.webmanifest');toast('manifest téléchargé')});
-$('#copyManifest').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(manifestJSON());toast('manifest copié')}catch(e){toast('Copie impossible')}});
-function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
-/* ---- ZIP (store, sans dépendance) ---- */
+
+/* ---------- fichiers ---------- */
+function manifestTxt(){
+ const icons=[{src:'icon.svg',sizes:'any',type:'image/svg+xml',purpose:'any'}];
+ ANY.slice().reverse().forEach(s=>icons.push({src:`icon-${s}.png`,sizes:`${s}x${s}`,type:'image/png',purpose:'any'}));
+ MASK.slice().reverse().forEach(s=>icons.push({src:`icon-${s}-maskable.png`,sizes:`${s}x${s}`,type:'image/png',purpose:'maskable'}));
+ const order=['icon-192.png','icon-512.png','icon-192-maskable.png','icon-512-maskable.png'];
+ icons.sort((a,b)=>{const ia=order.indexOf(a.src),ib=order.indexOf(b.src);
+  if(ia>=0&&ib>=0)return ia-ib;if(ia>=0)return -1;if(ib>=0)return 1;
+  if(a.sizes==='any')return -1;if(b.sizes==='any')return 1;return parseInt(b.sizes)-parseInt(a.sizes)});
+ return JSON.stringify({name:'KEV FUSION 2026 — Expert Auto & Droit',short_name:'KEV FUSION',
+  description:'Expert automobile & avocat : pannes corrélées par code moteur, DTC, campagnes de rappel, TSB, étude incendie, JusteRepère, Auto-Droit, VIN, OBD.',
+  id:'./index.html',start_url:'./index.html',scope:'./',display:'standalone',
+  display_override:['standalone','minimal-ui'],orientation:'any',lang:'fr',dir:'ltr',
+  theme_color:ST.bg1,background_color:ST.bg1,categories:['productivity','utilities','business','education'],
+  icons,shortcuts:[
+   {name:'Recherche prédictive',short_name:'Recherche',url:'./index.html?view=recherche',icons:[{src:'icon-96.png',sizes:'96x96'}]},
+   {name:'Étude corrélée',short_name:'Étude',url:'./index.html?view=etude',icons:[{src:'icon-96.png',sizes:'96x96'}]},
+   {name:'JusteRepère',short_name:'Juridique',url:'./index.html?view=jr',icons:[{src:'icon-96.png',sizes:'96x96'}]},
+   {name:'Studio icônes',short_name:'Icônes',url:'./icons.html',icons:[{src:'icon-96.png',sizes:'96x96'}]}]},null,2)}
+function assetTxt(){
+ const fp=($('#fp').value||'').trim()||'AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99';
+ return JSON.stringify([{relation:['delegate_permission/common.handle_all_urls'],
+  target:{namespace:'android_app',package_name:($('#pkg').value||'').trim()||'io.github.expertkevin06_cell.kevfusion',
+   sha256_cert_fingerprints:[fp]}}],null,2)}
+function svgFile(){
+ let out=SRC;
+ const map=[[DEF.bg1,ST.bg1],[DEF.bg2,ST.bg2],['#0a3220',shade(ST.bg2,.72)],['#2ce06a',shade(ST.car,1.25)]];
+ map.forEach(([a,b])=>{if(a&&b&&a.toLowerCase()!==b.toLowerCase())out=out.split(a).join(b)});
+ const inner=buildSVG(512,false).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="KEV FUSION — voiture de rallye">\n<!--CAR-->\n${CAR}\n<!--/CAR-->\n${inner.replace(CAR,'')}\n</svg>`}
+const WF=`name: Icônes PWA · PWABuilder
+on:
+  push:
+    branches: [main]
+    paths: ['icon.svg','manifest.webmanifest','tools/build-icons.mjs','.github/workflows/icons.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm install --no-save --no-audit --no-fund sharp@0.33.5
+      - run: node tools/build-icons.mjs
+      - run: |
+          git config user.name "kev-fusion-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add icon-*.png apple-*.png apple-touch-icon.png favicon-*.png
+          git diff --cached --quiet || (git commit -m "chore(icons): icônes rallye PWA [skip ci]" && git push)
+`;
+const BUILDER=`import { readFile, writeFile, access } from 'node:fs/promises';
+import sharp from 'sharp';
+const raw = await readFile('icon.svg','utf8');
+const m = raw.match(/<!--CAR-->([\\s\\S]*?)<!--\\/CAR-->/);
+if(!m){console.error('marqueurs CAR absents');process.exit(1)}
+const CAR=m[1];
+const ANY=[16,32,48,64,72,96,128,144,152,192,384,512],MASK=[192,512],APPLE=[180,167,152,120];
+const BG=await (async()=>{const d=raw.match(/<defs>[\\s\\S]*?<\\/defs>/);return d?d[0]:''})();
+const bgRects=raw.split('<!--CAR-->')[0].replace(/<svg[^>]*>/,'').replace(/<defs>[\\s\\S]*?<\\/defs>/,'');
+function wrap(size,radius,scale,mask){
+ const rx=mask?0:Math.round(512*radius);
+ return \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="\${size}" height="\${size}">\${BG}\${bgRects.replace(/rx="116"/g,'rx="'+rx+'"')}<g transform="translate(256 262) scale(\${scale}) translate(-256 -262)">\${CAR}</g></svg>\`}
+const jobs=[];
+ANY.forEach(s=>jobs.push(['icon-'+s+'.png',wrap(s,.227,1,false),s]));
+MASK.forEach(s=>jobs.push(['icon-'+s+'-maskable.png',wrap(s,0,.76,true),s]));
+APPLE.forEach(s=>jobs.push(['apple-'+s+'.png',wrap(s,0,.94,true),s]));
+jobs.push(['apple-touch-icon.png',wrap(180,0,.94,true),180]);
+jobs.push(['favicon-32.png',wrap(32,.227,1,false),32]);
+jobs.push(['favicon-16.png',wrap(16,.227,1,false),16]);
+for(const [name,svg,size] of jobs){
+ const buf=await sharp(Buffer.from(svg),{density:384}).resize(size,size,{fit:'fill'}).png({compressionLevel:9}).toBuffer();
+ await writeFile(name,buf);console.log('✓',name)}
+const mf=JSON.parse(await readFile('manifest.webmanifest','utf8'));const miss=[];
+for(const i of mf.icons||[]){try{await access(i.src.replace(/^\\.\\//,''))}catch{miss.push(i.src)}}
+if(miss.length){console.error('manquants:',miss.join(', '));process.exit(1)}
+console.log('✅ PWABuilder prêt');
+`;
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),6000)}
+async function pngBlob(size,mask){
+ const c=document.createElement('canvas');c.width=c.height=size;await paintTo(c,size,mask);
+ return new Promise(r=>c.toBlob(r,'image/png'))}
 const CT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
 function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CT[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
-function zip(entries){const enc=new TextEncoder();const parts=[],central=[];let off=0;
- for(const e of entries){const name=enc.encode(e.name),crc=crc32(e.u8),sz=e.u8.length;
-  const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(8,0,true);
-  lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);lh.setUint16(26,name.length,true);
-  parts.push(new Uint8Array(lh.buffer),name,e.u8);
-  const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);
-  ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);ch.setUint16(28,name.length,true);ch.setUint32(42,off,true);
-  central.push(new Uint8Array(ch.buffer),name);off+=30+name.length+sz}
- let cs=0;central.forEach(c=>cs+=c.length);
- const end=new DataView(new ArrayBuffer(22));end.setUint32(0,0x06054b50,true);end.setUint16(8,entries.length,true);end.setUint16(10,entries.length,true);
- end.setUint32(12,cs,true);end.setUint32(16,off,true);
- return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:'application/zip'})}
-$('#zip').addEventListener('click',async()=>{
- toast('Génération du pack…');const entries=[];
- for(const s of SIZES)entries.push({name:'icon-'+s+'.png',u8:await pngOf(s,false)});
- entries.push({name:'icon-192-maskable.png',u8:await pngOf(192,true)});
- entries.push({name:'icon-512-maskable.png',u8:await pngOf(512,true)});
- entries.push({name:'apple-touch-icon.png',u8:await pngOf(180,false)});
- entries.push({name:'favicon-32.png',u8:await pngOf(32,false)});
- entries.push({name:'favicon-16.png',u8:await pngOf(16,false)});
- entries.push({name:'manifest.webmanifest',u8:new TextEncoder().encode(manifestJSON())});
- dl(zip(entries),'kev-fusion-icons.zip');toast('Pack ZIP complet téléchargé ✅')});
-syncUI();paint();
+function zip(files){
+ const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+ files.forEach(f=>{const nm=enc.encode(f.name),crc=crc32(f.u8),sz=f.u8.length;
+  const lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);
+  lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);lh.setUint16(26,nm.length,true);
+  parts.push(new Uint8Array(lh.buffer),nm,f.u8);
+  const ch=new DataView(new ArrayBuffer(46));
+  ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);
+  ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+  cen.push(new Uint8Array(ch.buffer),nm);off+=30+nm.length+sz});
+ let cs=0;cen.forEach(c=>cs+=c.length);
+ const e=new DataView(new ArrayBuffer(22));
+ e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);
+ e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/zip'})}
+function prog(d,t,l){$('#prog').style.width=(t?Math.round(d/t*100):0)+'%';$('#progTxt').textContent=l}
+async function pack(){
+ const files=[],total=ANY.length+MASK.length+APPLE.length+6;let n=0;
+ for(const s of ANY){files.push({name:`icon-${s}.png`,u8:new Uint8Array(await (await pngBlob(s,false)).arrayBuffer())});prog(++n,total,`icon-${s}.png`)}
+ for(const s of MASK){files.push({name:`icon-${s}-maskable.png`,u8:new Uint8Array(await (await pngBlob(s,true)).arrayBuffer())});prog(++n,total,`icon-${s}-maskable.png`)}
+ for(const s of APPLE){files.push({name:`apple-${s}.png`,u8:new Uint8Array(await (await pngBlob(s,true)).arrayBuffer())});prog(++n,total,`apple-${s}.png`)}
+ files.push({name:'apple-touch-icon.png',u8:new Uint8Array(await (await pngBlob(180,true)).arrayBuffer())});prog(++n,total,'apple-touch-icon.png');
+ files.push({name:'icon.svg',u8:new TextEncoder().encode(svgFile())});prog(++n,total,'icon.svg');
+ files.push({name:'manifest.webmanifest',u8:new TextEncoder().encode(manifestTxt())});prog(++n,total,'manifest.webmanifest');
+ files.push({name:'.well-known/assetlinks.json',u8:new TextEncoder().encode(assetTxt())});prog(++n,total,'assetlinks.json');
+ files.push({name:'tools/build-icons.mjs',u8:new TextEncoder().encode(BUILDER)});prog(++n,total,'tools/build-icons.mjs');
+ files.push({name:'.github/workflows/icons.yml',u8:new TextEncoder().encode(WF)});prog(++n,total,'workflow');
+ files.push({name:'LISEZ-MOI.txt',u8:new TextEncoder().encode(
+`KEV FUSION — icône rallye réaliste pour URL web / raccourci bureau / PWABuilder
+
+1. Dépose TOUT ce contenu à la racine du dépôt GitHub Pages.
+   Le dossier .github/workflows et tools/ doivent être conservés tels quels.
+2. Commit + push. Le workflow "Icônes PWA · PWABuilder" régénère et committe les PNG.
+3. Vérifie : /icons.html → "Préparation PWABuilder" doit être à 100 %.
+4. https://www.pwabuilder.com → colle l'URL du site → Package For Stores → Android.
+   Signing key : New (conserve le .keystore), puis colle son SHA-256 dans icons.html
+   et republie .well-known/assetlinks.json pour supprimer la barre d'URL.
+5. Bureau : supprime l'ancien raccourci puis réinstalle l'app → nouvelle icône.
+
+Généré le ${new Date().toLocaleString('fr-FR')}
+`)});
+ prog(total,total,'✅ pack complet');return files}
+
+/* ---------- GitHub ---------- */
+function repo(){const h=location.hostname,m=h.match(/^([^.]+)\.github\.io$/);
+ const seg=location.pathname.split('/').filter(Boolean);
+ return Object.assign({owner:m?m[1]:'expertkevin06-cell',repo:(m&&seg.length)?seg[0].replace(/[^/]*$/,'')||'kev-fusion':'kev-fusion',branch:'main'},LS.g('ghCfg',{}))}
+function b64(u8){let o='';for(let i=0;i<u8.length;i+=0x8000)o+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(o)}
+async function put(path,data,isText){
+ const c=repo(),tk=token;if(!tk)throw new Error('jeton absent');
+ const api=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`;
+ let sha=null;
+ try{const g=await fetch(api+'?ref='+encodeURIComponent(c.branch),{headers:{Authorization:'Bearer '+tk,Accept:'application/vnd.github+json'}});
+  if(g.ok)sha=(await g.json()).sha}catch(e){}
+ const body={message:'KEV FUSION · icône rallye '+path,content:isText?b64(new TextEncoder().encode(data)):b64(data),branch:c.branch};
+ if(sha)body.sha=sha;
+ const r=await fetch(api,{method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/vnd.github+json'},body:JSON.stringify(body)});
+ if(!r.ok)throw new Error(path+' → HTTP '+r.status);
+ return r.json()}
+async function publish(){
+ if(!token){toast('🔑 Colle le jeton GitHub (champ ci-dessous)');$('#tok').focus();return}
+ const files=await pack();
+ let n=0;for(const f of files){await put(f.name,f.u8,false);n++;prog(n,files.length,'📡 '+f.name)}
+ prog(files.length,files.length,'✅ publié — déploiement Pages en cours');
+ toast('📡 Publié. Attends ~1 min puis « Revérifier ».');setTimeout(check,20000)}
+
+/* ---------- checklist ---------- */
+async function exists(p){try{const r=await fetch(p+'?c='+Date.now(),{cache:'no-store'});return r.ok?200:r.status}catch(e){return 0}}
+async function check(){
+ const out=[];
+ out.push({ok:location.protocol==='https:'||location.hostname==='localhost',l:'Contexte sécurisé (HTTPS)',d:location.protocol});
+ out.push({ok:!!SRC&&!!CAR,l:'icon.svg chargé et exploitable',d:CAR?CAR.length+' octets de dessin vectoriel':'introuvable'});
+ let mf=null,st=0;
+ try{const r=await fetch('manifest.webmanifest?c='+Date.now(),{cache:'no-store'});st=r.status;if(r.ok)mf=await r.json()}catch(e){}
+ out.push({ok:!!mf,l:'manifest.webmanifest servi',d:mf?'HTTP 200 · JSON valide':'HTTP '+(st||'réseau')});
+ out.push({ok:!!(mf&&mf.name&&mf.short_name),l:'name + short_name',d:mf?mf.short_name:'—'});
+ out.push({ok:!!(mf&&mf.start_url&&mf.scope),l:'start_url + scope',d:mf?mf.start_url+' · '+mf.scope:'—'});
+ out.push({ok:!!(mf&&mf.display==='standalone'),l:'display standalone',d:mf?mf.display:'—'});
+ out.push({ok:!!(mf&&mf.theme_color&&mf.background_color),l:'theme_color + background_color',d:mf?mf.theme_color+' / '+mf.background_color:'—'});
+ const svg=await exists('icon.svg');
+ out.push({ok:svg===200,l:'icon.svg accessible (fallback vectoriel)',d:'HTTP '+svg});
+ for(const f of ['icon-192.png','icon-512.png','icon-192-maskable.png','icon-512-maskable.png','apple-touch-icon.png']){
+  const s=await exists(f);
+  out.push({ok:s===200,l:f,d:s===200?'HTTP 200 · servi par le dépôt':'HTTP '+s+' — lance le workflow ou publie le ZIP'})}
+ let reg=null;try{if('serviceWorker'in navigator)reg=await navigator.serviceWorker.getRegistration()}catch(e){}
+ out.push({ok:!!(reg&&reg.active),l:'Service Worker actif',d:reg?(reg.active?'contrôle la portée':'installé, en attente'):'non enregistré'});
+ out.push({ok:/^[0-9A-F]{2}(:[0-9A-F]{2}){31}$/i.test(($('#fp').value||'').trim()),l:'Empreinte SHA-256 (assetlinks)',d:$('#fp').value?'renseignée':'à coller depuis PWABuilder → Signing key'});
+ const ok=out.filter(o=>o.ok).length,pct=Math.round(ok/out.length*100);
+ $('#scoreBar').style.width=pct+'%';
+ $('#scoreTxt').textContent=ok+' / '+out.length+' · '+pct+'%';
+ $('#scoreTxt').style.color=pct>=90?'var(--ok)':pct>=65?'var(--warn)':'var(--bad)';
+ $('#chkSum').textContent=pct>=90?'prêt pour PWABuilder':'à compléter';
+ const core=['icon-192.png','icon-512.png','icon-512-maskable.png'].every(f=>out.some(o=>o.l===f&&o.ok));
+ const badge=$('#ready');
+ badge.textContent=core?'PWA BUILDER PRÊT':'PNG À PUBLIER';
+ badge.style.color=core?'var(--acid)':'var(--warn)';
+ badge.style.borderColor=core?'var(--line2)':'#ffb02066';
+ $('#chk').innerHTML=out.map(o=>`<li class="${o.ok?'ok':'ko'}"><span class="ic">${o.ok?'✅':'⚠️'}</span><span><b>${o.l}</b><i>${o.d}</i></span></li>`).join('')}
+
+/* ---------- UI ---------- */
+function sync(){
+ ['car','acid','rim','red','bg1','bg2'].forEach(k=>{const e=$('#c_'+k);if(e)e.value=ST[k]});
+ ['bg','q'].forEach(k=>{const e=$('#c_'+k);if(e)e.value=ST[k]});
+ ['scale','dy','tilt','radius','pad','glow','shadow','dirt','gloss'].forEach(k=>{
+  const e=$('#c_'+k);if(e)e.value=ST[k];
+  const o=$('#o_'+k);if(o)o.textContent=ST[k]+(k==='tilt'?'°':(k==='dy'?'':'%'))});
+ ['bar','wing','num','flaps','safe'].forEach(k=>{
+  const w=$('#t_'+k);if(!w)return;w.querySelector('input').checked=!!ST[k];w.classList.toggle('on',!!ST[k])});
+ $('#tok').value=token||'';
+ const s=LS.g('pwaStudio',{})||{};
+ $('#pkg').value=s.pkg||'io.github.expertkevin06_cell.kevfusion';
+ $('#fp').value=s.fp||''}
+function bind(){
+ const presets=[['#25c257','#a3e635','#d8b45a','#e11d2e','#04140c','#0d4a2b'],
+  ['#1e6fff','#38bdf8','#c9ced6','#ffb020','#050d1c','#0d2a52'],
+  ['#ffb020','#ff7a1a','#2b3138','#e11d2e','#1a1204','#4a3a08'],
+  ['#e8ecf0','#e11d2e','#1f2937','#e11d2e','#0b0f14','#232a33'],
+  ['#ff4d3d','#ffd166','#d8b45a','#1f2937','#170608','#4a0d12'],
+  ['#a855f7','#38bdf8','#c3cad3','#a3e635','#12061c','#33125a']];
+ $('#pres').innerHTML=presets.map((p,i)=>`button`).join('');
+ $('#pres').innerHTML=presets.map((p,i)=>`<button type="button" data-p="${i}" title="Livrée ${i+1}" style="background:linear-gradient(135deg,${p[0]} 0 55%,${p[1]} 55% 100%)"></button>`).join('');
+ $('#pres').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;
+  const p=presets[+b.dataset.p];['car','acid','rim','red','bg1','bg2'].forEach((k,i)=>ST[k]=p[i]);
+  save();sync();schedule();toast('🎨 Livrée appliquée')});
+ document.addEventListener('input',e=>{
+  const k=e.target.dataset.k;
+  if(k){ST[k]=e.target.type==='range'?+e.target.value:e.target.value;
+   const o=$('#o_'+k);if(o)o.textContent=ST[k]+(k==='tilt'?'°':(k==='dy'?'':'%'));
+   save();schedule();return}
+  const t=e.target.dataset.t;
+  if(t){ST[t]=e.target.checked;$('#t_'+t).classList.toggle('on',ST[t]);save();schedule()}
+  if(e.target.id==='tok'){token=e.target.value.trim();LS.s('ghToken',token)}
+  if(e.target.id==='pkg'||e.target.id==='fp'){const s=LS.g('pwaStudio',{})||{};
+   s.pkg=$('#pkg').value.trim();s.fp=$('#fp').value.trim();LS.s('pwaStudio',s)}});
+ document.addEventListener('change',e=>{
+  const k=e.target.dataset.k;
+  if(k&&e.target.tagName==='SELECT'){ST[k]=k==='q'?+e.target.value:e.target.value;save();schedule()}});
+ $('#reset').onclick=()=>{ST=Object.assign({},DEF);save();sync();schedule();toast('↺ Réinitialisé')};
+ $('#rand').onclick=()=>{
+  const pal=[['#25c257','#a3e635','#d8b45a','#e11d2e','#04140c','#0d4a2b'],['#1e6fff','#38bdf8','#c9ced6','#ffb020','#050d1c','#0d2a52'],
+   ['#ffb020','#ff7a1a','#2b3138','#e11d2e','#1a1204','#4a3a08'],['#ff4d3d','#ffd166','#d8b45a','#1f2937','#170608','#4a0d12'],
+   ['#a855f7','#38bdf8','#c3cad3','#a3e635','#12061c','#33125a'],['#e8ecf0','#e11d2e','#1f2937','#e11d2e','#0b0f14','#232a33']];
+  const p=pal[Math.floor(Math.random()*pal.length)];
+  ['car','acid','rim','red','bg1','bg2'].forEach((k,i)=>ST[k]=p[i]);
+  ST.scale=86+Math.floor(Math.random()*38);ST.tilt=Math.floor(Math.random()*13)-6;
+  ST.radius=Math.floor(Math.random()*44);ST.glow=30+Math.floor(Math.random()*60);
+  ST.dirt=20+Math.floor(Math.random()*70);ST.bar=Math.random()<.85;ST.wing=Math.random()<.85;
+  save();sync();schedule();toast('🎲 Variante rallye générée')};
+ $('#apply').onclick=()=>{schedule();toast('💉 Aperçu appliqué — publie ou exporte le ZIP pour le dépôt')};
+ $('#zip').onclick=async()=>{const f=await pack();dl(zip(f),'kev-fusion-rally-icons.zip');toast('📦 ZIP téléchargé ('+f.length+' fichiers)')};
+ $('#png512').onclick=async()=>dl(await pngBlob(512,false),'icon-512.png');
+ $('#pngMask').onclick=async()=>dl(await pngBlob(512,true),'icon-512-maskable.png');
+ $('#dlSvg').onclick=()=>dl(new Blob([svgFile()],{type:'image/svg+xml'}),'icon.svg');
+ $('#dlMan').onclick=()=>dl(new Blob([manifestTxt()],{type:'application/manifest+json'}),'manifest.webmanifest');
+ $('#dlAsset').onclick=()=>dl(new Blob([assetTxt()],{type:'application/json'}),'assetlinks.json');
+ $('#dlWf').onclick=()=>dl(new Blob([WF],{type:'text/yaml'}),'icons.yml');
+ $('#pub').onclick=()=>publish().catch(e=>{toast('❌ '+e.message);prog(0,1,'❌ '+e.message)});
+ $('#recheck').onclick=()=>check().then(()=>toast('↻ Vérification terminée'));
+ $('#openPwa').onclick=()=>{const u=location.href.replace(/icons\.html.*$/,'');
+  try{navigator.clipboard.writeText(u)}catch(e){}
+  window.open('https://www.pwabuilder.com/reportcard?site='+encodeURIComponent(u),'_blank','noopener');
+  toast('🚀 PWABuilder ouvert · URL copiée')};
+}
+async function boot(){
+ try{const r=await fetch('icon.svg?c='+Date.now(),{cache:'no-store'});SRC=await r.text();
+  const m=SRC.match(/<!--CAR-->([\s\S]*?)<!--\/CAR-->/);CAR=m?m[1]:''}catch(e){SRC='';CAR=''}
+ if(!CAR){$('#chk').innerHTML='<li class="ko"><span class="ic">❌</span><span><b>icon.svg introuvable</b><i>Dépose icon.svg à la racine du dépôt, puis recharge.</i></span></li>';
+  $('#ready').textContent='ICON.SVG MANQUANT';$('#ready').style.color='var(--bad)';return}
+ const strip=$('#strip');strip.innerHTML='';
+ [192,144,96,72,48,32,16].forEach(n=>{const d=document.createElement('div');d.className='th';
+  const c=document.createElement('canvas');c.width=c.height=n;c.dataset.n=n;
+  const s=document.createElement('span');s.textContent=n+'px';d.append(c,s);strip.append(d)});
+ sync();bind();await draw();await check();
+}
+boot();
 </script>
 </body>
 </html>
