@@ -1,0 +1,66 @@
+name: Icônes PWA · PWABuilder
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: icons-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Générer les PNG (zéro dépendance)
+        run: node tools/build-icons.mjs
+
+      - name: Committer les icônes
+        run: |
+          git config user.name  "kev-fusion-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icon-*.png apple-*.png apple-touch-icon.png favicon-*.png
+          if git diff --cached --quiet; then
+            echo "✅ Icônes déjà à jour — rien à committer."
+          else
+            git commit -m "chore(icons): PNG rallye régénérés [skip ci]"
+            git push
+            echo "✅ Icônes commitées."
+          fi
+
+      - name: Contrôle final PWABuilder
+        run: |
+          node -e "
+          const fs=require('fs');
+          const mf=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
+          let bad=[];
+          const t=i=>{ if(i.type!=='image/png')bad.push(i.src+' type'); if(!/^\d+x\d+$/.test(i.sizes))bad.push(i.src+' sizes'); if(!fs.existsSync(i.src.replace(/^\.\//,'')))bad.push(i.src+' 404'); };
+          (mf.icons||[]).forEach(t);
+          (mf.shortcuts||[]).forEach(s=>(s.icons||[]).forEach(t));
+          if(bad.length){console.error('✗ '+bad.join(', '));process.exit(1)}
+          console.log('✅ Tous les icons + shortcut icons resolves.');
+          "
+          {
+            echo "### Icônes PWA"
+            echo ""
+            echo "| fichier | taille |"
+            echo "|---|---|"
+            for f in icon-192.png icon-512.png icon-192-maskable.png icon-512-maskable.png apple-touch-icon.png icon-96.png; do
+              echo "| \`$f\` | $(stat -c%s "$f") octets |"
+            done
+            echo ""
+            echo "Ouvre **/icons.html** puis https://www.pwabuilder.com"
+          } >> "$GITHUB_STEP_SUMMARY"
