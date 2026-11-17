@@ -1,0 +1,22 @@
+{
+  "car": "#25c257",
+  "acid": "#a3e635",
+  "rim": "#d8b45a",
+  "red": "#e11d2e",
+  "bg1": "#04140c",
+  "bg2": "#0d4a2b",
+  "bg": "radial",
+  "scale": 1,
+  "dy": 0,
+  "tilt": 0,
+  "radius": 23,
+  "pad": 16,
+  "glow": 60,
+  "shadow": 70,
+  "dirt": 50,
+  "gloss": 62,
+  "bar": true,
+  "wing": true,
+  "num": true,
+  "flaps": true
+}
