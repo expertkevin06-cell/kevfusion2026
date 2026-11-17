@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : icône véhicule sportif vert intégrée automatiquement, base toutes marques, motorisations réelles, pannes corrélées, DTC, campagnes, TSB, étude incendie, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : accès tiers par prénom, jeton GitHub géré en admin uniquement, icône véhicule intégrée, base toutes marques, pannes corrélées, DTC, campagnes, TSB, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -135,6 +135,15 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .access-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .access-card.admin{border-color:var(--ac)}.access-card.tier{border-color:var(--jr)}
 .access-card .icon{font-size:48px;margin-bottom:12px}.access-card h3{font-size:18px;margin-bottom:8px}.access-card p{font-size:13px;color:var(--mut)}
+.acc-send{margin-top:10px;padding:10px;border:1px dashed var(--line2);border-radius:12px;background:var(--bg2)}
+.acc-links{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.acc-lnk{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--ok);color:var(--ok);background:#22c55e14;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+.acc-lnk:hover{background:#22c55e28}
+.acc-state{font-size:13px;font-weight:700;margin-top:6px}
+.acc-state.granted{color:var(--ok)}.acc-state.refused{color:var(--bad)}.acc-state.revoked{color:var(--bad)}
+.acc-state.expired{color:var(--warn)}.acc-state.wait{color:var(--mut)}
+.acc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin:4px 0;background:var(--bg2);font-size:13px}
+.acc-row button{padding:5px 10px;font-size:12px}
 .notif-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);margin:8px 0;background:var(--bg2)}
 .notif-item .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--ok),var(--ac2));display:grid;place-items:center;font-weight:800;color:#04140c;flex:none}
 .notif-item .content{flex:1;min-width:0}.notif-item .content b{display:block;font-size:14px}.notif-item .content span{font-size:12px;color:var(--mut)}
@@ -174,7 +183,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v10.5</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v10.7</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -186,7 +195,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · icône véhicule générée & intégrée · catalogue toutes marques · motorisations réelles · pannes corrélées marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · juridique · PWA.</p>
+ <p class="mut">Contrôle intégrité · accès tiers par prénom · jeton GitHub admin-only · icône véhicule · catalogue toutes marques · motorisations réelles · pannes corrélées · DTC · campagnes · TSB · juridique · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -231,5 +240,6 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="notifications.js"></script>
 <script src="pwabuilder.js"></script>
 <script src="icon-gen.js"></script>
+<script src="ghtoken.js"></script>
 </body>
 </html>
