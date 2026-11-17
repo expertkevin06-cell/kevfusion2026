@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : base toutes marques, motorisations réelles, pannes corrélées marque+modèle+motorisation+puissance+année, DTC, campagnes, TSB, F-150/Raptor/Lightning, Bigster (rappel ressorts), Epiq, étude incendie, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : icône véhicule sportif vert intégrée automatiquement, base toutes marques, motorisations réelles, pannes corrélées, DTC, campagnes, TSB, étude incendie, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -174,7 +174,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v10.4</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v10.5</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -186,7 +186,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · ordre de chargement des bases · catalogue toutes marques · motorisations réelles · pannes corrélées marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · rappel ressorts Bigster · juridique · icônes PWA.</p>
+ <p class="mut">Contrôle intégrité · icône véhicule générée & intégrée · catalogue toutes marques · motorisations réelles · pannes corrélées marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · juridique · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -202,40 +202,34 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
 <input type="file" id="fileDump" accept="application/json" class="hid">
 <noscript>JavaScript requis.</noscript>
-<!-- 1. socle -->
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="sanitize.js"></script>
-<!-- 2. catalogue (ne dépend pas de FAULTS) -->
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
 <script src="renault_base.js"></script>
 <script src="brands_base.js"></script>
-<!-- 3. modules applicatifs -->
 <script src="access.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
-<!-- 4. bases techniques : TSBDB / RECALLS / FAULTS AVANT les ajouts -->
 <script src="vehicles.js"></script>
 <script src="faults.js"></script>
 <script src="faults_ext.js"></script>
 <script src="renault_faults.js"></script>
-<!-- 5. ajouts modèles + pannes (après FAULTS) -->
 <script src="models_add.js"></script>
 <script src="bigster_spring.js"></script>
-<!-- 6. génération par famille puis corrélation -->
 <script src="family_faults.js"></script>
 <script src="import2023.js"></script>
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
-<!-- 7. services -->
 <script src="websearch.js"></script>
 <script src="baseupdate.js"></script>
 <script src="autoimport.js"></script>
 <script src="admingate.js"></script>
 <script src="notifications.js"></script>
 <script src="pwabuilder.js"></script>
+<script src="icon-gen.js"></script>
 </body>
 </html>
