@@ -1,6 +1,7 @@
-/* KEV FUSION 2026 — SW v10.8.0 · icône véhicule sportif réaliste (raccourci bureau / PWA / APK) */
-const V='kf2026-v10.8.0';
-const SHELL=['./','./index.html','./access.json','./firebase-config.js','./data.js','./app.js','./sanitize.js',
+/* KEV FUSION 2026 — SW v11.0.0 · icône rallye réelle (icon.svg + PNG) · PWABuilder */
+const V='kf2026-v11.0.0';
+const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
+'./firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './access.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
@@ -20,13 +21,15 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.
 self.addEventListener('message',e=>{const d=e.data||{};
  if(d.type==='SKIP_WAITING')self.skipWaiting();
  if(d.type==='NOTIF_TEST')e.waitUntil(self.registration.showNotification(d.title||'🔥 KEV FUSION 2026',
-  {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-192.png',tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
+  {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-96.png',
+   tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
  if(/access\.json$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||
-    /manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)){
+    /manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)||
+    /icon\.svg$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
- if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')||u.searchParams.has('g')){
-  e.respondWith(fetch(r,{cache:'no-store'}));return}
+ if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')||
+    u.searchParams.has('g')||u.searchParams.has('c')){e.respondWith(fetch(r,{cache:'no-store'}));return}
  if(u.origin===location.origin&&/\.(png|js)$/.test(u.pathname)){
   e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res})
    .catch(()=>caches.match(r)));return}
@@ -40,7 +43,7 @@ self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;c
 self.addEventListener('push',e=>{let d={};try{d=e.data?e.data.json():{}}catch(x){try{d={body:e.data.text()}}catch(y){d={}}}
  const n=d.notification||d||{};
  e.waitUntil(self.registration.showNotification(n.title||'🔥 KEV FUSION 2026',
-  {body:n.body||d.body||'Nouvelle notification',icon:'./icon-192.png',badge:'./icon-192.png',
+  {body:n.body||d.body||'Nouvelle notification',icon:'./icon-192.png',badge:'./icon-96.png',
    tag:n.tag||'kf-'+Date.now(),renotify:true,data:n.data||d.data||{url:'./index.html'}}))});
 self.addEventListener('notificationclick',e=>{e.notification.close();
  const url=(e.notification.data&&e.notification.data.url)||'./index.html';
@@ -53,4 +56,4 @@ try{importScripts('./firebase-config.js');const C=self.KF_FIREBASE;
   firebase.initializeApp(C);
   firebase.messaging().setBackgroundMessageHandler(p=>{const n=p.notification||{};
    return self.registration.showNotification(n.title||'🔥 KEV FUSION 2026',
-    {body:n.body||'',icon:'./icon-192.png',badge:'./icon-192.png',tag:'kf-fcm',data:p.data||{url:'./index.html'}})})}}catch(x){}
+    {body:n.body||'',icon:'./icon-192.png',badge:'./icon-96.png',tag:'kf-fcm',data:p.data||{url:'./index.html'}})})}}catch(x){}
