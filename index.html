@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : méga-base 45 marques (Renault, Fiat, Peugeot, Citroën, Opel, Jeep, Mercedes, BYD, Tesla, XPeng, Audi, Skoda, SEAT, Land Rover, Alpine, Bugatti, VW, BMW, Porsche, Alfa, Lancia, Lamborghini, Cupra, Volvo, Polestar, Aston Martin, Ford, Toyota, Honda, Nissan, MG, Geely, Zeekr, Leapmotor, Chery, Omoda, Jaecoo, Lynk & Co, Mazda, Lexus, Suzuki, Mitsubishi, Subaru, Infiniti, Hyundai, VinFast), pannes corrélées, DTC, campagnes, TSB, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : logos réels des marques en fond d'écran dès la sélection, méga-base 45 marques, pannes corrélées marque+modèle+motorisation+puissance+année, DTC, campagnes, TSB, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -16,9 +16,9 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:var(--ok) var(--bg2)}
 html,body{height:100%}
 body{background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.42;background:radial-gradient(60% 40% at 10% 0%,#22c55e18,transparent 60%),radial-gradient(50% 40% at 90% 10%,#38bdf818,transparent 60%),radial-gradient(70% 50% at 50% 110%,#ff7a1a10,transparent 60%)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-3;opacity:.42;background:radial-gradient(60% 40% at 10% 0%,#22c55e18,transparent 60%),radial-gradient(50% 40% at 90% 10%,#38bdf818,transparent 60%),radial-gradient(70% 50% at 50% 110%,#ff7a1a10,transparent 60%)}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--ok),var(--ac2));border-radius:8px;border:2px solid var(--bg2)}::-webkit-scrollbar-thumb:hover{background:var(--ok)}
-#scene{position:fixed;inset:0;z-index:-2;overflow:hidden;background:linear-gradient(180deg,#04100a,#0a0f1a 55%,#0d1a26)}
+#scene{position:fixed;inset:0;z-index:-4;overflow:hidden;background:linear-gradient(180deg,#04100a,#0a0f1a 55%,#0d1a26)}
 #scene .aurora{position:absolute;inset:-20%;background:radial-gradient(40% 30% at 30% 20%,#22c55e33,transparent 60%),radial-gradient(40% 30% at 70% 15%,#38bdf833,transparent 60%),radial-gradient(50% 40% at 50% 10%,#a3e63522,transparent 60%);animation:aur 14s ease-in-out infinite alternate}
 @keyframes aur{to{transform:translateX(6%) translateY(-3%) scale(1.1)}}
 #scene .stars{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,#fff8,transparent),radial-gradient(1px 1px at 60% 20%,#fff6,transparent),radial-gradient(1.5px 1.5px at 80% 40%,#fff7,transparent);animation:tw 4s ease-in-out infinite alternate}
@@ -32,10 +32,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 #car .wheel{transform-origin:center;transform-box:fill-box;animation:spin .5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #car .beam{animation:beam 2.4s ease-in-out infinite alternate}@keyframes beam{to{opacity:.35}}
-#bgLayer{position:fixed;inset:0;background-size:cover;background-position:center;opacity:.45;z-index:-1}
+#bgLayer{position:fixed;inset:0;background-size:cover;background-position:center;opacity:.45;z-index:-2}
 body.noanim #scene *{animation:none!important}
 @media (prefers-reduced-motion:reduce){#scene *{animation:none!important}}
-#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0a0f1aee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+#topbar{position:sticky;top:0;z-index:80;display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0a0f1aee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 #topbar b{font-size:17px;white-space:nowrap}
 #brandTap{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px}
 .ver{color:var(--ok);font-weight:800;font-size:13px;padding:2px 8px;background:#22c55e22;border-radius:10px;border:1px solid #22c55e44}
@@ -52,10 +52,10 @@ button.jr{background:linear-gradient(135deg,var(--jr),var(--jr2));border-color:v
 button.danger{border-color:var(--bad);color:var(--bad);background:#ef444418}
 button:disabled{opacity:.45;cursor:not-allowed;transform:none}
 section,main{max-width:1180px;margin:0 auto;padding:16px;position:relative;z-index:1}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card{background:#141c2eee;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow);backdrop-filter:blur(4px)}
 .card.accent{border-color:var(--ac);box-shadow:var(--shadow-ac)}
-.card.gold{border-color:var(--gold);background:linear-gradient(135deg,#1a1408,#141c2e)}
-.card.jr{border-color:var(--jr);background:linear-gradient(135deg,#0f1a14,#141c2e)}
+.card.gold{border-color:var(--gold);background:linear-gradient(135deg,#1a1408ee,#141c2eee)}
+.card.jr{border-color:var(--jr);background:linear-gradient(135deg,#0f1a14ee,#141c2eee)}
 h1{font-size:23px;margin-bottom:8px;font-weight:800}h2{font-size:17px;margin-bottom:10px;font-weight:700}h3{font-size:14px;margin:8px 0 6px;font-weight:600;color:var(--tx2)}
 .mut{color:var(--mut);font-size:13px;line-height:1.5}.dim{color:var(--dim);font-size:12px}.hid{display:none!important}
 input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--tx);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;margin:4px 0 10px}
@@ -74,7 +74,7 @@ code{font-family:ui-monospace,monospace;font-size:.92em;color:var(--acid);backgr
 .sysbtn:hover{border-color:var(--ok);transform:translateY(-2px)}
 .sysbtn.on{background:linear-gradient(135deg,var(--ok),var(--acid));border-color:var(--ok);box-shadow:0 6px 20px #22c55e55}
 .sysbtn.on .lb{color:#04140c}.sysbtn.on .ct{background:#04140c;color:var(--acid)}.sysbtn.dim{opacity:.5}
-nav#nav{display:flex;gap:6px;overflow-x:auto;padding:12px 0;position:sticky;top:58px;background:#0a0f1aee;z-index:40;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav#nav{display:flex;gap:6px;overflow-x:auto;padding:12px 0;position:sticky;top:58px;background:#0a0f1aee;z-index:60;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav#nav button{white-space:nowrap;border-radius:20px;padding:8px 14px;font-size:13px}
 nav#nav button.act{border-color:var(--ok);color:var(--ok);background:#22c55e18}
 #checkList,#checkList2{list-style:none}
@@ -83,9 +83,9 @@ nav#nav button.act{border-color:var(--ok);color:var(--ok);background:#22c55e18}
 .st-ok{color:var(--ok)}.st-warn{color:var(--warn)}.st-fail{color:var(--bad)}
 #verdict{font-size:19px;font-weight:800;margin:14px 0;padding:12px;border-radius:var(--radius-sm);text-align:center}
 iframe.mod{width:100%;height:calc(100vh - 200px);border:1px solid var(--line);border-radius:var(--radius);background:#fff}
-#modal{position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(8px)}
+#modal{position:fixed;inset:0;background:#000a;z-index:200;display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(8px)}
 #modalBox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:760px;width:100%;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--card);border:1px solid var(--ok);color:var(--tx);padding:12px 18px;border-radius:var(--radius-sm);z-index:300;max-width:92vw;transition:.3s;box-shadow:var(--shadow)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--card);border:1px solid var(--ok);color:var(--tx);padding:12px 18px;border-radius:var(--radius-sm);z-index:400;max-width:92vw;transition:.3s;box-shadow:var(--shadow)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .stat{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--ok),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .constats{display:flex;flex-wrap:wrap;gap:6px}
@@ -109,7 +109,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .upd-btn.on{background:linear-gradient(135deg,#2563eb,#38bdf8);border-color:#2563eb;color:#fff;cursor:pointer}
 .cbx{position:relative}.cbx-in{padding-right:36px}
 .cbx-tgl{position:absolute;right:6px;top:7px;padding:4px 8px;border-radius:8px}
-.cbx-list{position:absolute;left:0;right:0;top:100%;max-height:280px;overflow:auto;background:var(--bg2);border:1px solid var(--ok);border-radius:var(--radius-sm);z-index:70;box-shadow:var(--shadow)}
+.cbx-list{position:absolute;left:0;right:0;top:100%;max-height:280px;overflow:auto;background:var(--bg2);border:1px solid var(--ok);border-radius:var(--radius-sm);z-index:90;box-shadow:var(--shadow)}
 .cbx-opt{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:14px}
 .cbx-opt:hover,.cbx-opt.act{background:#0d3324}
 .cbx-opt .pw,.pw{color:var(--acid);font-family:ui-monospace,monospace;font-weight:700}
@@ -182,7 +182,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v13.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v14.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -194,7 +194,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · méga-base 45 marques (pannes + campagnes + TSB) · motorisations réelles · corrélation marque+modèle+motorisation+puissance+année · DTC · juridique · PWA.</p>
+ <p class="mut">Contrôle intégrité · logos réels des marques en fond d'écran · méga-base 45 marques · motorisations réelles · corrélation marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · juridique · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -210,24 +210,20 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
 <input type="file" id="fileDump" accept="application/json" class="hid">
 <noscript>JavaScript requis.</noscript>
-<!-- 1. socle -->
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="sanitize.js"></script>
-<!-- 2. catalogue -->
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
 <script src="renault_base.js"></script>
 <script src="brands_base.js"></script>
 <script src="megabase_catalog.js"></script>
 <script src="megabase2_catalog.js"></script>
-<!-- 3. modules applicatifs -->
 <script src="access.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
-<!-- 4. bases techniques -->
 <script src="vehicles.js"></script>
 <script src="faults.js"></script>
 <script src="faults_ext.js"></script>
@@ -236,13 +232,11 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="bigster_spring.js"></script>
 <script src="family_faults.js"></script>
 <script src="import2023.js"></script>
-<!-- 5. MÉGA-BASES -->
 <script src="megabase_faults.js"></script>
 <script src="megabase2_faults.js"></script>
-<!-- 6. corrélation + rendu -->
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
-<!-- 7. services -->
+<script src="brandlogo.js"></script>
 <script src="websearch.js"></script>
 <script src="baseupdate.js"></script>
 <script src="autoimport.js"></script>
