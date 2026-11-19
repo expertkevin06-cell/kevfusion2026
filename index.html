@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : accès tiers par prénom, jeton GitHub géré en admin uniquement, icône véhicule intégrée, base toutes marques, pannes corrélées, DTC, campagnes, TSB, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : méga-base technique (Dacia Spring freinage + campagnes, Dacia, Renault, Volkswagen, Peugeot, Citroën, Opel, DS), pannes corrélées marque+modèle+motorisation+puissance+année, DTC, TSB, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -138,9 +138,8 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .acc-send{margin-top:10px;padding:10px;border:1px dashed var(--line2);border-radius:12px;background:var(--bg2)}
 .acc-links{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .acc-lnk{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--ok);color:var(--ok);background:#22c55e14;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
-.acc-lnk:hover{background:#22c55e28}
 .acc-state{font-size:13px;font-weight:700;margin-top:6px}
-.acc-state.granted{color:var(--ok)}.acc-state.refused{color:var(--bad)}.acc-state.revoked{color:var(--bad)}
+.acc-state.granted{color:var(--ok)}.acc-state.refused,.acc-state.revoked{color:var(--bad)}
 .acc-state.expired{color:var(--warn)}.acc-state.wait{color:var(--mut)}
 .acc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin:4px 0;background:var(--bg2);font-size:13px}
 .acc-row button{padding:5px 10px;font-size:12px}
@@ -183,7 +182,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v10.7</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v12.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -195,7 +194,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · accès tiers par prénom · jeton GitHub admin-only · icône véhicule · catalogue toutes marques · motorisations réelles · pannes corrélées · DTC · campagnes · TSB · juridique · PWA.</p>
+ <p class="mut">Contrôle intégrité · méga-base technique (Dacia Spring freinage + campagnes · Dacia · Renault · Volkswagen · Peugeot · Citroën · Opel · DS) · motorisations réelles · corrélation marque+modèle+motorisation+puissance+année · DTC · TSB · juridique · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -211,18 +210,23 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
 <input type="file" id="fileDump" accept="application/json" class="hid">
 <noscript>JavaScript requis.</noscript>
+<!-- 1. socle -->
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="sanitize.js"></script>
+<!-- 2. catalogue -->
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
 <script src="renault_base.js"></script>
 <script src="brands_base.js"></script>
+<script src="megabase_catalog.js"></script>
+<!-- 3. modules applicatifs -->
 <script src="access.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
 <script src="diffusion.js"></script>
+<!-- 4. bases techniques : TSBDB / RECALLS / FAULTS -->
 <script src="vehicles.js"></script>
 <script src="faults.js"></script>
 <script src="faults_ext.js"></script>
@@ -231,8 +235,12 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="bigster_spring.js"></script>
 <script src="family_faults.js"></script>
 <script src="import2023.js"></script>
+<!-- 5. MÉGA-BASE (après le catalogue complet, avant la corrélation) -->
+<script src="megabase_faults.js"></script>
+<!-- 6. corrélation + rendu -->
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
+<!-- 7. services -->
 <script src="websearch.js"></script>
 <script src="baseupdate.js"></script>
 <script src="autoimport.js"></script>
