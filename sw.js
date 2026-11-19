@@ -1,12 +1,12 @@
-/* KEV FUSION 2026 — SW v13.0.0 · méga-base 2 : 45 marques, pannes + campagnes + TSB */
-const V='kf2026-v13.0.0';
+/* KEV FUSION 2026 — SW v14.0.0 · logos réels de marque en fond d'écran */
+const V='kf2026-v14.0.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js','./megabase_catalog.js','./megabase2_catalog.js',
 './access.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
-'./megabase_faults.js','./megabase2_faults.js','./correlation.js','./predictive.js',
+'./megabase_faults.js','./megabase2_faults.js','./correlation.js','./predictive.js','./brandlogo.js',
 './websearch.js','./baseupdate.js','./autoimport.js',
 './admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
 './manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
