@@ -1,12 +1,13 @@
-/* KEV FUSION 2026 — SW v11.0.0 · icône rallye réelle (icon.svg + PNG) · PWABuilder */
-const V='kf2026-v11.0.0';
+/* KEV FUSION 2026 — SW v12.0.0 · méga-base technique massive */
+const V='kf2026-v12.0.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
-'./catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
+'./catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js','./megabase_catalog.js',
 './access.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
-'./correlation.js','./predictive.js','./websearch.js','./baseupdate.js','./autoimport.js',
+'./megabase_faults.js','./correlation.js','./predictive.js',
+'./websearch.js','./baseupdate.js','./autoimport.js',
 './admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
 './manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-16.png','./icon-32.png','./icon-48.png','./icon-64.png','./icon-72.png','./icon-96.png',
