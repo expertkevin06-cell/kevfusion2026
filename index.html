@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : logos réels des marques en fond d'écran dès la sélection, méga-base 45 marques, pannes corrélées marque+modèle+motorisation+puissance+année, DTC, campagnes, TSB, juridique, VIN, OBD.">
+<meta name="description" content="KEV FUSION 2026 — Expert automobile & avocat : méga-base tous domaines toutes marques (boîtes, réseau CAN, ouvrants, HVAC, VE, utilitaires, sportives), logos réels en fond d'écran, corrélation directe marque+modèle+motorisation+puissance+année, DTC, campagnes, TSB, juridique, VIN, OBD.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -182,7 +182,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v14.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v15.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -194,7 +194,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · logos réels des marques en fond d'écran · méga-base 45 marques · motorisations réelles · corrélation marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · juridique · PWA.</p>
+ <p class="mut">Contrôle intégrité · méga-bases 1·2·3 (tous domaines, toutes marques) · logos réels en fond d'écran · motorisations réelles · corrélation directe marque+modèle+motorisation+puissance+année · DTC · campagnes · TSB · juridique · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -220,6 +220,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="brands_base.js"></script>
 <script src="megabase_catalog.js"></script>
 <script src="megabase2_catalog.js"></script>
+<script src="megabase3_catalog.js"></script>
 <script src="access.js"></script>
 <script src="extra.js"></script>
 <script src="updates.js"></script>
@@ -234,6 +235,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="import2023.js"></script>
 <script src="megabase_faults.js"></script>
 <script src="megabase2_faults.js"></script>
+<script src="megabase3_faults.js"></script>
 <script src="correlation.js"></script>
 <script src="predictive.js"></script>
 <script src="brandlogo.js"></script>
