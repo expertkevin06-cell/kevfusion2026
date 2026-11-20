@@ -1,17 +1,13 @@
-/* KEV FUSION 2026 — SW v26.0.0
-   · navigate = network-first (index.html toujours frais → corrige Chrome sur bundle périmé)
-   · scripts critiques = network-first ; le reste = stale-while-revalidate (offline conservé)
-   · notifications système avec actions Autoriser/Refuser, relais d'action au client,
-     action en attente récupérable au démarrage (GET_PENDING_ACTION) */
-const V='kf2026-26.0.0';
+/* KEV FUSION 2026 — SW v26.1.0 · chargement anti-conflit (bootfix) + notifications robustes */
+const V='kf2026-26.1.0';
 const KEEP=2;
-const CRIT=['./access.js','./notify.js','./app.js','./data.js','./quota.js','./jrgate.js','./modgate.js',
-'./vinloc.js','./vinloc_db.js','./access.json'];
+const CRIT=['bootfix.js','access.js','notify.js','app.js','data.js','quota.js','jrgate.js','modgate.js',
+'admingate.js','notifications.js','vinloc.js','vinloc_db.js','access.json'];
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
-'./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
+'./bootfix.js','./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './megabase_catalog.js','./megabase2_catalog.js','./megabase3_catalog.js',
-'./access.js','./extra.js','./updates.js','./diffusion.js','./notify.js',
+'./access.js','./notify.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './megabase_faults.js','./megabase2_faults.js','./megabase3_faults.js',
@@ -55,24 +51,20 @@ self.addEventListener('message',e=>{const d=e.data||{};
   {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-96.png',
    tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
- /* jamais de cache pour les données vivantes */
  if(/access\.json$/.test(u.pathname)||/maj-(tiers|base|wall)\.json$/.test(u.pathname)||
     /manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)||
     /icon\.svg$/.test(u.pathname)||/wall\.(jpg|jpeg|png|webp|webm|mp4)$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
  if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')||
     u.searchParams.has('g')||u.searchParams.has('c')){e.respondWith(fetch(r,{cache:'no-store'}));return}
- /* navigation : network-first (fraîcheur garantie) */
  if(r.mode==='navigate'){
   e.respondWith(fetch(r).then(res=>{
     if(res.ok){const cp=res.clone();caches.open(V).then(k=>k.put('./index.html',cp))}
     return res}).catch(()=>caches.match('./index.html').then(h=>h||caches.match('./'))));
   return}
- /* scripts critiques : network-first */
- if(u.origin===location.origin&&CRIT.some(c=>u.pathname.endsWith(c.replace('./','/'))||u.pathname===c)){
+ if(u.origin===location.origin&&CRIT.some(c=>u.pathname.endsWith('/'+c)||u.pathname.endsWith(c))){
   e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res})
    .catch(()=>caches.match(r)));return}
- /* reste : stale-while-revalidate (offline + fraîcheur en fond) */
  if(u.origin===location.origin&&/\.(png|js|json|webmanifest)$/.test(u.pathname)){
   e.respondWith(caches.match(r).then(hit=>{
    const net=fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res}).catch(()=>hit);
@@ -97,9 +89,7 @@ self.addEventListener('notificationclick',e=>{
     if(action)c.postMessage({type:'NTF_ACTION',action:action,reqId:data.reqId||''});
     return c.focus()}}
   const nc=await clients.openWindow(url);
-  if(nc&&action){
-   /* le client fraîchement ouvert récupérera l'action via GET_PENDING_ACTION */
-   self._pendAction=action;self._pendReq=data.reqId||''}
+  if(nc&&action){self._pendAction=action;self._pendReq=data.reqId||''}
  })())});
 try{importScripts('./firebase-config.js');const C=self.KF_FIREBASE;
  if(C&&C.enabled&&C.apiKey){
