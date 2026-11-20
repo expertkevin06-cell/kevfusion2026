@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — Localisation VIN automatique en mode recherche : zone de frappe à froid, détail d'accès, schéma annoté pour toutes les marques, modèles, motorisations et puissances. Modules & JusteRepère verrouillés, Turbo APK, OBD atelier, méga-bases, corrélation réelle.">
+<meta name="description" content="KEV FUSION 2026 — stockage localStorage sécurisé (purge automatique de quota), localisation VIN précise, modules & JusteRepère verrouillés, Turbo APK, OBD atelier, méga-bases toutes marques, corrélation réelle, PWA.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -184,7 +184,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v24.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v25.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -196,7 +196,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · Localisation VIN automatique en Recherche (frappe à froid + schéma) · Modules &amp; JusteRepère verrouillés · Turbo APK · fond d’écran · OBD Atelier · méga-bases toutes marques · corrélation réelle · PWA.</p>
+ <p class="mut">Contrôle intégrité · stockage localStorage sécurisé (purge automatique de quota) · localisation VIN précise · Modules &amp; JusteRepère verrouillés · Turbo APK · OBD Atelier · méga-bases toutes marques · corrélation réelle · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -212,6 +212,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 <input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
 <input type="file" id="fileDump" accept="application/json" class="hid">
 <noscript>JavaScript requis.</noscript>
+<script src="quota.js"></script>
 <script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
