@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v15.0.0 · méga-base 3 tous domaines / toutes marques */
-const V='kf2026-v15.0.0';
+/* KEV FUSION 2026 — SW v16.0.0 · OBD Pro (BLE toutes versions, UDS/KWP, JDD, calibrages, actionneurs) */
+const V='kf2026-v16.0.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
@@ -8,7 +8,7 @@ const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './megabase_faults.js','./megabase2_faults.js','./megabase3_faults.js',
-'./correlation.js','./predictive.js','./brandlogo.js',
+'./correlation.js','./predictive.js','./brandlogo.js','./obdpro_db.js','./obdpro.js',
 './websearch.js','./baseupdate.js','./autoimport.js',
 './admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
 './manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
