@@ -1,14 +1,14 @@
-/* KEV FUSION 2026 — SW v29.0.0 · auto-réparation des modules + secours fonctionnels */
-const V='kf2026-29.0.0';
+/* KEV FUSION 2026 — SW v30.0.0 · poste Tiers admin (notification dédiée + pavé accès/refus/révocation) */
+const V='kf2026-30.0.0';
 const KEEP=2;
-const CORE=['idfix.js','bridge.js','quota.js','data.js','app.js','access.js','notify.js',
+const CORE=['idfix.js','bridge.js','quota.js','data.js','app.js','access.js','notify.js','tiers.js',
 'admingate.js','notifications.js','modclean.js','jrgate.js','modgate.js','vinloc.js','vinloc_db.js'];
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './idfix.js','./bridge.js','./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js',
 './modclean.js','./turbo.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './megabase_catalog.js','./megabase2_catalog.js','./megabase3_catalog.js',
-'./access.js','./notify.js','./extra.js','./updates.js','./diffusion.js',
+'./access.js','./notify.js','./tiers.js','./extra.js','./updates.js','./diffusion.js',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './megabase_faults.js','./megabase2_faults.js','./megabase3_faults.js',
