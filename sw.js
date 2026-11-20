@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v24.0.0 · localisation VIN automatique en mode recherche */
-const V='kf2026-v24.0.0';
+/* KEV FUSION 2026 — SW v24.1.0 · localisation VIN précise (tourelle, feuillure, traverse) */
+const V='kf2026-v24.1.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
