@@ -1,10 +1,10 @@
-/* KEV FUSION 2026 — SW v26.2.0 · chargement natif restauré, aucun module bloqué */
-const V='kf2026-26.2.0';
+/* KEV FUSION 2026 — SW v26.3.0 · module New MRT Kevin (404) retiré du projet */
+const V='kf2026-26.3.0';
 const KEEP=2;
-const CRIT=['quota.js','access.js','notify.js','app.js','data.js','admingate.js','notifications.js',
-'jrgate.js','modgate.js','vinloc.js','vinloc_db.js','access.json'];
+const CRIT=['quota.js','modclean.js','access.js','notify.js','app.js','data.js','admingate.js',
+'notifications.js','jrgate.js','modgate.js','vinloc.js','vinloc_db.js','access.json'];
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
-'./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
+'./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./modclean.js','./turbo.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './megabase_catalog.js','./megabase2_catalog.js','./megabase3_catalog.js',
 './access.js','./notify.js','./extra.js','./updates.js','./diffusion.js',
@@ -51,6 +51,9 @@ self.addEventListener('message',e=>{const d=e.data||{};
   {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-96.png',
    tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
+ /* le module retiré n'est plus jamais sondé ni servi */
+ if(/new-mrt-kevin|newmrtkevin/i.test(u.href)){
+  e.respondWith(new Response('',{status:204,statusText:'No Content'}));return}
  if(/access\.json$/.test(u.pathname)||/maj-(tiers|base|wall)\.json$/.test(u.pathname)||
     /manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)||
     /icon\.svg$/.test(u.pathname)||/wall\.(jpg|jpeg|png|webp|webm|mp4)$/.test(u.pathname)){
