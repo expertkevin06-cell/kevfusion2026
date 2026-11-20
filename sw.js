@@ -1,10 +1,10 @@
-/* KEV FUSION 2026 — SW v26.1.0 · chargement anti-conflit (bootfix) + notifications robustes */
-const V='kf2026-26.1.0';
+/* KEV FUSION 2026 — SW v26.2.0 · chargement natif restauré, aucun module bloqué */
+const V='kf2026-26.2.0';
 const KEEP=2;
-const CRIT=['bootfix.js','access.js','notify.js','app.js','data.js','quota.js','jrgate.js','modgate.js',
-'admingate.js','notifications.js','vinloc.js','vinloc_db.js','access.json'];
+const CRIT=['quota.js','access.js','notify.js','app.js','data.js','admingate.js','notifications.js',
+'jrgate.js','modgate.js','vinloc.js','vinloc_db.js','access.json'];
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
-'./bootfix.js','./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
+'./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './megabase_catalog.js','./megabase2_catalog.js','./megabase3_catalog.js',
 './access.js','./notify.js','./extra.js','./updates.js','./diffusion.js',
@@ -62,7 +62,7 @@ self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;c
     if(res.ok){const cp=res.clone();caches.open(V).then(k=>k.put('./index.html',cp))}
     return res}).catch(()=>caches.match('./index.html').then(h=>h||caches.match('./'))));
   return}
- if(u.origin===location.origin&&CRIT.some(c=>u.pathname.endsWith('/'+c)||u.pathname.endsWith(c))){
+ if(u.origin===location.origin&&CRIT.some(c=>u.pathname.endsWith('/'+c))){
   e.respondWith(fetch(r).then(res=>{if(res.ok)caches.open(V).then(k=>k.put(r,res.clone()));return res})
    .catch(()=>caches.match(r)));return}
  if(u.origin===location.origin&&/\.(png|js|json|webmanifest)$/.test(u.pathname)){
