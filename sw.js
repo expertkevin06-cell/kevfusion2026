@@ -1,10 +1,5 @@
-/* KEV FUSION 2026 — SW v28.0.0
-   Service Worker assaini : AUCUNE réécriture de code (source de corruption des modules).
-   · navigation network-first (index.html toujours frais)
-   · JS noyau network-first, autres assets stale-while-revalidate (offline conservé)
-   · notifications système avec actions Autoriser / Refuser, relais d'action au client
-   · purge des anciens caches à l'activation */
-const V='kf2026-28.0.0';
+/* KEV FUSION 2026 — SW v29.0.0 · auto-réparation des modules + secours fonctionnels */
+const V='kf2026-29.0.0';
 const KEEP=2;
 const CORE=['idfix.js','bridge.js','quota.js','data.js','app.js','access.js','notify.js',
 'admingate.js','notifications.js','modclean.js','jrgate.js','modgate.js','vinloc.js','vinloc_db.js'];
