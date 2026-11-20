@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v23.0.0 · pavé Modules verrouillé par mot de passe administrateur */
-const V='kf2026-v23.0.0';
+/* KEV FUSION 2026 — SW v24.0.0 · localisation VIN automatique en mode recherche */
+const V='kf2026-v24.0.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
@@ -9,7 +9,8 @@ const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './megabase_faults.js','./megabase2_faults.js','./megabase3_faults.js',
-'./correlation.js','./predictive.js','./brandlogo.js','./wallpaper.js','./jradmin.js',
+'./correlation.js','./predictive.js','./brandlogo.js','./wallpaper.js',
+'./vinloc_db.js','./vinloc.js','./jradmin.js',
 './obdpro_db.js','./obdpro.js','./obdtech_db.js','./obdtech.js',
 './websearch.js','./baseupdate.js','./autoimport.js',
 './admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
