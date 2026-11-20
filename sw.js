@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v18.0.0 · mode technicien diagnosticien (accès officiels, traçabilité) */
-const V='kf2026-v18.0.0';
+/* KEV FUSION 2026 — SW v19.0.0 · fond d'écran admin photo / vidéo ≤ 10 s + diffusion tiers */
+const V='kf2026-v19.0.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
@@ -8,7 +8,7 @@ const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './vehicles.js','./faults.js','./faults_ext.js','./renault_faults.js',
 './models_add.js','./bigster_spring.js','./family_faults.js','./import2023.js',
 './megabase_faults.js','./megabase2_faults.js','./megabase3_faults.js',
-'./correlation.js','./predictive.js','./brandlogo.js',
+'./correlation.js','./predictive.js','./brandlogo.js','./wallpaper.js',
 './obdpro_db.js','./obdpro.js','./obdtech_db.js','./obdtech.js',
 './websearch.js','./baseupdate.js','./autoimport.js',
 './admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
@@ -28,9 +28,9 @@ self.addEventListener('message',e=>{const d=e.data||{};
   {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-96.png',
    tag:'kf-test',renotify:true,data:{url:'./index.html'}}))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
- if(/access\.json$/.test(u.pathname)||/maj-(tiers|base)\.json$/.test(u.pathname)||
+ if(/access\.json$/.test(u.pathname)||/maj-(tiers|base|wall)\.json$/.test(u.pathname)||
     /manifest\.webmanifest$/.test(u.pathname)||/assetlinks\.json$/.test(u.pathname)||
-    /icon\.svg$/.test(u.pathname)){
+    /icon\.svg$/.test(u.pathname)||/^\/?.*wall\.(jpg|jpeg|png|webp|webm|mp4)$/.test(u.pathname)){
   e.respondWith(fetch(r,{cache:'no-store'}).catch(()=>caches.match(r)));return}
  if(u.searchParams.has('hb')||u.searchParams.has('probe')||u.searchParams.has('t')||
     u.searchParams.has('g')||u.searchParams.has('c')){e.respondWith(fetch(r,{cache:'no-store'}));return}
