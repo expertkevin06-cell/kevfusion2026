@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v21.1.0 · correctif plantage APK à l'ouverture de JusteRepère */
-const V='kf2026-v21.1.0';
+/* KEV FUSION 2026 — SW v21.2.0 · champ mot de passe JusteRepère vide, sans points par défaut */
+const V='kf2026-v21.2.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
