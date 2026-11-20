@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v25.4.0 · demandes d'accès tiers → admin sans faille */
-const V='kf2026-v25.4.0';
+/* KEV FUSION 2026 — SW v25.5.0 · bannière d'autorisation plein écran en tête d'APK */
+const V='kf2026-v25.5.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
