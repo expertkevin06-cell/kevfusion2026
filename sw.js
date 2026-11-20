@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v25.0.0 · garde-fou quota localStorage + auto-vérification corrigée */
-const V='kf2026-v25.0.0';
+/* KEV FUSION 2026 — SW v25.1.0 · localisation VIN vérifiée par modèle/année + overrides expert */
+const V='kf2026-v25.1.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
