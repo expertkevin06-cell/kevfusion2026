@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v16.0.0 · OBD Pro (BLE toutes versions, UDS/KWP, JDD, calibrages, actionneurs) */
-const V='kf2026-v16.0.0';
+/* KEV FUSION 2026 — SW v17.0.0 · OBD mode atelier sans clé · PDF partageable · injection étude */
+const V='kf2026-v17.0.0';
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
