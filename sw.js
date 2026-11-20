@@ -1,8 +1,8 @@
-/* KEV FUSION 2026 — SW v24.1.0 · localisation VIN précise (tourelle, feuillure, traverse) */
-const V='kf2026-v24.1.0';
+/* KEV FUSION 2026 — SW v25.0.0 · garde-fou quota localStorage + auto-vérification corrigée */
+const V='kf2026-v25.0.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
-'./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
+'./quota.js','./firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
 './catalog.js','./catalog_ext.js','./renault_base.js','./brands_base.js',
 './megabase_catalog.js','./megabase2_catalog.js','./megabase3_catalog.js',
 './access.js','./extra.js','./updates.js','./diffusion.js',
