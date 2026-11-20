@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — JusteRepère protégé par mot de passe administrateur : accès classique et admin verrouillés, session expirante, auto-verrouillage, journal. OBD atelier, mode technicien, méga-bases toutes marques, corrélation réelle, fond d'écran, VIN.">
+<meta name="description" content="KEV FUSION 2026 — Turbo APK : purge et accélération automatiques, minuteurs cadrés, cache de corrélation, rendu allégé adaptatif. JusteRepère verrouillé, OBD atelier, mode technicien, méga-bases toutes marques, corrélation réelle, fond d'écran, VIN.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -154,9 +154,10 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .web-result h4{font-size:14px;margin:4px 0 6px}.web-result p{font-size:12px;color:var(--mut)}
 .web-result .meta{font-size:11px;color:var(--dim);margin-top:6px}
 #printArea{display:none}
-@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}body.printing #jrgBar{display:none!important}}
+@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}body.printing #jrgBar,body.printing #tbBar{display:none!important}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .card,.faultcard,.notif-item,.web-result{animation:fadeIn .25s ease-out}
+body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite .web-result{animation:none}
 </style>
 </head>
 <body>
@@ -184,7 +185,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v21.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v22.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -196,7 +197,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · JusteRepère verrouillé par mot de passe administrateur · fond d’écran photo/vidéo ≤ 10 s · OBD Atelier &amp; Mode Technicien · méga-bases toutes marques · corrélation réelle · logos de marque · PWA.</p>
+ <p class="mut">Contrôle intégrité · Turbo APK (purge &amp; accélération automatiques) · JusteRepère verrouillé · fond d’écran photo/vidéo ≤ 10 s · OBD Atelier &amp; Mode Technicien · méga-bases toutes marques · corrélation réelle · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -216,6 +217,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="sanitize.js"></script>
+<script src="turbo.js"></script>
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
 <script src="renault_base.js"></script>
