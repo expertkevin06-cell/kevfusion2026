@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#04140c">
-<meta name="kf-version" content="26.0.0">
+<meta name="kf-version" content="26.1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — notifications robustes tous navigateurs (cloche = autoriser/refuser/révoquer), demandes d'accès tiers en tête d'APK, garde de version SW, localisation VIN, OBD atelier, méga-bases, corrélation réelle.">
+<meta name="description" content="KEV FUSION 2026 — notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer), demandes d'accès en tête d'APK, chargement modules anti-conflit, localisation VIN, OBD atelier, méga-bases toutes marques, corrélation réelle, PWA.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -153,6 +153,9 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .web-result .src{font-size:11px;color:var(--ac2);font-weight:700;text-transform:uppercase}
 .web-result h4{font-size:14px;margin:4px 0 6px}.web-result p{font-size:12px;color:var(--mut)}
 .web-result .meta{font-size:11px;color:var(--dim);margin-top:6px}
+#bootFail{display:none;margin:12px 0;padding:12px 14px;border:1px solid #ef4444;border-left:3px solid #ef4444;border-radius:12px;background:#ef44440f;font-size:13px;color:#ffb4b4}
+#bootFail b{color:#ff8f9d;display:block;margin-bottom:6px}
+#bootFail button{margin-top:9px;padding:8px 12px;font-size:12px;font-weight:800;border-radius:9px;border:1px solid #ef4444;background:#ef444418;color:#ff8f9d;cursor:pointer}
 #printArea{display:none}
 @media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}body.printing #jrgBar,body.printing #tbBar,body.printing #mgBar,body.printing #ntfDrawer{display:none!important}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -185,7 +188,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v26.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v26.1</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" title="Notifications · autoriser / refuser / révoquer">🔔</button>
@@ -197,7 +200,8 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · notifications robustes tous navigateurs (cloche = autoriser/refuser/révoquer) · garde de version SW · demandes d’accès en tête d’APK · localisation VIN · OBD atelier · méga-bases · corrélation réelle · PWA.</p>
+ <p class="mut">Contrôle intégrité · chargement des modules sans conflit d’identifiants · notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer) · demandes d’accès en tête d’APK · localisation VIN · OBD atelier · méga-bases · corrélation réelle · PWA.</p>
+ <div id="bootFail"></div>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button id="bootNotif">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -213,55 +217,32 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 <input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
 <input type="file" id="fileDump" accept="application/json" class="hid">
 <noscript>JavaScript requis.</noscript>
-<script src="quota.js"></script>
-<script src="firebase-config.js"></script>
-<script src="data.js"></script>
-<script src="app.js"></script>
-<script src="sanitize.js"></script>
-<script src="turbo.js"></script>
-<script src="catalog.js"></script>
-<script src="catalog_ext.js"></script>
-<script src="renault_base.js"></script>
-<script src="brands_base.js"></script>
-<script src="megabase_catalog.js"></script>
-<script src="megabase2_catalog.js"></script>
-<script src="megabase3_catalog.js"></script>
-<script src="access.js"></script>
-<script src="notify.js"></script>
-<script src="extra.js"></script>
-<script src="updates.js"></script>
-<script src="diffusion.js"></script>
-<script src="vehicles.js"></script>
-<script src="faults.js"></script>
-<script src="faults_ext.js"></script>
-<script src="renault_faults.js"></script>
-<script src="models_add.js"></script>
-<script src="bigster_spring.js"></script>
-<script src="family_faults.js"></script>
-<script src="import2023.js"></script>
-<script src="megabase_faults.js"></script>
-<script src="megabase2_faults.js"></script>
-<script src="megabase3_faults.js"></script>
-<script src="correlation.js"></script>
-<script src="predictive.js"></script>
-<script src="brandlogo.js"></script>
-<script src="wallpaper.js"></script>
-<script src="vinloc_db.js"></script>
-<script src="vinloc.js"></script>
-<script src="jradmin.js"></script>
-<script src="obdpro_db.js"></script>
-<script src="obdpro.js"></script>
-<script src="obdtech_db.js"></script>
-<script src="obdtech.js"></script>
-<script src="websearch.js"></script>
-<script src="baseupdate.js"></script>
-<script src="autoimport.js"></script>
-<script src="admingate.js"></script>
-<script src="notifications.js"></script>
-<script src="pwabuilder.js"></script>
-<script src="icon-gen.js"></script>
-<script src="ghtoken.js"></script>
-<script src="jrgate.js"></script>
-<script src="modgate.js"></script>
+<script src="bootfix.js"></script>
+<script>
+(function(){
+ function show(){
+  try{
+   var b=window.KFBoot;if(!b||!b.failed||!b.failed.length)return;
+   var el=document.getElementById('bootFail');if(!el)return;
+   el.style.display='block';
+   el.innerHTML='<b>⚠️ '+b.failed.length+' module(s) non chargé(s)</b>'+
+    b.failed.join(', ')+
+    '<br><button type="button" id="bfRetry">↺ Réessayer le chargement</button> '+
+    '<button type="button" id="bfReload">⟳ Recharger l’application</button>';
+   var r=document.getElementById('bfRetry');
+   if(r)r.onclick=function(){var f=window.KFBoot.retry();if(!f.length){el.style.display='none';
+    if(window.toast)window.toast('✅ Modules rechargés')}};
+   var l=document.getElementById('bfReload');
+   if(l)l.onclick=function(){window.KFBoot.reload()};
+  }catch(e){}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show);else show();
+ setTimeout(show,1500);
+ var bn=document.getElementById('bootNotif');
+ if(bn)bn.addEventListener('click',function(){
+  try{if(window.KFNotify){KFNotify.open();KFNotify.ask()}
+   else if(window.Notification&&Notification.requestPermission)Notification.requestPermission()}catch(e){}});
+})();
+</script>
 </body>
 </html>
