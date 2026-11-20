@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#04140c">
-<meta name="kf-version" content="26.2.0">
+<meta name="kf-version" content="26.3.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — chargement natif restauré (aucun module bloqué), notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer), demandes d'accès en tête d'APK, localisation VIN, OBD atelier, méga-bases toutes marques, corrélation réelle, PWA.">
+<meta name="description" content="KEV FUSION 2026 — module New MRT Kevin (404) retiré, auto-vérification assainie, notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer), localisation VIN, OBD atelier, méga-bases toutes marques, corrélation réelle, PWA.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -185,7 +185,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v26.2</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v26.3</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" title="Notifications · autoriser / refuser / révoquer">🔔</button>
@@ -197,7 +197,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer) · demandes d’accès en tête d’APK · localisation VIN · OBD atelier · méga-bases toutes marques · corrélation réelle · PWA.</p>
+ <p class="mut">Contrôle intégrité · modules valides uniquement · notifications robustes tous navigateurs (cloche : autoriser / refuser / révoquer) · demandes d’accès en tête d’APK · localisation VIN · OBD atelier · méga-bases toutes marques · corrélation réelle · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -218,6 +218,7 @@ body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="sanitize.js"></script>
+<script src="modclean.js"></script>
 <script src="turbo.js"></script>
 <script src="catalog.js"></script>
 <script src="catalog_ext.js"></script>
