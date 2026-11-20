@@ -1,135 +1,185 @@
-/* KEV FUSION 2026 — vinloc.js v4.0.0
-   Case « Localisation VIN » auto-ouverte en Recherche, avec :
-   · base v4 corrigée (PSA = feuillure de tablier AV D ; Renault/Dacia = plancher AR D) + confiance
-   · PROTOCOLE DE RECHERCHE ORDONNÉ interactif : on inspecte les zones candidates dans l'ordre ;
-     cocher « trouvé » sur une zone différente enregistre automatiquement une correction expert
-   · confirmations expert persistantes (renforcent la confiance affichée)
-   · base importée (JSON/CSV) prioritaire, overrides, export
-   · croisement obligatoire à 3 points, schémas véhicule + zoom pièce, repère coté, accès, outillage */
+/* KEV FUSION 2026 — vinloc.js v5.0.0  (RÉPARATION MASSIVE + ROBUSTESSE)
+   La case « Localisation VIN — frappe à froid » est reconstruite pour fonctionner DANS TOUS
+   LES CAS : ancrage multi-cibles (ne dépend plus d'un seul id), ré-ancrage automatique après
+   chaque re-rendu du mode Recherche, sources véhicule redondantes (état + panneau + selects),
+   rendu blindé par try/catch avec repli minimal, et diagnostic intégré.
+   Résolution réelle de l'emplacement : override expert > base importée > table
+   modèle/années > motorisation (VE/hibride/diesel) > plateforme/période > marque > générique,
+   avec indice de confiance, confirmations terrain et protocole de recherche ordonné. */
 (function(){
 'use strict';
-var DB=window.KFVinLocDB;if(!DB){console.warn('vinloc: base absente');return}
-var Z=DB.Z;
-var $=function(s,r){return (r||document).querySelector(s)};
-var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var DB=window.KFVinLocDB;
+var $=function(s,r){try{return (r||document).querySelector(s)}catch(e){return null}};
+var $$=function(s,r){try{return Array.prototype.slice.call((r||document).querySelectorAll(s))}catch(e){return[]}};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
 var LS={g:function(k,d){try{var v=JSON.parse(localStorage.getItem('kf_'+k));return v==null?d:v}catch(e){return d}},
  s:function(k,v){try{localStorage.setItem('kf_'+k,JSON.stringify(v))}catch(e){}},d:function(k){try{localStorage.removeItem('kf_'+k)}catch(e){}}};
-function toast(m,act){try{
- if(typeof window.toast==='function'&&!act){window.toast(m);return}
- var t=$('#toast');if(!t)return;
- t.innerHTML=esc(m)+(act?' <button id="vlUndo" style="margin-left:10px;padding:4px 10px;font-size:12px">'+esc(act.label)+'</button>':'');
- t.classList.remove('hid');t.classList.add('show');
- if(act){var b=$('#vlUndo');if(b)b.onclick=function(){act.fn();t.classList.add('hid');t.classList.remove('show')}}
- clearTimeout(t._h);t._h=setTimeout(function(){t.classList.add('hid');t.classList.remove('show')},act?9000:3000)}catch(e){}}
+function toast(m){try{if(typeof window.toast==='function'){window.toast(m);return}
+ var t=$('#toast');if(!t)return;t.textContent=m;t.classList.remove('hid');t.classList.add('show');
+ clearTimeout(t._h);t._h=setTimeout(function(){t.classList.add('hid');t.classList.remove('show')},3200)}catch(e){}}
 var AU={c:null};
 function snd(k){if(!CFG.sound)return;
  try{var c=AU.c||(AU.c=new (window.AudioContext||window.webkitAudioContext)());
   if(c.state==='suspended')c.resume();
-  var m={open:[420,900,.22,'triangle'],tick:[1300,1300,.02,'sine'],mark:[660,1180,.12,'sine'],
-   save:[523,784,.18,'sine'],out:[523,880,.22,'triangle'],found:[392,660,880,.3,'triangle']}[k]||[900,900,.04,'sine'];
-  var o=c.createOscillator(),g=c.createGain();o.type=m[3];
+  var m={open:[420,900,.22],tick:[1300,1300,.02],mark:[660,1180,.12],save:[523,784,.18],
+   out:[523,880,.22],found:[523,659,784,.24]}[k]||[900,900,.04];
+  var o=c.createOscillator(),g=c.createGain();o.type='triangle';
   o.frequency.setValueAtTime(m[0],c.currentTime);
-  o.frequency.exponentialRampToValueAtTime(Math.max(50,m[m.length-2]||m[1]),c.currentTime+m[2]);
-  g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(.1,c.currentTime+.01);
+  o.frequency.exponentialRampToValueAtTime(Math.max(60,m[1]),c.currentTime+m[2]);
+  g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(.1,c.currentTime+.012);
   g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+m[2]);
   o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+m[2]+.03)}catch(e){}}
-var DEF={view:'auto',style:'real',zoom:100,rot:0,marker:100,glow:56,grid:28,dims:true,labels:true,anim:true,
- proto:true,c1:'#38bdf8',c2:'#ffb020',density:100,sound:true};
+var DEF={view:'auto',style:'real',zoom:100,rot:0,marker:100,glow:56,grid:28,dims:true,labels:true,
+ anim:true,proto:true,c1:'#38bdf8',c2:'#ffb020',density:100,sound:true};
 var CFG=Object.assign({},DEF,LS.g('vlCfg',{}));
 function saveCfg(){LS.s('vlCfg',CFG)}
-var OV=LS.g('vl_over',{}), UBASE=LS.g('vl_base',[]), CONF=Object.assign({},DB.CONF,LS.g('vl_conf',{}));
-var ST={key:'',zone:null,res:null,vin:'',dismissed:{},editing:false,proto:{}};
+var Z=(DB&&DB.Z)||{};
+var OV=LS.g('vl_over',{}),UBASE=LS.g('vl_base',[]),
+    CONF=Object.assign({},(DB&&DB.CONF)||{},LS.g('vl_conf',{}));
+var ST={key:'',zone:null,res:null,vin:'',dismissed:{},editing:false,proto:{},
+ anchorSel:'',vehSrc:'',err:'',diag:false,bootOk:false};
 
-/* ══════════ persistance corrections / confirmations ══════════ */
+/* ══════════ persistance ══════════ */
 function ovKey(b,m){return norm(b)+'|'+norm(m)}
-function confKey(b,m,from,to,z){return norm(b)+'|'+norm(m)+'|'+from+'-'+to+'|'+z}
 function saveOverride(b,m,from,to,z,note,side,silent){
  var k=ovKey(b,m);OV[k]=OV[k]||[];
- var e=OV[k].find(function(x){return x.from===from&&x.to===to});
+ var e=null;for(var i=0;i<OV[k].length;i++)if(OV[k][i].from===from&&OV[k][i].to===to)e=OV[k][i];
  if(e){e.z=z;e.note=note;e.side=side;e.ts=Date.now()}
  else OV[k].push({from:+from,to:+to,z:z,note:note,side:side,ts:Date.now()});
- LS.s('vl_over',OV);if(!silent){snd('save');toast('✏️ Correction enregistrée — elle prime sur la base')}}
+ LS.s('vl_over',OV);if(!silent){snd('save');toast('✏️ Correction enregistrée — prioritaire')}}
 function delOverride(b,m){delete OV[ovKey(b,m)];LS.s('vl_over',OV);toast('🗑️ Override retiré')}
 function findOverride(b,m,y){var l=OV[ovKey(b,m)];if(!l||!l.length)return null;
- var y=parseInt(y,10)||0,best=null;
+ y=parseInt(y,10)||0;var best=null;
  for(var i=0;i<l.length;i++){var o=l[i];
   if(!y||(y>=o.from&&y<=o.to)){var sp=o.to-o.from;if(!best||sp<best.sp)best={o:o,sp:sp}}}
  return best?best.o:null}
-function confirmZone(b,m,from,to,z){
- var k=confKey(b,m,from,to,z);CONF[k]=(CONF[k]||0)+1;LS.s('vl_conf',CONF);
- snd('found');toast('✅ Localisation confirmée sur le véhicule ('+CONF[k]+' confirmation(s))')}
-function confCount(b,m,z){var n=0,y=0;
- Object.keys(CONF).forEach(function(k){var p=k.split('|');
-  if(p[0]===norm(b)&&p[1]===norm(m)&&p[4]===z)n+=CONF[k]});
- return n}
-function exportAll(){
- var a=document.createElement('a');
+function confCount(b,m,z){var n=0;Object.keys(CONF).forEach(function(k){var p=k.split('|');
+ if(p[0]===norm(b)&&p[1]===norm(m)&&p[4]===z)n+=CONF[k]});return n}
+function confirmZone(b,m,from,to,z){var k=norm(b)+'|'+norm(m)+'|'+from+'-'+to+'|'+z;
+ CONF[k]=(CONF[k]||0)+1;LS.s('vl_conf',CONF);snd('found');
+ toast('✅ Localisation confirmée sur le véhicule ('+CONF[k]+' confirmation(s))')}
+function exportAll(){try{var a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([JSON.stringify({overrides:OV,confirmations:CONF,base:UBASE},null,2)],{type:'application/json'}));
  a.download='vinloc-references-'+new Date().toISOString().slice(0,10)+'.json';a.click();
- setTimeout(function(){URL.revokeObjectURL(a.href)},6000);toast('🧬 Références exportées')}
-function importBase(file){
- var r=new FileReader();
- r.onload=function(){
-  try{var j=JSON.parse(r.result);
+ setTimeout(function(){URL.revokeObjectURL(a.href)},6000);toast('🧬 Références exportées')}catch(e){toast('Export impossible')}}
+function importBase(file){var r=new FileReader();
+ r.onload=function(){try{var j=JSON.parse(r.result);
    if(Array.isArray(j))UBASE=UBASE.concat(j);
    else{if(Array.isArray(j.base))UBASE=UBASE.concat(j.base);
     if(j.overrides)Object.keys(j.overrides).forEach(function(k){OV[k]=(OV[k]||[]).concat(j.overrides[k])});
     if(j.confirmations)Object.keys(j.confirmations).forEach(function(k){CONF[k]=(CONF[k]||0)+j.confirmations[k]})}
    LS.s('vl_base',UBASE);LS.s('vl_over',OV);LS.s('vl_conf',CONF);
-   snd('save');toast('📥 Référence importée — prioritaire sur la base interne');render(true)}
-  catch(e){
-   /* tentative CSV : marque;modele;de;à;zone;note;conf */
-   var lines=String(r.result).split(/\r?\n/).filter(Boolean);var n=0;
+   snd('save');toast('📥 Référence importée — prioritaire');render(true)}
+  catch(e){var lines=String(r.result).split(/\r?\n/).filter(Boolean),n=0;
    lines.forEach(function(l,i){if(i===0&&/marque/i.test(l))return;
     var c=l.split(/[;\t,]/);if(c.length<5)return;
     UBASE.push([c[0].trim(),c[1].trim(),+c[2]||1950,+c[3]||2027,c[4].trim(),(c[5]||'').trim(),(c[6]||'M').trim()]);n++});
-   if(n){LS.s('vl_base',UBASE);snd('save');toast('📥 '+n+' ligne(s) CSV importée(s)');render(true)}
+   if(n){LS.s('vl_base',UBASE);snd('save');toast('📥 '+n+' ligne(s) importée(s)');render(true)}
    else toast('❌ Fichier illisible')}};
  r.readAsText(file)}
 
-/* ══════════ résolution v4 ══════════ */
+/* ══════════ résolution (garantie) ══════════ */
 function modelMatch(sel,entry){var a=norm(sel),b=norm(entry);if(!a||!b)return false;
  return a===b||a.indexOf(b)===0||a.indexOf(' '+b)>=0||b.indexOf(a)===0}
 function lookup(table,b,md,yr){var best=null;
  for(var i=0;i<table.length;i++){var e=table[i];
-  if(norm(e[0])!==norm(b))continue;
+  if(!e||norm(e[0])!==norm(b))continue;
   if(!modelMatch(md,e[1]))continue;
   if(yr&&(yr<e[2]||yr>e[3]))continue;
   var sp=e[3]-e[2];if(!best||sp<best.sp)best={e:e,sp:sp}}
  return best}
+function secFor(mk){var br=(DB&&DB.BRAND&&DB.BRAND[mk])||null;
+ return ((br&&br.sec)||['goulotte_baie_d','piedB_g']).map(function(s){return Z[s]}).filter(Boolean)}
+function protocolFor(primary){
+ var ids=[primary.id].concat(((DB&&DB.PROTOCOL)||[]).filter(function(p){return p!==primary.id}));
+ return ids.map(function(id){return Z[id]}).filter(Boolean)}
 function resolve(brand,model,fuel,power,year){
  var mk=brand||'',md=model||'',yr=parseInt(year,10)||0;
- var base={key:mk+'|'+md+'|'+fuel+'|'+power+'|'+year,brand:mk,model:md,fuel:fuel||'',power:power||'',year:year||''};
+ var base={key:mk+'|'+md+'|'+(fuel||'')+'|'+(power||'')+'|'+(year||''),brand:mk,model:md,
+  fuel:fuel||'',power:power||'',year:year||''};
  function fin(pid,note,src,conf,side){
-  var z=Z[pid]||Z.goulotte_baie_d;
-  var cc=confCount(mk,md,pid);
-  var r=Object.assign({},base,{pid:pid,zone:z,sec:secFor(mk),note:note||z.anchor,src:src,
-   conf:cc>0?'H':(conf||'M'),confN:cc,side:side||z.side,protocol:protocol(z)});
-  return r}
- var ov=findOverride(mk,md,yr);
- if(ov&&Z[ov.z])return fin(ov.z,ov.note,'override','H',ov.side);
- var ub=lookup(UBASE,mk,md,yr);
- if(ub&&Z[ub.e[4]])return fin(ub.e[4],ub.e[5],'base importée',ub.e[6]||'H');
- var mo=lookup(DB.MODELS,mk,md,yr);
- if(mo&&Z[mo.e[4]])return fin(mo.e[4],mo.e[5],'modèle/années',mo.e[6]||'M');
- var fr=DB.fuelRule(fuel||'');
- if(fr.p&&Z[fr.p])return fin(fr.p,fr.n,'motorisation',fr.c||'M');
- if(yr)for(var i=0;i<DB.YEAR.length;i++){var y=DB.YEAR[i];
-  if(y.b.indexOf(mk)>=0&&yr>=y.from&&yr<=y.to&&Z[y.p])return fin(y.p,y.n,'plateforme/période',y.c||'M')}
- var br=DB.BRAND[mk];
- if(br&&Z[br.p])return fin(br.p,br.n,'marque',br.c||'M');
- return fin('goulotte_baie_d',Z.goulotte_baie_d.anchor,'générique','V')}
-function secFor(mk){var br=DB.BRAND[mk];
- return (br&&br.sec||['goulotte_baie_d','piedB_g']).map(function(s){return Z[s]}).filter(Boolean)}
-function protocol(primary){
- var ids=[primary.id].concat(DB.PROTOCOL.filter(function(p){return p!==primary.id}));
- var sec=(DB.BRAND[primary.__b]||{}).sec||[];
- return ids.map(function(id){return Z[id]}).filter(Boolean)}
-function currentVehicle(){try{if(typeof S!=='undefined'&&S.vehicle&&S.vehicle.brand)return S.vehicle}catch(e){}return null}
+  var z=Z[pid]||Z.goulotte_baie_d||{id:pid,l:pid,m:'—',part:'bay',v:'bay',x:50,y:50,anchor:'',steps:[],t:'',w:'',side:'D'};
+  var cc=confCount(mk,md,z.id);
+  return Object.assign({},base,{pid:z.id,zone:z,sec:secFor(mk),note:note||z.anchor||'',src:src,
+   conf:cc>0?'H':(conf||'M'),confN:cc,side:side||z.side||'D',protocol:protocolFor(z)})}
+ try{
+  var ov=findOverride(mk,md,yr);
+  if(ov&&Z[ov.z])return fin(ov.z,ov.note,'override','H',ov.side);
+  var ub=lookup(UBASE,mk,md,yr);
+  if(ub&&Z[ub.e[4]])return fin(ub.e[4],ub.e[5],'base importée',ub.e[6]||'H');
+  var mo=lookup((DB&&DB.MODELS)||[],mk,md,yr);
+  if(mo&&Z[mo.e[4]])return fin(mo.e[4],mo.e[5],'modèle/années',mo.e[6]||'M');
+  var fr=(DB&&DB.fuelRule)?DB.fuelRule(fuel||''):null;
+  if(fr&&fr.p&&Z[fr.p])return fin(fr.p,fr.n,'motorisation',fr.c||'M');
+  if(yr&&(DB&&DB.YEAR))for(var i=0;i<DB.YEAR.length;i++){var y=DB.YEAR[i];
+   if(y.b.indexOf(mk)>=0&&yr>=y.from&&yr<=y.to&&Z[y.p])return fin(y.p,y.n,'plateforme/période',y.c||'M')}
+  var br=(DB&&DB.BRAND&&DB.BRAND[mk])||null;
+  if(br&&Z[br.p])return fin(br.p,br.n,'marque',br.c||'M');
+  return fin('goulotte_baie_d',(Z.goulotte_baie_d||{}).anchor,'générique','V');
+ }catch(e){ST.err='resolve: '+e.message;
+  return fin('goulotte_baie_d','Règle générique (repli sûr).','générique','V')}}
 
-/* ══════════ schémas (identiques v3) ══════════ */
+/* ══════════ sources véhicule redondantes ══════════ */
+function fromState(){try{if(typeof S!=='undefined'&&S.vehicle&&S.vehicle.brand&&S.vehicle.model)
+ return S.vehicle}catch(e){}return null}
+function fromVehRead(){var el=$('.vehread')||$('#vehRead');if(!el)return null;
+ var t=el.textContent||'';var makes=[];
+ try{makes=(window.KFCatalog&&KFCatalog.makes())||[]}catch(e){}
+ var brand='';for(var i=0;i<makes.length;i++)if(t.indexOf(makes[i])>=0){brand=makes[i];break}
+ if(!brand)return null;
+ var my=t.match(/(19|20)\d{2}/);var pw=t.match(/(\d{2,3})\s*(ch|cv)/i);
+ var fu=(t.match(/diesel|essence|hybride\s*rechargeable|hybride|électrique|electrique|GPL|E85/i)||[])[0]||'';
+ var models=[];try{models=(window.KFCatalog&&KFCatalog.models(brand))||[]}catch(e){}
+ var model='';for(i=0;i<models.length;i++)if(t.indexOf(models[i])>=0){model=models[i];break}
+ if(!model)return null;
+ var eng=(t.match(/\b[\d.]+\s*(?:dCi|TDI|TDI|BlueHDI|HDi|THP|PureTech|TCE|TCe|Energy|d|e-|Hybrid|EV)\b/i)||[])[0]||'';
+ return{brand:brand,model:model,engine:eng,year:my?my[0]:'',fuel:fu,ch:pw?pw[1]:''}}
+function fromSelects(){var v=$('#view');if(!v)return null;
+ var makes=[];try{makes=(window.KFCatalog&&KFCatalog.makes())||[]}catch(e){}
+ if(!makes.length)return null;
+ var sels=$$('select',v),brand='',model='',engine='';
+ for(var i=0;i<sels.length;i++){var val=(sels[i].value||'').trim();
+  if(!brand&&makes.indexOf(val)>=0){brand=val;break}}
+ if(!brand)return null;
+ var models=[];try{models=(window.KFCatalog&&KFCatalog.models(brand))||[]}catch(e){}
+ for(i=0;i<sels.length;i++){var vv=(sels[i].value||'').trim();
+  if(vv&&vv!==brand&&models.indexOf(vv)>=0){model=vv;break}}
+ if(!model)return null;
+ for(i=0;i<sels.length;i++){var ve=(sels[i].value||'').trim();
+  if(ve&&ve!==brand&&ve!==model){engine=ve;break}}
+ return{brand:brand,model:model,engine:engine,year:'',fuel:'',ch:''}}
+function currentVehicle(){
+ var v=fromState();if(v){ST.vehSrc='état';return v}
+ v=fromVehRead();if(v){ST.vehSrc='panneau';return v}
+ v=fromSelects();if(v){ST.vehSrc='selects';return v}
+ ST.vehSrc='—';return null}
+
+/* ══════════ ancrage robuste ══════════ */
+function anchor(){
+ var sels=['#vehRead','.vehread','#srVeh','#vehicleRead','[data-vehread]','#srVehicle'];
+ for(var i=0;i<sels.length;i++){var el=$(sels[i]);
+  if(el&&el.parentNode){ST.anchorSel=sels[i];return{el:el,mode:'after'}}}
+ var res=$('#srRes')||$('#stResult');
+ if(res&&res.parentNode){ST.anchorSel='#srRes';return{el:res,mode:'before'}}
+ var v=$('#view');
+ if(v){var card=v.querySelector('.card');
+  if(card){ST.anchorSel='.card';return{el:card,mode:'before'}}
+  ST.anchorSel='#view';return{el:v,mode:'append'}}
+ return null}
+function host(){
+ var h=$('#vinlocHost');
+ if(h&&h.isConnected)return h;
+ var a=anchor();if(!a)return null;
+ h=document.createElement('div');h.id='vinlocHost';
+ try{
+  if(a.mode==='after')a.el.parentNode.insertBefore(h,a.el.nextSibling);
+  else if(a.mode==='before')a.el.parentNode.insertBefore(h,a.el);
+  else a.el.appendChild(h);
+ }catch(e){try{var v=$('#view');if(v)v.appendChild(h)}catch(e2){return null}}
+ return h}
+
+/* ══════════ schémas ══════════ */
 function defs(){var real=CFG.style==='real';
  return '<defs>'+
  '<linearGradient id="vlBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#08131f"/><stop offset=".55" stop-color="#0c1c2c"/><stop offset="1" stop-color="#101426"/></linearGradient>'+
@@ -156,7 +206,7 @@ function dim(x1,y1,x2,y2,label){if(!CFG.dims)return '';
  return '<g stroke="'+CFG.c1+'" stroke-width="1.4" opacity=".9"><path d="M'+x1+' '+y1+' L'+x2+' '+y2+'"/>'+
  '<path d="M'+x1+' '+(y1-5)+' V'+(y1+5)+'"/><path d="M'+x2+' '+(y2-5)+' V'+(y2+5)+'"/>'+
  '<text x="'+((x1+x2)/2)+'" y="'+(Math.min(y1,y2)-7)+'" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10.5" fill="'+CFG.c1+'" stroke="none">'+esc(label||'')+'</text></g>'}
-function vehScene(res){var z=res.zone,view=z.v,x=z.x,y=z.y;
+function vehScene(res){var z=res.zone,view=z.v||'top',x=z.x||50,y=z.y||50;
  var real=CFG.style==='real',body='url(#vlBody)',glass='url(#vlGlass)',
   stroke=real?'#0a121c':'#3f5a76',sw=real?1.4:1.6,s='';
  s+='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340" preserveAspectRatio="xMidYMid meet">'+defs()+
@@ -208,8 +258,8 @@ function vehScene(res){var z=res.zone,view=z.v,x=z.x,y=z.y;
  s+=car+marker(px,py);
  if(CFG.labels)s+='<g font-family="system-ui,sans-serif"><rect x="16" y="290" width="488" height="38" rx="9" fill="#08131f" stroke="'+CFG.c1+'" stroke-opacity=".5"/>'+
   '<circle cx="34" cy="309" r="6" fill="'+CFG.c2+'"/>'+
-  '<text x="48" y="305" font-size="12.5" font-weight="700" fill="#eaf4ff">'+esc(z.l)+'</text>'+
-  '<text x="48" y="321" font-size="10.5" fill="#8fb0cc">Vue véhicule · '+esc(viewLabel(view))+' · côté '+esc(res.side||z.side||'—')+'</text></g>';
+  '<text x="48" y="305" font-size="12.5" font-weight="700" fill="#eaf4ff">'+esc(z.l||'')+'</text>'+
+  '<text x="48" y="321" font-size="10.5" fill="#8fb0cc">Vue véhicule · '+esc(viewLabel(view))+' · côté '+esc(res.side||'—')+'</text></g>';
  return s+'</svg>'}
 function partScene(res){var z=res.zone,real=CFG.style==='real',metal='url(#vlMetal)',
  stroke=real?'#0a121c':'#3f5a76',sw=real?1.5:1.7,s='';
@@ -276,60 +326,65 @@ function partScene(res){var z=res.zone,real=CFG.style==='real',metal='url(#vlMet
   s+=body+marker(260,155,0.8)}
  if(CFG.labels)s+='<g font-family="system-ui,sans-serif"><rect x="16" y="290" width="488" height="38" rx="9" fill="#08131f" stroke="'+CFG.c2+'" stroke-opacity=".5"/>'+
   '<circle cx="34" cy="309" r="6" fill="'+CFG.c2+'"/>'+
-  '<text x="48" y="305" font-size="12.5" font-weight="700" fill="#ffd166">ZOOM PIÈCE · '+esc(z.l)+'</text>'+
-  '<text x="48" y="321" font-size="10.5" fill="#8fb0cc">'+esc(z.m)+' · repère : '+esc(z.anchor)+'</text></g>';
+  '<text x="48" y="305" font-size="12.5" font-weight="700" fill="#ffd166">ZOOM PIÈCE · '+esc(z.l||'')+'</text>'+
+  '<text x="48" y="321" font-size="10.5" fill="#8fb0cc">'+esc(z.m||'')+' · repère : '+esc(z.anchor||'')+'</text></g>';
  return s+'</svg>'}
 function viewLabel(v){return{top:'dessus',front34:'3/4 avant',bay:'baie de pare-brise',sill:'pied / seuil',well:'coffre / puits',rail:'longeron'}[v]||v}
 var CONFLBL={H:['Haute','#22c55e'],M:['Moyenne','#ffb020'],V:['À vérifier sur véhicule','#ff4d6d']};
+var SRCLBL={override:'✏️ correction expert','base importée':'📥 base importée','modèle/années':'📗 table modèle/années',
+ motorisation:'⚡ motorisation','plateforme/période':'🏗️ plateforme',marque:'🏷️ règle marque',générique:'⚠️ générique'};
 
 /* ══════════ protocole ══════════ */
-function protoKey(){return 'proto:'+ST.key}
+function protoKey(){return 'vlproto_'+(ST.key||'x').replace(/\W+/g,'_')}
 function protoState(){ST.proto=LS.g(protoKey(),{})||{};return ST.proto}
-function protoSet(zid,val){var p=protoState();
- if(!val)delete p[zid];else p[zid]=val;
+function protoSet(zid,val){var p=protoState();if(!val)delete p[zid];else p[zid]=val;
  LS.s(protoKey(),p);render(true)}
 function protocolHtml(res){
- if(!CFG.proto)return '';
- var p=protoState();
- var list=res.protocol.slice(0,9);
+ if(!CFG.proto||!res.protocol)return '';
+ var p=protoState(),list=res.protocol.slice(0,9);
  return '<div class="vl-proto"><div class="vl-proto-h"><b>🔦 Protocole de recherche ordonné</b>'+
   '<span>inspectez dans l’ordre ; cochez « trouvé » sur la zone réelle</span>'+
-  '<button class="vl-mini" data-vl="protoreset">↺</button></div><ol>'+
-  list.map(function(z,i){
-   var st=p[z.id]||'';
+  '<button class="vl-mini" data-vl="protoreset" title="Réinitialiser">↺</button></div><ol>'+
+  list.map(function(z,i){var st=p[z.id]||'';
    return '<li class="'+st+'"><span class="vl-pn">'+(i+1)+'</span>'+
     '<div class="vl-pz"><b>'+esc(z.l)+'</b><em>'+esc(z.m)+' · côté '+esc(z.side||'—')+'</em></div>'+
-    '<div class="vl-pa">'+
-     '<button class="'+(st==='found'?'on-ok':'')+'" data-vlproto="'+z.id+':found"'+(z.id===res.pid?' data-primary="1"':'')+'>✅ trouvé</button>'+
-     '<button class="'+(st==='absent'?'on-ko':'')+'" data-vlproto="'+z.id+':absent'+'">✖ absent</button>'+
-    '</div></li>'}).join('')+'</ol></div>'}
+    '<div class="vl-pa"><button class="'+(st==='found'?'on-ok':'')+'" data-vlproto="'+z.id+':found">✅ trouvé</button>'+
+    '<button class="'+(st==='absent'?'on-ko':'')+'" data-vlproto="'+z.id+':absent">✖ absent</button></div></li>'}).join('')+
+  '</ol></div>'}
 
-/* ══════════ rendu ══════════ */
-function host(){var vr=$('#vehRead');if(!vr)return null;
- var h=$('#vinlocHost');if(!h){h=document.createElement('div');h.id='vinlocHost';
-  vr.parentNode.insertBefore(h,vr.nextSibling)}return h}
-var SRCLBL={override:'✏️ correction expert','base importée':'📥 base importée',modèle:'📗 table modèle/années',
- motorisation:'⚡ motorisation','plateforme/période':'🏗️ plateforme',marque:'🏷️ règle marque',générique:'⚠️ générique'};
+/* ══════════ rendu blindé ══════════ */
 function render(open){
- var h=host();if(!h)return;
- var veh=currentVehicle();
- if(!veh||!veh.brand||!veh.model||!veh.engine){h.innerHTML='';ST.key='';return}
- var res=resolve(veh.brand,veh.model,veh.fuel||veh.energie||'',veh.ch||veh.power||'',veh.year||'');
- ST.vin=veh.vin||ST.vin||'';ST.res=res;ST.zone=res.zone;ST.key=res.key;
- var show=open||!ST.dismissed[res.key];
- var cf=CONFLBL[res.conf]||CONFLBL.M;
- h.innerHTML='<div class="vl-wrap'+(show?' open':'')+'" id="vlWrap">'+
-  '<div class="vl-head" data-vl="toggle"><span class="vl-ic">📍</span>'+
+ try{
+  var h=host();if(!h){ST.err='aucun ancrage disponible';return}
+  var veh=currentVehicle();
+  if(!veh||!veh.brand||!veh.model){h.innerHTML='';ST.key='';return}
+  var res=resolve(veh.brand,veh.model,veh.fuel||veh.energie||'',veh.ch||veh.power||'',veh.year||'');
+  ST.vin=veh.vin||ST.vin||'';ST.res=res;ST.zone=res.zone;ST.key=res.key;ST.err='';
+  var show=(open===true)||(!ST.dismissed[res.key]&&open!==false);
+  var cf=CONFLBL[res.conf]||CONFLBL.M;
+  h.innerHTML='<div class="vl-wrap'+(show?' open':'')+'" id="vlWrap">'+
+   '<div class="vl-head" data-vl="toggle"><span class="vl-ic">📍</span>'+
    '<div class="vl-t"><b>Localisation VIN — frappe à froid</b>'+
    '<span>'+esc(res.brand)+' '+esc(res.model)+(res.fuel?' · '+esc(res.fuel):'')+(res.power?' · '+res.power+' ch':'')+(res.year?' · '+esc(res.year):'')+'</span></div>'+
    '<span class="vl-conf" style="color:'+cf[1]+';border-color:'+cf[1]+'">'+esc(cf[0])+(res.confN?' ×'+res.confN:'')+'</span>'+
-   '<span class="vl-badge '+(res.src==='modèle'||res.src==='override'||res.src==='base importée'?'ok':res.src==='générique'?'warn':'')+'">'+esc(SRCLBL[res.src]||res.src)+'</span>'+
+   '<span class="vl-badge '+(res.src==='modèle/années'||res.src==='override'||res.src==='base importée'?'ok':res.src==='générique'?'warn':'')+'">'+esc(SRCLBL[res.src]||res.src)+'</span>'+
+   '<button class="vl-mini" data-vl="diag" title="Diagnostic">🩺</button>'+
    '<span class="vl-x">'+(show?'▾':'▸')+'</span></div>'+
-  (show?body(res):'')+'</div>';
- bind();if(show)snd('open')}
+   (show?body(res):'')+'</div>';
+  bind();ST.bootOk=true;
+  if(show)snd('open');
+ }catch(e){
+  ST.err=String(e&&e.message||e);
+  try{var hh=host();if(hh)hh.innerHTML='<div class="vl-wrap open"><div class="vl-head">'+
+   '<span class="vl-ic">⚠️</span><div class="vl-t"><b>Localisation VIN</b><span>repli : '+esc(ST.err)+'</span></div>'+
+   '<button class="vl-mini" data-vl="retry">↺ Réessayer</button></div>'+
+   '<div style="padding:14px;font-size:12.5px;color:#cfe0f2">La base indique : '+
+   esc((ST.res&&ST.res.zone&&ST.res.zone.l)||'feuillure de tablier AV D / baie de pare-brise')+
+   '. Croisez avec la plaque pied B et la baie.</div></div>';bind()}catch(e2){}}}
 function body(res){
  var z=res.zone,dual=CFG.view==='auto';
  return '<div class="vl-body"><div class="vl-main">'+
+  (ST.diag?diagHtml():'')+
   '<div class="vl-scenes'+(dual?' two':'')+'">'+
    '<figure class="vl-fig"><figcaption>🚗 Vue véhicule — '+esc(viewLabel(z.v))+'</figcaption>'+
     '<div class="vl-scene" id="vlSceneV">'+vehScene(res)+'</div></figure>'+
@@ -344,16 +399,16 @@ function body(res){
   (ST.editing?editPanel(res):'')+
   protocolHtml(res)+
   '<div class="vl-prec"><span class="vl-prec-ic">🎯</span><div><b>'+esc(z.l)+'</b>'+
-   '<span class="vl-method">'+esc(z.m)+' · côté '+esc(res.side||'—')+' · source : '+esc(SRCLBL[res.src])+
-   ' · confiance '+esc((CONFLBL[res.conf]||[])[0]||'')+(res.confN?' ('+res.confN+' confirmation(s))':'')+'</span></div></div>'+
-  '<div class="vl-detail"><b>Repère géométrique (cote)</b><p class="vl-anchor">'+esc(z.anchor)+'</p>'+
-   '<b style="margin-top:8px">Détail &amp; règle appliquée</b><p>'+esc(res.note)+'</p></div>'+
+   '<span class="vl-method">'+esc(z.m)+' · côté '+esc(res.side||'—')+' · source : '+esc(SRCLBL[res.src]||res.src)+
+   ' · confiance '+esc((CONFLBL[res.conf]||[])[0]||'')+(res.confN?' ('+res.confN+' conf.)':'')+'</span></div></div>'+
+  '<div class="vl-detail"><b>Repère géométrique (cote)</b><p class="vl-anchor">'+esc(z.anchor||'—')+'</p>'+
+   '<b style="margin-top:8px">Détail &amp; règle appliquée</b><p>'+esc(res.note||'—')+'</p></div>'+
   '<div class="vl-cross"><b>🔁 Croisement obligatoire à 3 points</b><ol>'+
    '<li><span>1</span>Frappe à froid : '+esc(z.l)+'</li>'+
    '<li><span>2</span>Plaque / étiquette : '+esc((res.sec[0]||{}).l||'pied milieu')+'</li>'+
    '<li><span>3</span>Lecture optique : '+esc((res.sec[1]||{}).l||'baie de pare-brise')+'</li></ol>'+
    '<p class="vl-warn">Les trois lectures doivent être IDENTIQUES. Toute divergence = suspicion de remarquage, remplacement de pièce ou de vitrage : consigner au rapport.</p></div>'+
-  (z.steps.length?'<div class="vl-steps"><b>Accès pas-à-pas</b><ol>'+
+  ((z.steps&&z.steps.length)?'<div class="vl-steps"><b>Accès pas-à-pas</b><ol>'+
     z.steps.map(function(s2,i){return '<li><span>'+(i+1)+'</span>'+esc(s2)+'</li>'}).join('')+'</ol></div>':'')+
   '<div class="vl-grid2">'+
    '<div class="vl-box"><b>🧰 Outillage conseillé</b><p>'+esc(z.t||'Lampe rasante, miroir, brosse douce')+'</p></div>'+
@@ -371,10 +426,21 @@ function body(res){
    '<button data-vl="dismiss">✕ Fermer</button></div>'+
   '<input type="file" id="vlFile" accept=".json,.csv,text/plain" hidden>'+
  '</div>'+dock()+'</div>'}
+function diagHtml(){
+ return '<div class="vl-diag"><b>🩺 Diagnostic</b><table>'+
+  '<tr><td>Ancrage</td><td>'+esc(ST.anchorSel||'—')+'</td></tr>'+
+  '<tr><td>Source véhicule</td><td>'+esc(ST.vehSrc||'—')+'</td></tr>'+
+  '<tr><td>Clé</td><td>'+esc(ST.key||'—')+'</td></tr>'+
+  '<tr><td>Zone résolue</td><td>'+esc(ST.res?ST.res.pid:'—')+' ('+esc(ST.res?ST.res.src:'—')+')</td></tr>'+
+  '<tr><td>Base modèles</td><td>'+(((window.KFVinLocDB&&KFVinLocDB.MODELS)||[]).length)+' entrées</td></tr>'+
+  '<tr><td>Overrides</td><td>'+Object.keys(OV).length+'</td></tr>'+
+  '<tr><td>Confirmations</td><td>'+Object.keys(CONF).length+'</td></tr>'+
+  '<tr><td>Erreur</td><td>'+esc(ST.err||'aucune')+'</td></tr></table>'+
+  '<button class="vl-mini" data-vl="diag">fermer</button></div>'}
 function editPanel(res){
  var yr=parseInt(res.year,10)||new Date().getFullYear();
  var from=Math.max(1950,yr-4),to=Math.min(2027,yr+4);
- var opts=DB.ZONES.map(function(z){return '<option value="'+z.id+'"'+(z.id===res.pid?' selected':'')+'>'+esc(z.l)+'</option>'}).join('');
+ var opts=(DB.ZONES||[]).map(function(z){return '<option value="'+z.id+'"'+(z.id===res.pid?' selected':'')+'>'+esc(z.l)+'</option>'}).join('');
  return '<div class="vl-edit"><b>✏️ Correction expert — prime sur toute la base</b>'+
   '<div class="vl-edit-g">'+
   '<div><label>Zone réelle observée</label><select id="vlOvZ">'+opts+'</select></div>'+
@@ -403,10 +469,12 @@ function dock(){
   '<div><input type="color" data-vlc="c2" value="'+CFG.c2+'"><span>Repère</span></div></div>'+
  '<div class="vl-btns"><button data-vl="reset">↺</button><button data-vl="rand">🎲</button>'+
   '<button class="p" data-vl="png">🖼️ PNG</button></div>'+
- '<p class="vl-note">Réglages appliqués <b>en direct</b>. Les cotes indiquent la distance depuis le point de référence de la pièce.</p></aside>'}
+ '<p class="vl-note">Réglages appliqués <b>en direct</b>.</p></aside>'}
 function vrg(k,l,a,b,u){return '<div class="vl-c"><label>'+l+' <b id="vlo_'+k+'">'+CFG[k]+u+'</b></label>'+
  '<input type="range" data-vlc="'+k+'" min="'+a+'" max="'+b+'" value="'+CFG[k]+'"></div>'}
 function vtg(k,l){return '<label class="vl-tg'+(CFG[k]?' on':'')+'" id="vlt_'+k+'"><input type="checkbox" data-vlt="'+k+'"'+(CFG[k]?' checked':'')+'> '+l+'</label>'}
+
+/* ══════════ événements ══════════ */
 function bind(){
  var w=$('#vinlocHost');if(!w||w._b)return;w._b=1;
  w.addEventListener('input',function(e){
@@ -420,72 +488,72 @@ function bind(){
  w.addEventListener('change',function(e){
   var k=e.target.dataset&&e.target.dataset.vlc;
   if(k&&e.target.tagName==='SELECT'){CFG[k]=e.target.value;saveCfg();repaint();snd('tick');return}
-  if(e.target.id==='vlFile'&&e.target.files[0]){importBase(e.target.files[0]);e.target.value=''}});
+  if(e.target.id==='vlFile'&&e.target.files&&e.target.files[0]){importBase(e.target.files[0]);e.target.value=''}});
  w.addEventListener('click',function(e){
-  var pr=e.target.closest('[data-vlproto]');
-  if(pr){var pp=pr.dataset.vlproto.split(':');var zid=pp[0],val=pp[1];
-   var cur=protoState()[zid];
-   if(val==='found'){
-    if(cur==='found'){protoSet(zid,'');return}
+  var pr=e.target.closest?e.target.closest('[data-vlproto]'):null;
+  if(pr&&ST.res){var pp=pr.dataset.vlproto.split(':'),zid=pp[0],val=pp[1],cur=protoState()[zid];
+   if(val==='found'&&cur!=='found'){
     if(zid!==ST.res.pid){
-     if(confirm('Frappe trouvée sur : '+Z[zid].l+
+     if(confirm('Frappe trouvée sur : '+(Z[zid]||{}).l+
       '\n\nLa base indiquait : '+ST.res.zone.l+
-      '\n\nEnregistrer comme correction expert pour '+ST.res.brand+' '+ST.res.model+
-      ' ('+ST.res.year+') ? Elle primera désormais sur la base.')){
+      '\n\nEnregistrer comme correction expert pour '+ST.res.brand+' '+ST.res.model+' ('+(ST.res.year||'année courante')+') ?')){
       var yr=parseInt(ST.res.year,10)||new Date().getFullYear();
-      saveOverride(ST.res.brand,ST.res.model,Math.max(1950,yr-4),Math.min(2027,yr+4),zid,
-       'Observé sur véhicule le '+new Date().toLocaleDateString('fr-FR'),Z[zid].side);
+      var mo=lookup((DB&&DB.MODELS)||[],ST.res.brand,ST.res.model,yr);
+      saveOverride(ST.res.brand,ST.res.model,mo?mo.e[2]:Math.max(1950,yr-4),mo?mo.e[3]:Math.min(2027,yr+4),
+       zid,'Observé sur véhicule le '+new Date().toLocaleDateString('fr-FR'),(Z[zid]||{}).side);
       protoSet(zid,'found');render(true);return}}
-    else{confirmZone(ST.res.brand,ST.res.model,
-      (lookup(DB.MODELS,ST.res.brand,ST.res.model,yr)||{e:[0,0,0,2027]}).e[2]||1950,
-      (lookup(DB.MODELS,ST.res.brand,ST.res.model,yr)||{e:[0,0,0,2027]}).e[3]||2027,zid);
-     protoSet(zid,'found');render(true);return}
-   }
-   protoSet(zid,val===cur?'':val);snd('tick');return}
-  var vb=e.target.closest('[data-vlview]');
+    else{var mo2=lookup((DB&&DB.MODELS)||[],ST.res.brand,ST.res.model,parseInt(ST.res.year,10)||0);
+     confirmZone(ST.res.brand,ST.res.model,mo2?mo2.e[2]:1950,mo2?mo2.e[3]:2027,zid);
+     protoSet(zid,'found');render(true);return}}
+   protoSet(zid,(val===cur)?'':val);snd('tick');return}
+  var vb=e.target.closest?e.target.closest('[data-vlview]'):null;
   if(vb){CFG.view=vb.dataset.vlview;saveCfg();repaint();snd('tick');return}
-  var b=e.target.closest('[data-vl]');if(!b)return;
-  var k=b.dataset.vl;
-  if(k==='toggle'||k==='dismiss'){
-   var wrap=$('#vlWrap');var open=wrap&&wrap.classList.contains('open');
+  var b=e.target.closest?e.target.closest('[data-vl]'):null;if(!b)return;
+  var k2=b.dataset.vl;
+  if(k2==='retry'){ST.err='';render(true);return}
+  if(k2==='diag'){ST.diag=!ST.diag;render(true);snd('tick');return}
+  if(k2==='toggle'||k2==='dismiss'){
+   var wrap=$('#vlWrap'),open=wrap&&wrap.classList.contains('open');
    if(open){ST.dismissed[ST.key]=true;if(wrap)wrap.classList.remove('open');
-    setTimeout(function(){render(false)},280)}
+    setTimeout(function(){render(false)},260)}
    else{delete ST.dismissed[ST.key];render(true)}
    snd('tick');return}
-  if(k==='edit'){ST.editing=!ST.editing;render(true);snd('tick');return}
-  if(k==='confirm'){
-   var mo=lookup(DB.MODELS,ST.res.brand,ST.res.model,parseInt(ST.res.year,10)||0);
-   confirmZone(ST.res.brand,ST.res.model,mo?mo.e[2]:1950,mo?mo.e[3]:2027,ST.res.pid);
+  if(k2==='edit'){ST.editing=!ST.editing;render(true);snd('tick');return}
+  if(k2==='confirm'&&ST.res){
+   var mo3=lookup((DB&&DB.MODELS)||[],ST.res.brand,ST.res.model,parseInt(ST.res.year,10)||0);
+   confirmZone(ST.res.brand,ST.res.model,mo3?mo3.e[2]:1950,mo3?mo3.e[3]:2027,ST.res.pid);
    render(true);return}
-  if(k==='protoreset'){LS.d(protoKey());ST.proto={};render(true);snd('tick');return}
-  if(k==='ovcancel'){ST.editing=false;render(true);return}
-  if(k==='ovsave'){
+  if(k2==='protoreset'){LS.d(protoKey());ST.proto={};render(true);snd('tick');return}
+  if(k2==='ovcancel'){ST.editing=false;render(true);return}
+  if(k2==='ovsave'&&ST.res){
    var z=$('#vlOvZ'),sd=$('#vlOvS'),f=$('#vlOvFrom'),t2=$('#vlOvTo'),n=$('#vlOvN');
-   if(!z||!ST.res)return;
+   if(!z)return;
    saveOverride(ST.res.brand,ST.res.model,+f.value,+t2.value,z.value,(n&&n.value)||'',sd.value);
    ST.editing=false;render(true);return}
-  if(k==='ovdel'){if(ST.res)delOverride(ST.res.brand,ST.res.model);render(true);return}
-  if(k==='baseexport'){exportAll();return}
-  if(k==='baseimport'){var fi=$('#vlFile');if(fi)fi.click();return}
-  if(k==='png'){exportPng();return}
-  if(k==='copy'){copyCard();return}
-  if(k==='report'){addToReport();return}
-  if(k==='reset'){CFG=Object.assign({},DEF);saveCfg();render(true);snd('tick');return}
-  if(k==='rand'){var pal=[['#38bdf8','#ffb020'],['#22c55e','#ff4d6d'],['#a855f7','#22d3ee'],['#ffd166','#38bdf8']];
+  if(k2==='ovdel'&&ST.res){delOverride(ST.res.brand,ST.res.model);render(true);return}
+  if(k2==='baseexport'){exportAll();return}
+  if(k2==='baseimport'){var fi=$('#vlFile');if(fi)fi.click();return}
+  if(k2==='png'){exportPng();return}
+  if(k2==='copy'){copyCard();return}
+  if(k2==='report'){addToReport();return}
+  if(k2==='reset'){CFG=Object.assign({},DEF);saveCfg();render(true);snd('tick');return}
+  if(k2==='rand'){var pal=[['#38bdf8','#ffb020'],['#22c55e','#ff4d6d'],['#a855f7','#22d3ee'],['#ffd166','#38bdf8']];
    var p=pal[Math.floor(Math.random()*pal.length)];CFG.c1=p[0];CFG.c2=p[1];
    CFG.glow=25+Math.floor(Math.random()*70);CFG.grid=Math.floor(Math.random()*70);
    saveCfg();render(true);snd('mark');return}})}
 function repaint(){
  if(!ST.res)return;
  var v=$('#vlSceneV'),p=$('#vlSceneP');
- if(CFG.view==='auto'){if(v)v.innerHTML=vehScene(ST.res);if(p)p.innerHTML=partScene(ST.res)}
- else if(CFG.view==='part'){if(v)v.innerHTML=partScene(ST.res)}
- else{var z=Object.assign({},ST.res.zone,{v:CFG.view});
-  if(v)v.innerHTML=vehScene(Object.assign({},ST.res,{zone:z}))}
- $$('.vl-scene').forEach(function(s){
-  s.style.setProperty('--vlzoom',(CFG.zoom/100));s.style.setProperty('--vlrot',CFG.rot+'deg')});
- $$('[data-vlview]').forEach(function(b){b.classList.toggle('on',b.dataset.vlview===CFG.view)});
- syncDock()}
+ try{
+  if(CFG.view==='auto'){if(v)v.innerHTML=vehScene(ST.res);if(p)p.innerHTML=partScene(ST.res)}
+  else if(CFG.view==='part'){if(v)v.innerHTML=partScene(ST.res)}
+  else{var z=Object.assign({},ST.res.zone,{v:CFG.view});
+   if(v)v.innerHTML=vehScene(Object.assign({},ST.res,{zone:z}))}
+  $$('.vl-scene').forEach(function(s){
+   s.style.setProperty('--vlzoom',(CFG.zoom/100));s.style.setProperty('--vlrot',CFG.rot+'deg')});
+  $$('[data-vlview]').forEach(function(b){b.classList.toggle('on',b.dataset.vlview===CFG.view)});
+  syncDock();
+ }catch(e){}}
 function syncDock(){
  $$('[data-vlc]').forEach(function(e){var k=e.dataset.vlc;e.value=CFG[k];
   var o=$('#vlo_'+k);if(o)o.textContent=CFG[k]+(k==='rot'?'°':'%')});
@@ -510,12 +578,11 @@ function copyCard(){
  if(!ST.res)return;var z=ST.res.zone;
  var txt='LOCALISATION VIN — FRAPPE À FROID\n'+ST.res.brand+' '+ST.res.model+
   (ST.res.fuel?' ('+ST.res.fuel+')':'')+(ST.res.power?' '+ST.res.power+' ch':'')+(ST.res.year?' '+ST.res.year:'')+
-  '\nSource : '+SRCLBL[ST.res.src]+' · Confiance : '+(CONFLBL[ST.res.conf]||[])[0]+
-  (ST.res.confN?' ('+ST.res.confN+' confirmation(s))':'')+'\n\n'+
+  '\nSource : '+(SRCLBL[ST.res.src]||ST.res.src)+' · Confiance : '+(CONFLBL[ST.res.conf]||[])[0]+
+  (ST.res.confN?' ('+ST.res.confN+' conf.)':'')+'\n\n'+
   'ZONE : '+z.l+'\nCÔTÉ : '+(ST.res.side||'—')+'\nMÉTHODE : '+z.m+
-  '\nREPÈRE : '+z.anchor+'\nRÈGLE : '+ST.res.note+
-  '\nACCÈS :\n'+z.steps.map(function(s,i){return ' '+(i+1)+'. '+s}).join('\n')+
-  '\nPROTOCOLE : '+ST.res.protocol.slice(0,6).map(function(p2){return p2.l}).join(' → ')+
+  '\nREPÈRE : '+(z.anchor||'—')+'\nRÈGLE : '+(ST.res.note||'—')+
+  '\nACCÈS :\n'+(z.steps||[]).map(function(s,i){return ' '+(i+1)+'. '+s}).join('\n')+
   '\nCROISEMENT : 1) '+z.l+'  2) '+(ST.res.sec[0]||{}).l+'  3) '+(ST.res.sec[1]||{}).l+
   '\nOUTILLAGE : '+(z.t||'—')+'\nPRÉCAUTIONS : '+(z.w||'—')+
   (ST.vin?'\nVIN : '+ST.vin:'');
@@ -528,22 +595,29 @@ function addToReport(){
    confiance:ST.res.conf,confirmations:ST.res.confN,vin:ST.vin})}
   toast('📄 Ajouté au rapport d’étude');snd('save')}catch(e){toast('Ajout impossible')}}
 
-/* ══════════ détection auto ══════════ */
-var lastSig='';
+/* ══════════ boucle de vie robuste ══════════ */
+var lastSig='',lastHost=null;
 function sig(){var v=currentVehicle();if(!v)return '';
- return [v.brand,v.model,v.engine,v.fuel||'',v.ch||v.power||'',v.year||''].join('|')}
+ return [v.brand,v.model,v.engine||'',v.fuel||'',v.ch||v.power||'',v.year||''].join('|')}
 function tick(){
- var s=sig();
- if(!s){var h=$('#vinlocHost');if(h&&h.innerHTML)h.innerHTML='';lastSig='';return}
- if(s!==lastSig){lastSig=s;delete ST.dismissed[s];ST.editing=false;render(true)}
- else if(!$('#vinlocHost')||!$('#vinlocHost').innerHTML)render(!ST.dismissed[s])}
+ try{
+  var s=sig();
+  var h=$('#vinlocHost');
+  if(!s){if(h)h.innerHTML='';lastSig='';return}
+  var missing=!h||!h.isConnected||!h.innerHTML;
+  if(s!==lastSig){lastSig=s;delete ST.dismissed[s];ST.editing=false;render(true);return}
+  if(missing)render(!ST.dismissed[s]);
+ }catch(e){ST.err='tick: '+e.message}}
 function watch(){
- var mo=null;
- function attach(){var vr=$('#vehRead');if(!vr||mo)return;
-  try{mo=new MutationObserver(function(){setTimeout(tick,60)});
-   mo.observe(vr,{childList:true,subtree:true,characterData:true})}catch(e){}}
- attach();
- setInterval(function(){if(!$('#vehRead'))mo=null;attach();tick()},700);
+ /* polling principal : garantit le ré-ancrage même si tout le DOM est remplacé */
+ setInterval(tick,500);
+ /* observer secondaire sur #view pour réagir plus vite */
+ try{
+  var v=$('#view');
+  if(v&&window.MutationObserver){
+   new MutationObserver(function(){setTimeout(tick,60)}).observe(v,{childList:true,subtree:false});
+  }
+ }catch(e){}
  try{document.addEventListener('kf:vehicle',function(){setTimeout(tick,80)})}catch(e){}}
 
 /* ══════════ CSS ══════════ */
@@ -552,17 +626,23 @@ function css(){
  s.textContent=
  '#vinlocHost{margin:12px 0}'+
  '.vl-wrap{border:1px solid #2b6b8f;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#08131f,#0c1c2c 60%,#101426);box-shadow:0 14px 40px #000a;max-height:58px;transition:max-height .5s cubic-bezier(.2,.8,.2,1)}'+
- '.vl-wrap.open{max-height:4200px}'+
+ '.vl-wrap.open{max-height:4600px}'+
  '.vl-head{display:flex;align-items:center;gap:10px;padding:13px 15px;background:linear-gradient(90deg,#38bdf814,transparent);cursor:pointer;flex-wrap:wrap}'+
  '.vl-ic{font-size:20px}'+
- '.vl-t{flex:1;min-width:160px}'+
+ '.vl-t{flex:1;min-width:150px}'+
  '.vl-t b{display:block;font-size:14px;color:#eaf4ff}'+
  '.vl-t span{display:block;font-size:11px;color:#8fb0cc;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '.vl-conf{font:800 9.5px/1 system-ui;letter-spacing:.6px;padding:5px 9px;border-radius:14px;border:1px solid;white-space:nowrap}'+
  '.vl-badge{font:800 9.5px/1 system-ui;letter-spacing:.6px;padding:5px 9px;border-radius:14px;border:1px solid #2b6b8f;color:#8fb0cc;white-space:nowrap}'+
  '.vl-badge.ok{border-color:#22c55e;color:#22c55e;background:#22c55e12}'+
  '.vl-badge.warn{border-color:#ffb020;color:#ffb020;background:#ffb02012}'+
+ '.vl-mini{background:#0b1420;border:1px solid #2b6b8f;color:#cfe0f2;border-radius:8px;padding:3px 9px;font-size:12px;cursor:pointer}'+
  '.vl-x{background:#0b1420;border:1px solid #2b6b8f;color:#cfe0f2;border-radius:9px;padding:5px 10px;font-size:13px}'+
+ '.vl-diag{border:1px solid #ffb02066;border-radius:12px;background:#ffb0200c;padding:12px 14px;margin-bottom:12px}'+
+ '.vl-diag b{display:block;font-size:11.5px;color:#ffd166;margin-bottom:8px}'+
+ '.vl-diag table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:8px}'+
+ '.vl-diag td{border-bottom:1px solid #22405a;padding:4px 6px;color:#cfe0f2}'+
+ '.vl-diag td:first-child{color:#6f8faa;width:42%}'+
  '.vl-body{display:grid;grid-template-columns:minmax(0,1fr) 272px;gap:16px;padding:16px}'+
  '@media(max-width:960px){.vl-body{grid-template-columns:1fr}}'+
  '.vl-main{min-width:0}'+
@@ -584,9 +664,8 @@ function css(){
  '.vl-proto-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}'+
  '.vl-proto-h b{font-size:12px;color:#7fd8a4;letter-spacing:.6px;text-transform:uppercase}'+
  '.vl-proto-h span{font-size:10.5px;color:#6f8faa;flex:1}'+
- '.vl-mini{background:#0b1420;border:1px solid #2b6b8f;color:#cfe0f2;border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer}'+
- '.vl-proto ol{margin:0;padding:0;list-style:none;counter-reset:p}'+
- '.vl-proto li{display:flex;gap:10px;align-items:center;padding:7px 9px;border-radius:10px;margin-bottom:5px;background:#0b1420;border:1px solid #1d3a52;transition:.15s}'+
+ '.vl-proto ol{margin:0;padding:0;list-style:none}'+
+ '.vl-proto li{display:flex;gap:10px;align-items:center;padding:7px 9px;border-radius:10px;margin-bottom:5px;background:#0b1420;border:1px solid #1d3a52}'+
  '.vl-proto li.found{border-color:#22c55e;background:#22c55e12}'+
  '.vl-proto li.absent{opacity:.45}'+
  '.vl-pn{flex:none;width:22px;height:22px;border-radius:50%;background:#12283c;color:#7fd8f0;font:800 11px/22px system-ui;text-align:center}'+
@@ -656,4 +735,30 @@ function css(){
  '.vl-c input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:3px solid #38bdf8;cursor:grab}'+
  '.vl-c input[type=color]{width:100%;height:30px;border:1px solid #2b6b8f;border-radius:8px;background:#0b1420;padding:2px;cursor:pointer;margin:0}'+
  '.vl-tgs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}'+
- '.vl-tg{display:flex;align-items:center;gap
+ '.vl-tg{display:flex;align-items:center;gap:5px;font-size:10px;color:#6f8faa;background:#0b1420;border:1px solid #2b6b8f;border-radius:15px;padding:4px 9px;cursor:pointer}'+
+ '.vl-tg input{width:auto;margin:0;accent-color:#38bdf8}'+
+ '.vl-tg.on{color:#38bdf8;border-color:#38bdf8;background:#38bdf812}'+
+ '.vl-cols{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}'+
+ '.vl-cols div{display:flex;flex-direction:column;align-items:center;gap:3px}'+
+ '.vl-cols span{font-size:8.5px;color:#6f8faa}'+
+ '.vl-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}'+
+ '.vl-btns button{padding:9px;font-size:11px;font-weight:800;border-radius:9px;border:1px solid #2b6b8f;background:#0b1420;color:#eaf4ff;cursor:pointer}'+
+ '.vl-btns .p{grid-column:1/-1;background:linear-gradient(135deg,#38bdf8,#2563eb);border-color:#38bdf8;color:#04121e}'+
+ '.vl-note{margin:10px 0 0;font-size:10px;line-height:1.55;color:#6f8faa}.vl-note b{color:#cfe0f2}';
+ document.head.appendChild(s)}
+
+/* ══════════ boot ══════════ */
+function boot(){
+ try{css()}catch(e){}
+ watch();
+ tick();
+ /* second passage une fois l'application prête */
+ setTimeout(tick,400);setTimeout(tick,1200);setTimeout(tick,2600);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+window.KFVinLoc={render:render,resolve:resolve,veh:vehScene,part:partScene,exportPng:exportPng,
+ host:host,anchor:anchor,vehicle:currentVehicle,diag:function(){return{anchor:ST.anchorSel,
+ src:ST.vehSrc,key:ST.key,zone:ST.res&&ST.res.pid,srcRule:ST.res&&ST.res.src,err:ST.err}},
+ overrides:function(){return OV},base:function(){return UBASE},confirmations:function(){return CONF},
+ saveOverride:saveOverride,importBase:importBase,exportAll:exportAll,state:ST,cfg:CFG};
+})();
