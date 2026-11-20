@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v22.1.0 · latences corrigées sans perte de fonctionnalités */
-const V='kf2026-v22.1.0';
+/* KEV FUSION 2026 — SW v23.0.0 · pavé Modules verrouillé par mot de passe administrateur */
+const V='kf2026-v23.0.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
@@ -12,7 +12,8 @@ const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './correlation.js','./predictive.js','./brandlogo.js','./wallpaper.js','./jradmin.js',
 './obdpro_db.js','./obdpro.js','./obdtech_db.js','./obdtech.js',
 './websearch.js','./baseupdate.js','./autoimport.js',
-'./admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js','./jrgate.js',
+'./admingate.js','./notifications.js','./pwabuilder.js','./icon-gen.js','./ghtoken.js',
+'./jrgate.js','./modgate.js',
 './manifest.webmanifest','./maj-base.json','./maj-tiers.json'];
 const ICONS=['./icon-16.png','./icon-32.png','./icon-48.png','./icon-64.png','./icon-72.png','./icon-96.png',
 './icon-128.png','./icon-144.png','./icon-152.png','./icon-192.png','./icon-384.png','./icon-512.png',
