@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — JusteRepère mode administrateur : analyse des faits, repères juridiques éditables, procédures, courriers, dossiers avec échéances, calculateurs de prescription, exports PDF. OBD atelier, mode technicien, méga-bases toutes marques, corrélation réelle, VIN.">
+<meta name="description" content="KEV FUSION 2026 — JusteRepère protégé par mot de passe administrateur : accès classique et admin verrouillés, session expirante, auto-verrouillage, journal. OBD atelier, mode technicien, méga-bases toutes marques, corrélation réelle, fond d'écran, VIN.">
 <title>KEV FUSION 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -77,6 +77,7 @@ code{font-family:ui-monospace,monospace;font-size:.92em;color:var(--acid);backgr
 nav#nav{display:flex;gap:6px;overflow-x:auto;padding:12px 0;position:sticky;top:58px;background:#0a0f1aee;z-index:60;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav#nav button{white-space:nowrap;border-radius:20px;padding:8px 14px;font-size:13px}
 nav#nav button.act{border-color:var(--ok);color:var(--ok);background:#22c55e18}
+body.jrg-locked nav#nav button[data-k="jr"],body.jrg-locked nav#nav button[data-k="jradmin"]{display:none!important}
 #checkList,#checkList2{list-style:none}
 #checkList li,#checkList2 li{display:flex;gap:10px;padding:8px 2px;border-bottom:1px dashed var(--line);font-size:13px;align-items:center;flex-wrap:wrap}
 #notifLine{background:#f59e0b0a;border-radius:8px;padding:10px!important;border:1px solid var(--line)!important;margin:4px 0}
@@ -87,6 +88,7 @@ iframe.mod{width:100%;height:calc(100vh - 200px);border:1px solid var(--line);bo
 #modalBox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:760px;width:100%;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--card);border:1px solid var(--ok);color:var(--tx);padding:12px 18px;border-radius:var(--radius-sm);z-index:400;max-width:92vw;transition:.3s;box-shadow:var(--shadow)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.jrg-bar-on #toast{bottom:138px}
 .stat{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--ok),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .constats{display:flex;flex-wrap:wrap;gap:6px}
 .constats label{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--tx);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500}
@@ -152,7 +154,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 .web-result h4{font-size:14px;margin:4px 0 6px}.web-result p{font-size:12px;color:var(--mut)}
 .web-result .meta{font-size:11px;color:var(--dim);margin-top:6px}
 #printArea{display:none}
-@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}}
+@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}body.printing #jrgBar{display:none!important}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .card,.faultcard,.notif-item,.web-result{animation:fadeIn .25s ease-out}
 </style>
@@ -182,7 +184,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </div>
 <div id="bgLayer"></div>
 <header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v20.0</span></b>
+ <b id="brandTap">🔥 KEV FUSION <span class="ver">v21.0</span></b>
  <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
  <div class="hbtns">
   <button id="notifBtn" type="button" data-notif="ask" title="Notifications">🔔</button>
@@ -194,7 +196,7 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 </header>
 <section id="boot"><div class="card">
  <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · JusteRepère mode administrateur · fond d’écran photo/vidéo ≤ 10 s · OBD Atelier &amp; Mode Technicien · méga-bases toutes marques · corrélation réelle · logos de marque · PWA.</p>
+ <p class="mut">Contrôle intégrité · JusteRepère verrouillé par mot de passe administrateur · fond d’écran photo/vidéo ≤ 10 s · OBD Atelier &amp; Mode Technicien · méga-bases toutes marques · corrélation réelle · logos de marque · PWA.</p>
  <ul id="checkList"></ul><div id="verdict"></div>
  <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
 </div></section>
@@ -253,5 +255,6 @@ table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
 <script src="pwabuilder.js"></script>
 <script src="icon-gen.js"></script>
 <script src="ghtoken.js"></script>
+<script src="jrgate.js"></script>
 </body>
 </html>
