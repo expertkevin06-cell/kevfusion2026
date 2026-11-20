@@ -1,5 +1,5 @@
-/* KEV FUSION 2026 — SW v22.0.0 · Turbo APK : purge caches sur message, JS réseau d'abord, navigation rapide */
-const V='kf2026-v22.0.0';
+/* KEV FUSION 2026 — SW v22.1.0 · latences corrigées sans perte de fonctionnalités */
+const V='kf2026-v22.1.0';
 const KEEP=2;
 const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 './firebase-config.js','./data.js','./app.js','./sanitize.js','./turbo.js',
@@ -17,7 +17,7 @@ const SHELL=['./','./index.html','./icons.html','./icon.svg','./access.json',
 const ICONS=['./icon-16.png','./icon-32.png','./icon-48.png','./icon-64.png','./icon-72.png','./icon-96.png',
 './icon-128.png','./icon-144.png','./icon-152.png','./icon-192.png','./icon-384.png','./icon-512.png',
 './icon-192-maskable.png','./icon-512-maskable.png','./apple-touch-icon.png'];
-async function trimCaches(){
+async function trim(){
  const keys=await caches.keys();
  const kf=keys.filter(k=>k.indexOf('kf2026')===0).sort();
  const keep=kf.slice(-KEEP);
@@ -30,10 +30,10 @@ self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(async k=>{
  await Promise.all(SHELL.map(put));
  await Promise.all(ICONS.map(put));
 }).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(trimCaches().then(()=>self.clients.claim()))});
+self.addEventListener('activate',e=>{e.waitUntil(trim().then(()=>self.clients.claim()))});
 self.addEventListener('message',e=>{const d=e.data||{};
  if(d.type==='SKIP_WAITING')self.skipWaiting();
- if(d.type==='TURBO_PURGE'){e.waitUntil(trimCaches().then(n=>{
+ if(d.type==='TURBO_PURGE'){e.waitUntil(trim().then(n=>{
   if(e.source&&e.source.postMessage)e.source.postMessage({type:'TURBO_PURGED',removed:n});return n}))}
  if(d.type==='NOTIF_TEST')e.waitUntil(self.registration.showNotification(d.title||'🔥 KEV FUSION 2026',
   {body:d.body||'Notifications opérationnelles.',icon:'./icon-192.png',badge:'./icon-96.png',
