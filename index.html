@@ -1,271 +1,171 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#04140c">
-<meta name="kf-version" content="30.0.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="KEV FUSION">
-<meta name="description" content="KEV FUSION 2026 — poste Tiers administrateur : notification dédiée avec prénom du demandeur, pavé accès / refus / révocation, décodage du code ou lien reçu par mail, publication access.json, OBD atelier, localisation VIN, méga-bases toutes marques.">
-<title>KEV FUSION 2026</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>
-:root{--bg:#0a0f1a;--bg2:#0f1625;--card:#141c2e;--line:#25314a;--line2:#334466;--tx:#e8eefc;--tx2:#c4cfe0;--mut:#8899b4;--dim:#5a6a84;--ac:#ff7a1a;--ac2:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--law:#a78bfa;--jr:#1f6f54;--jr2:#3fa382;--gold:#ffd166;--acid:#a3e635;--radius:16px;--radius-sm:10px;--shadow:0 12px 40px #000a,0 0 0 1px #ffffff08;--shadow-ac:0 12px 40px #ff7a1a33,0 0 0 1px #ff7a1a44}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:var(--ok) var(--bg2)}
-html,body{height:100%}
-body{background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-3;opacity:.42;background:radial-gradient(60% 40% at 10% 0%,#22c55e18,transparent 60%),radial-gradient(50% 40% at 90% 10%,#38bdf818,transparent 60%),radial-gradient(70% 50% at 50% 110%,#ff7a1a10,transparent 60%)}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--ok),var(--ac2));border-radius:8px;border:2px solid var(--bg2)}::-webkit-scrollbar-thumb:hover{background:var(--ok)}
-#scene{position:fixed;inset:0;z-index:-4;overflow:hidden;background:linear-gradient(180deg,#04100a,#0a0f1a 55%,#0d1a26)}
-#scene .aurora{position:absolute;inset:-20%;background:radial-gradient(40% 30% at 30% 20%,#22c55e33,transparent 60%),radial-gradient(40% 30% at 70% 15%,#38bdf833,transparent 60%),radial-gradient(50% 40% at 50% 10%,#a3e63522,transparent 60%);animation:aur 14s ease-in-out infinite alternate}
-@keyframes aur{to{transform:translateX(6%) translateY(-3%) scale(1.1)}}
-#scene .stars{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,#fff8,transparent),radial-gradient(1px 1px at 60% 20%,#fff6,transparent),radial-gradient(1.5px 1.5px at 80% 40%,#fff7,transparent);animation:tw 4s ease-in-out infinite alternate}
-@keyframes tw{to{opacity:.4}}
-#scene svg.road{position:absolute;bottom:0;left:0;width:200%;height:46vh;min-height:220px}
-#scene .hills{animation:slide 26s linear infinite}#scene .city{animation:slide 14s linear infinite}#scene .roadline{animation:slide 3.2s linear infinite}
-#scene .dash{stroke-dasharray:40 34;animation:dash .7s linear infinite}
-@keyframes slide{to{transform:translateX(-50%)}}@keyframes dash{to{stroke-dashoffset:-74}}
-#car{position:absolute;bottom:9vh;left:14%;width:min(340px,52vw);animation:bob 1.1s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-#car .wheel{transform-origin:center;transform-box:fill-box;animation:spin .5s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#car .beam{animation:beam 2.4s ease-in-out infinite alternate}@keyframes beam{to{opacity:.35}}
-#bgLayer{position:fixed;inset:0;background-size:cover;background-position:center;opacity:.45;z-index:-2}
-body.noanim #scene *{animation:none!important}
-@media (prefers-reduced-motion:reduce){#scene *{animation:none!important}}
-#topbar{position:sticky;top:0;z-index:80;display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0a0f1aee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-#topbar b{font-size:17px;white-space:nowrap}
-#brandTap{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px}
-.ver{color:var(--ok);font-weight:800;font-size:13px;padding:2px 8px;background:#22c55e22;border-radius:10px;border:1px solid #22c55e44}
-.chips{display:flex;gap:6px;flex:1;flex-wrap:wrap;min-width:0}
-.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
-.chip.on{border-color:var(--ok);color:var(--ok);background:#22c55e18}.chip.off{border-color:var(--bad);color:var(--bad);background:#ef444418}.chip.bt{border-color:var(--ac2);color:var(--ac2);background:#38bdf818}
-.hbtns{display:flex;gap:6px;flex:none}.hbtns button{padding:8px 11px;font-size:16px}
-#admBtn{border-color:var(--ac);color:var(--ac);background:#1a1408}#admBtn.on{background:linear-gradient(90deg,var(--ac),#ffd166);color:#160b00}
-#notifBtn{border-color:var(--warn);color:var(--warn);background:#f59e0b18}
-button{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-weight:500;transition:all .18s}
-button:hover{border-color:var(--ok);transform:translateY(-1px);box-shadow:0 6px 18px #000a}
-button.pri{background:linear-gradient(135deg,var(--ok),var(--acid));border-color:var(--ok);color:#04140c;font-weight:800;box-shadow:0 6px 20px #22c55e44}
-button.jr{background:linear-gradient(135deg,var(--jr),var(--jr2));border-color:var(--jr);color:#fff;font-weight:700}
-button.danger{border-color:var(--bad);color:var(--bad);background:#ef444418}
-button:disabled{opacity:.45;cursor:not-allowed;transform:none}
-section,main{max-width:1180px;margin:0 auto;padding:16px;position:relative;z-index:1}
-.card{background:#141c2eee;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow);backdrop-filter:blur(4px)}
-.card.accent{border-color:var(--ac);box-shadow:var(--shadow-ac)}
-.card.gold{border-color:var(--gold);background:linear-gradient(135deg,#1a1408ee,#141c2eee)}
-.card.jr{border-color:var(--jr);background:linear-gradient(135deg,#0f1a14ee,#141c2eee)}
-h1{font-size:23px;margin-bottom:8px;font-weight:800}h2{font-size:17px;margin-bottom:10px;font-weight:700}h3{font-size:14px;margin:8px 0 6px;font-weight:600;color:var(--tx2)}
-.mut{color:var(--mut);font-size:13px;line-height:1.5}.dim{color:var(--dim);font-size:12px}.hid{display:none!important}
-input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--tx);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;margin:4px 0 10px}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ok);box-shadow:0 0 0 3px #22c55e33}
-textarea{min-height:100px;resize:vertical;font-family:inherit}
-label{font-size:11px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
-code{font-family:ui-monospace,monospace;font-size:.92em;color:var(--acid);background:#a3e63514;padding:1px 5px;border-radius:5px}
-.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.g4{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.badge{display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:14px;margin:2px;border:1px solid var(--line);font-weight:600}
-.b-fire{border-color:var(--ac);color:var(--ac);background:#ff7a1a18}.b-crit{border-color:var(--bad);color:var(--bad);background:#ef444418}.b-elev{border-color:var(--warn);color:var(--warn);background:#f59e0b18}.b-mod{border-color:var(--ok);color:var(--ok);background:#22c55e18}.b-dtc{border-color:var(--ac2);color:var(--ac2);font-family:ui-monospace,monospace;background:#38bdf818}.b-law{border-color:var(--law);color:var(--law);background:#a78bfa18}
-.sysgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;margin-top:10px}
-.sysbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 11px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);text-align:left;position:relative;min-height:74px}
-.sysbtn .ic{font-size:19px;line-height:1}.sysbtn .lb{font-size:11.5px;font-weight:700;line-height:1.25;color:var(--tx2)}
-.sysbtn .ct{position:absolute;top:7px;right:8px;font-size:10px;font-weight:800;background:var(--ac2);color:#04121e;border-radius:9px;padding:1px 6px}
-.sysbtn:hover{border-color:var(--ok);transform:translateY(-2px)}
-.sysbtn.on{background:linear-gradient(135deg,var(--ok),var(--acid));border-color:var(--ok);box-shadow:0 6px 20px #22c55e55}
-.sysbtn.on .lb{color:#04140c}.sysbtn.on .ct{background:#04140c;color:var(--acid)}.sysbtn.dim{opacity:.5}
-nav#nav{display:flex;gap:6px;overflow-x:auto;padding:12px 0;position:sticky;top:58px;background:#0a0f1aee;z-index:60;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-nav#nav button{white-space:nowrap;border-radius:20px;padding:8px 14px;font-size:13px}
-nav#nav button.act{border-color:var(--ok);color:var(--ok);background:#22c55e18}
-body.jrg-locked nav#nav button[data-k="jr"],body.jrg-locked nav#nav button[data-k="jradmin"]{display:none!important}
-#checkList,#checkList2{list-style:none}
-#checkList li,#checkList2 li{display:flex;gap:10px;padding:8px 2px;border-bottom:1px dashed var(--line);font-size:13px;align-items:center;flex-wrap:wrap}
-#notifLine{background:#f59e0b0a;border-radius:8px;padding:10px!important;border:1px solid var(--line)!important;margin:4px 0}
-.st-ok{color:var(--ok)}.st-warn{color:var(--warn)}.st-fail{color:var(--bad)}
-#verdict{font-size:19px;font-weight:800;margin:14px 0;padding:12px;border-radius:var(--radius-sm);text-align:center}
-iframe.mod{width:100%;height:calc(100vh - 200px);border:1px solid var(--line);border-radius:var(--radius);background:#fff}
-#modal{position:fixed;inset:0;background:#000a;z-index:200;display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(8px)}
-#modalBox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:760px;width:100%;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--card);border:1px solid var(--ok);color:var(--tx);padding:12px 18px;border-radius:var(--radius-sm);z-index:800;max-width:92vw;transition:.3s;box-shadow:var(--shadow)}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.stat{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--ok),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.constats{display:flex;flex-wrap:wrap;gap:6px}
-.constats label{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--tx);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500}
-.constats input{width:auto;margin:0;accent-color:var(--ok)}
-.bar{height:8px;background:var(--bg2);border-radius:6px;overflow:hidden;margin:6px 0}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--ac2));border-radius:6px;transition:width .35s}
-.step{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:var(--radius-sm);margin:6px 0}
-.step.done{opacity:.65;border-color:var(--ok)}
-.ech{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-left:3px solid var(--line);margin:4px 0;font-size:13px;background:var(--bg2);border-radius:6px}
-.ech.warn{border-color:var(--warn)}.ech.bad{border-color:var(--bad)}.ech.ok{border-color:var(--ok)}
-pre.doc{white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px;max-height:400px;overflow:auto}
-.ph{width:100%;height:130px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--bg2)}
-table.kv{width:100%;border-collapse:collapse;font-size:13px}
-table.kv td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:top}
-table.kv td:first-child{color:var(--mut);width:38%;font-weight:600}
-.domcard{text-align:left;width:100%}.domcard.sel{background:var(--jr);border-color:var(--jr);color:#fff}
-.rolecard{text-align:left;width:100%}.rolecard.sel{border-color:var(--jr);box-shadow:0 0 0 2px var(--jr) inset}
-.drop{border:2px dashed var(--line);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer}
-.upd-btn{width:100%;padding:14px;font-size:16px;font-weight:700;border-radius:var(--radius-sm);border:1px solid var(--line);background:#2a2f3a;color:#8a919e;cursor:not-allowed}
-.upd-btn.on{background:linear-gradient(135deg,#2563eb,#38bdf8);border-color:#2563eb;color:#fff;cursor:pointer}
-.cbx{position:relative}.cbx-in{padding-right:36px}
-.cbx-tgl{position:absolute;right:6px;top:7px;padding:4px 8px;border-radius:8px}
-.cbx-list{position:absolute;left:0;right:0;top:100%;max-height:280px;overflow:auto;background:var(--bg2);border:1px solid var(--ok);border-radius:var(--radius-sm);z-index:90;box-shadow:var(--shadow)}
-.cbx-opt{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:14px}
-.cbx-opt:hover,.cbx-opt.act{background:#0d3324}
-.cbx-opt .pw,.pw{color:var(--acid);font-family:ui-monospace,monospace;font-weight:700}
-.vehread{margin-top:10px;padding:12px 14px;border:1px dashed var(--ok);border-radius:var(--radius-sm);background:var(--bg2);font-size:13px}
-.chipf{border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700}
-.chipf.on{background:var(--ok);border-color:var(--ok);color:#04140c}
-.faultcard{border-left:4px solid var(--line2)}
-.faultcard.t1{border-left-color:var(--bad);background:linear-gradient(90deg,#ef44440e,var(--card) 30%)}
-.faultcard.t2{border-left-color:var(--ac);background:linear-gradient(90deg,#ff7a1a0e,var(--card) 30%)}
-.faultcard.t3{border-left-color:var(--warn)}.faultcard.t4{border-left-color:var(--ac2)}.faultcard.t5{border-left-color:var(--dim)}
-.gatehead{background:linear-gradient(135deg,#04140c,#0b3d24 55%,#141c2e);border-color:var(--line2);padding:20px}
-.tierscard{border-color:var(--jr)}
-.admpanel{border:1px solid var(--ac);background:linear-gradient(135deg,#1a1408,#141c2e 60%);box-shadow:var(--shadow-ac);border-radius:var(--radius);padding:16px}
-.admhead{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.admshield{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:12px;background:conic-gradient(from 200deg,var(--ok),var(--acid),var(--ac2),var(--ok));color:#04140c;font-size:22px}
-.pwrow{display:flex;gap:8px;align-items:flex-start}.pwrow input{flex:1;font-family:ui-monospace,monospace;font-size:16px}
-.eye{flex:none;margin-top:4px;padding:10px 12px}
-.tg{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer}
-.tg input{width:auto;margin:0;accent-color:var(--ok)}.tg.on{color:var(--ok);border-color:var(--ok);background:#22c55e18}
-.access-choice{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-@media(max-width:640px){.access-choice{grid-template-columns:1fr}.sysgrid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}}
-.access-card{border:2px solid var(--line);border-radius:var(--radius);padding:24px 20px;text-align:center;cursor:pointer;transition:.3s;background:var(--card)}
-.access-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
-.access-card.admin{border-color:var(--ac)}.access-card.tier{border-color:var(--jr)}
-.access-card .icon{font-size:48px;margin-bottom:12px}.access-card h3{font-size:18px;margin-bottom:8px}.access-card p{font-size:13px;color:var(--mut)}
-.acc-send{margin-top:10px;padding:10px;border:1px dashed var(--line2);border-radius:12px;background:var(--bg2)}
-.acc-links{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-.acc-lnk{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--ok);color:var(--ok);background:#22c55e14;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
-.acc-state{font-size:13px;font-weight:700;margin-top:6px}
-.acc-state.granted{color:var(--ok)}.acc-state.refused,.acc-state.revoked{color:var(--bad)}
-.acc-state.expired{color:var(--warn)}.acc-state.wait{color:var(--mut)}
-.acc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin:4px 0;background:var(--bg2);font-size:13px}
-.acc-row button{padding:5px 10px;font-size:12px}
-.notif-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);margin:8px 0;background:var(--bg2)}
-.notif-item .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--ok),var(--ac2));display:grid;place-items:center;font-weight:800;color:#04140c;flex:none}
-.notif-item .content{flex:1;min-width:0}.notif-item .content b{display:block;font-size:14px}.notif-item .content span{font-size:12px;color:var(--mut)}
-.notif-item .actions{display:flex;gap:6px;flex:none;flex-wrap:wrap}.notif-item .actions button{padding:6px 12px;font-size:12px}
-.web-result{padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);margin:8px 0;background:var(--bg2)}
-.web-result .src{font-size:11px;color:var(--ac2);font-weight:700;text-transform:uppercase}
-.web-result h4{font-size:14px;margin:4px 0 6px}.web-result p{font-size:12px;color:var(--mut)}
-.web-result .meta{font-size:11px;color:var(--dim);margin-top:6px}
-#printArea{display:none}
-@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font:11.5px/1.45 Georgia,serif;padding:18px}#printArea h1{font-size:17px}#printArea h2{font-size:13px;border-bottom:1px solid #999;margin-top:12px}#printArea p{margin:6px 0}body.printing #jrgBar,body.printing #tbBar,body.printing #mgBar,body.printing #ntfDrawer,body.printing #bhPanel,body.printing #tgNotif{display:none!important}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.card,.faultcard,.notif-item,.web-result{animation:fadeIn .25s ease-out}
-body.tb-lite .card,body.tb-lite .faultcard,body.tb-lite .notif-item,body.tb-lite .web-result{animation:none}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0e27">
+  <title>KEV FUSION 2026 — Auto Diagnostic Pro</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<div id="scene" aria-hidden="true">
- <div class="aurora"></div><div class="stars"></div>
- <svg class="road" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMax slice">
-  <g class="hills" fill="#0b1f16"><path d="M0 300 Q200 220 400 290 T800 280 T1200 295 T1600 285 V400 H0 Z"/><path d="M1600 300 Q1800 220 2000 290 T2400 280 T2800 295 T3200 285 V400 H1600 Z"/></g>
-  <g class="city" fill="#102a20"><path d="M0 320 h60 v-70 h40 v70 h50 v-100 h45 v100 h70 v-55 h40 v55 h90 v-85 h45 v85 h80 v-60 h40 v60 h100 v-90 h45 v90 h90 v-50 h40 v50 h120 v-75 h45 v75 h90 v-60 h40 v60 h110 v-95 h45 v95 h100 v-55 h40 v55 h130 v-80 h45 v80 h100 v-60 h40 v60 h120 V400 H0 Z"/><path d="M1600 320 h60 v-70 h40 v70 h50 v-100 h45 v100 h70 v-55 h40 v55 h90 v-85 h45 v85 h80 v-60 h40 v60 h100 v-90 h45 v90 h90 v-50 h40 v50 h120 v-75 h45 v75 h90 v-60 h40 v60 h110 v-95 h45 v95 h100 v-55 h40 v55 h130 v-80 h45 v80 h100 v-60 h40 v60 h120 V400 H1600 Z"/></g>
-  <rect y="340" width="3200" height="60" fill="#07120c"/>
-  <g class="roadline"><line class="dash" x1="0" y1="368" x2="3200" y2="368" stroke="#a3e635" stroke-width="4" opacity=".8"/></g>
-  <line x1="0" y1="342" x2="3200" y2="342" stroke="#22c55e" stroke-width="3" opacity=".75"/>
- </svg>
- <svg id="car" viewBox="0 0 340 120">
-  <ellipse cx="170" cy="108" rx="150" ry="10" fill="#000" opacity=".45"/>
-  <path class="beam" d="M300 62 L340 48 L340 84 Z" fill="#f4ffe0" opacity=".7"/>
-  <rect x="6" y="44" width="30" height="6" rx="2" fill="#15803d"/><rect x="14" y="50" width="6" height="16" fill="#166534"/>
-  <path d="M20 78 Q22 58 50 54 L86 34 Q120 18 168 20 L226 24 Q262 28 286 52 L306 58 Q318 62 318 76 L316 86 Q314 92 304 92 L36 92 Q24 92 22 84 Z" fill="#22c55e"/>
-  <path d="M92 38 Q122 24 166 26 L222 30 Q250 34 270 52 L150 52 L96 52 Z" fill="#04140c"/>
-  <path d="M100 40 Q126 28 164 30 L164 50 L104 50 Z" fill="#0d3324"/><path d="M172 30 L220 33 Q244 37 262 50 L172 50 Z" fill="#0d3324"/>
-  <rect x="20" y="70" width="298" height="6" fill="#04140c" opacity=".35"/>
-  <circle cx="60" cy="60" r="6" fill="#f4ffe0"/><circle cx="306" cy="66" r="5" fill="#ff3b3b"/>
-  <g class="wheel"><circle cx="86" cy="92" r="22" fill="#05070a"/><circle cx="86" cy="92" r="11" fill="#a3e635"/><line x1="86" y1="72" x2="86" y2="112" stroke="#4d7c0f" stroke-width="3"/><line x1="66" y1="92" x2="106" y2="92" stroke="#4d7c0f" stroke-width="3"/></g>
-  <g class="wheel"><circle cx="256" cy="92" r="22" fill="#05070a"/><circle cx="256" cy="92" r="11" fill="#a3e635"/><line x1="256" y1="72" x2="256" y2="112" stroke="#4d7c0f" stroke-width="3"/><line x1="236" y1="92" x2="276" y2="92" stroke="#4d7c0f" stroke-width="3"/></g>
- </svg>
+<div class="bg3d" aria-hidden="true">
+  <div class="bg3d-car"></div>
+  <svg class="bg3d-obd" viewBox="0 0 300 170">
+    <path d="M8 128 C 70 150, 110 70, 168 78" stroke="#4ade80" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="8" cy="128" r="7" fill="#4ade80"/>
+    <rect x="168" y="34" width="122" height="88" rx="12" fill="#0f172a" stroke="#4ade80" stroke-width="3"/>
+    <rect x="180" y="48" width="72" height="7" rx="3" fill="#4ade80"/>
+    <rect x="180" y="62" width="56" height="7" rx="3" fill="#22c55e"/>
+    <rect x="180" y="76" width="64" height="7" rx="3" fill="#4ade80"/>
+    <text x="180" y="106" fill="#4ade80" font-size="16" font-family="monospace" font-weight="bold">P0420 ✓</text>
+    <rect x="206" y="122" width="46" height="10" rx="5" fill="#334155"/>
+  </svg>
 </div>
-<div id="bgLayer"></div>
-<header id="topbar">
- <b id="brandTap">🔥 KEV FUSION <span class="ver">v30.0</span></b>
- <div class="chips"><span id="netChip" class="chip">…</span><span id="btChip" class="chip bt hid">🔵 OBD</span><span id="roleChip" class="chip hid">👤 Tiers</span></div>
- <div class="hbtns">
-  <button id="notifBtn" type="button" title="Notifications">🔔</button>
-  <button id="admBtn" type="button" title="Admin">🛡️</button>
-  <button id="btnInstall" class="hid" data-act="install" title="Installer">⬇️</button>
-  <button data-act="shareOpen" title="Partager">📤</button>
-  <button data-act="bugOpen" title="Signaler">🐞</button>
- </div>
-</header>
-<section id="boot"><div class="card">
- <h1>🛡️ Auto-vérification de lancement</h1>
- <p class="mut">Contrôle intégrité · poste Tiers (notification dédiée, pavé accès / refus / révocation, code reçu par mail) · auto-réparation des modules · notifications robustes · localisation VIN · OBD atelier · méga-bases toutes marques · corrélation réelle · PWA.</p>
- <ul id="checkList"></ul><div id="verdict"></div>
- <div class="row"><button id="btnEnter" class="pri" data-act="enter" disabled>Entrer</button><button data-notif="ask">🔔 Notifications</button><button data-act="bugOpen">🐞 Signaler</button></div>
-</div></section>
-<section id="gate" class="hid"></section>
-<main id="app" class="hid"><nav id="nav"></nav><div id="view"></div></main>
-<div id="modal" class="hid"><div id="modalBox"></div></div>
-<div id="toast" class="hid"></div><div id="printArea"></div>
-<input type="file" id="fileWall" accept="image/*,video/*" class="hid">
-<input type="file" id="filePack" accept="application/json" class="hid">
-<input type="file" id="fileDoss" accept="application/json" class="hid">
-<input type="file" id="fileBase" accept="application/json" class="hid">
-<input type="file" id="filePhoto" accept="image/*" multiple class="hid">
-<input type="file" id="fileJrPhoto" accept="image/*" multiple class="hid">
-<input type="file" id="fileDump" accept="application/json" class="hid">
-<noscript>JavaScript requis.</noscript>
-<script src="idfix.js"></script>
-<script src="quota.js"></script>
-<script src="firebase-config.js"></script>
-<script src="data.js"></script>
-<script src="app.js"></script>
-<script src="bridge.js"></script>
-<script src="sanitize.js"></script>
-<script src="modclean.js"></script>
-<script src="turbo.js"></script>
-<script src="catalog.js"></script>
-<script src="catalog_ext.js"></script>
-<script src="renault_base.js"></script>
-<script src="brands_base.js"></script>
-<script src="megabase_catalog.js"></script>
-<script src="megabase2_catalog.js"></script>
-<script src="megabase3_catalog.js"></script>
-<script src="access.js"></script>
-<script src="notify.js"></script>
-<script src="tiers.js"></script>
-<script src="extra.js"></script>
-<script src="updates.js"></script>
-<script src="diffusion.js"></script>
-<script src="vehicles.js"></script>
-<script src="faults.js"></script>
-<script src="faults_ext.js"></script>
-<script src="renault_faults.js"></script>
-<script src="models_add.js"></script>
-<script src="bigster_spring.js"></script>
-<script src="family_faults.js"></script>
-<script src="import2023.js"></script>
-<script src="megabase_faults.js"></script>
-<script src="megabase2_faults.js"></script>
-<script src="megabase3_faults.js"></script>
-<script src="correlation.js"></script>
-<script src="predictive.js"></script>
-<script src="brandlogo.js"></script>
-<script src="wallpaper.js"></script>
-<script src="vinloc_db.js"></script>
-<script src="vinloc.js"></script>
-<script src="jradmin.js"></script>
-<script src="obdpro_db.js"></script>
-<script src="obdpro.js"></script>
-<script src="obdtech_db.js"></script>
-<script src="obdtech.js"></script>
-<script src="websearch.js"></script>
-<script src="baseupdate.js"></script>
-<script src="autoimport.js"></script>
-<script src="admingate.js"></script>
-<script src="notifications.js"></script>
-<script src="pwabuilder.js"></script>
-<script src="icon-gen.js"></script>
-<script src="ghtoken.js"></script>
-<script src="jrgate.js"></script>
-<script src="modgate.js"></script>
+<div class="container">
+  <header><h1>🚗 KEV FUSION 2026</h1><p>Auto Diagnostic Pro • Expert Ingénieur • Marques 2018-2027 • Pannes • Rappels • TSB • DTC</p></header>
+
+  <section id="screen-home" class="screen active"><div class="card">
+    <h2>👋 Bienvenue</h2>
+    <p>Notez votre prénom puis appuyez sur <strong>Demande d'accès</strong> :</p>
+    <input type="text" id="input-prenom" placeholder="Votre prénom" maxlength="20" autocomplete="off">
+    <button class="btn btn-primary" onclick="requestAccess()">📨 Demande d'accès</button>
+    <button class="btn btn-admin" onclick="showAdminLogin()">🔑 Espace Admin</button>
+  </div></section>
+
+  <section id="screen-pending" class="screen"><div class="card">
+    <div class="status-icon">⏳</div><h2>Demande transmise</h2>
+    <p><strong>Bonjour <span id="pending-name"></span></strong>, votre demande a été envoyée à l'administrateur par notification.</p>
+    <p>Vous recevrez une <strong>notification d'autorisation</strong> dès validation.</p>
+    <button class="btn btn-secondary" onclick="checkStatus()">🔄 Vérifier mon statut</button>
+    <button class="btn btn-secondary" onclick="resetSession()">↩️ Annuler</button>
+  </div></section>
+
+  <section id="screen-accepted" class="screen"><div class="card">
+    <div class="status-icon">✅</div><h2>Accès autorisé</h2>
+    <p>Bienvenue <strong id="accepted-name"></strong> !</p>
+    <button class="btn btn-success" onclick="enterApp()">🚗 Entrer dans l'application</button>
+  </div></section>
+
+  <section id="screen-refused" class="screen"><div class="card">
+    <div class="status-icon">❌</div><h2>Accès refusé</h2>
+    <button class="btn btn-primary" onclick="resetSession()">Faire une nouvelle demande</button>
+  </div></section>
+
+  <section id="screen-revoked" class="screen"><div class="card">
+    <div class="status-icon">🔒</div><h2>Accès révoqué</h2>
+    <button class="btn btn-primary" onclick="resetSession()">Faire une nouvelle demande</button>
+  </div></section>
+
+  <section id="screen-admin-login" class="screen"><div class="card">
+    <h2>🔐 Connexion Admin</h2>
+    <input type="password" id="admin-pwd" placeholder="Mot de passe admin" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" value="">
+    <button class="btn btn-admin" onclick="loginAdmin()">Se connecter</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-home')">← Retour</button>
+  </div></section>
+
+  <section id="screen-admin" class="screen"><div class="card">
+    <h2>🛠️ Administration</h2>
+    <p style="font-size:12px;color:#94a3b8">Base du : <span id="admin-version">--</span> • MAJ auto : 30 j • Garde-moteurs + audit actifs</p>
+    <div class="tabs">
+      <button class="btn btn-primary" onclick="adminTab('tab-access')">👥 Accès</button>
+      <button class="btn btn-secondary" onclick="adminTab('tab-data')">🗄️ Base</button>
+      <button class="btn btn-success" onclick="enterApp()">🚗 App</button>
+    </div>
+    <div id="tab-access">
+      <div class="grid-2"><input type="text" id="new-prenom" placeholder="Prénom"><button class="btn btn-success" onclick="addUser()">Ajouter</button></div>
+      <h3>📊 Tableau récapitulatif (temps réel)</h3>
+      <div id="users-table-container"><div class="loader">Chargement…</div></div>
+      <button class="btn btn-admin" onclick="manualUpdate()">🔄 MAJ manuelle expert 2018-2027 + import global</button>
+      <button class="btn btn-secondary" onclick="attributionAudit(true)">🧬 Auto-vérification attributions</button>
+      <div id="attrib-box"></div>
+      <button class="btn btn-admin" onclick="engineAudit(true)">🛡️ Audit & correction motorisations</button>
+      <div id="engine-box"></div>
+      <button class="btn btn-secondary" onclick="selfTest(false)">🩺 Auto-test APK</button>
+      <div id="selftest-box"></div>
+      <button class="btn btn-success" onclick="shareAPK()">📤 Partager / télécharger l'APK</button>
+      <button class="btn btn-secondary" onclick="updateBase(true)">🔄 Diffuser MAJ (toutes APK)</button>
+      <button class="btn btn-danger" onclick="logoutAdmin()">Déconnexion</button>
+    </div>
+    <div id="tab-data" class="hidden">
+      <h3>📤 EXPORT JSON COMPLET</h3>
+      <p style="font-size:12px;color:#94a3b8">Marques, modèles, motorisations, pannes, campagnes, fiches expert, DTC.</p>
+      <button class="btn btn-success" onclick="exportJSON()">📤 Télécharger le fichier JSON</button>
+      <button class="btn btn-secondary" onclick="copyJSON()">📋 Copier le JSON</button>
+      <h3>📥 RESTAURER / FUSIONNER UN EXPORT JSON</h3>
+      <input type="file" id="restore-file" accept=".json,application/json">
+      <button class="btn btn-success" onclick="restoreJSON()">📥 Restaurer / fusionner</button>
+      <h3>🏷️ Marque</h3>
+      <input id="nb-name" placeholder="Nom"><select id="nb-region"><option value="francaises">Française</option><option value="europeennes">Européenne</option><option value="asiatiques">Asiatique</option><option value="chinoises">Chinoise</option><option value="americaines">Américaine</option></select>
+      <button class="btn btn-success" onclick="addBrand()">Ajouter</button>
+      <h3>🚘 Modèle</h3>
+      <select id="nm-brand"></select><input id="nm-name" placeholder="Modèle"><input id="nm-years" placeholder="Années">
+      <button class="btn btn-success" onclick="addModel()">Ajouter</button>
+      <h3>⚙️ Motorisation</h3>
+      <select id="mo-model"></select><input id="mo-name" placeholder="Ex: 1.5 Blue dCi 115"><select id="mo-fuel"><option value="essence">Essence</option><option value="diesel">Diesel</option><option value="hybride">Hybride</option><option value="electrique">Électrique</option></select><input id="mo-power" placeholder="Puissance (ex: 115 ch)">
+      <button class="btn btn-success" onclick="addMotor()">Ajouter</button>
+      <h3>⚠️ Panne / campagne de rappel</h3>
+      <select id="is-brand" onchange="fillModelSelect()"></select><select id="is-model"></select>
+      <input id="is-title" placeholder="Titre"><textarea id="is-detail" rows="2" placeholder="Détail / symptômes"></textarea>
+      <select id="is-source"><option>Rappel Conso</option><option>Safety Gate</option><option>NHTSA</option><option>KBA</option><option>GOV.UK</option><option>Campagne constructeur</option><option>TSB constructeur</option><option>L'Argus / Caradisiac</option></select>
+      <input id="is-dtc" placeholder="Codes DTC liés"><input id="is-url" placeholder="URL source officielle">
+      <button class="btn btn-success" onclick="addIssue()">Ajouter</button>
+      <h3>🧠 Fiche expert ingénieur (type + organes + DTC + source)</h3>
+      <select id="ex-brand"></select><input id="ex-model" placeholder="Modèle (vide = tous)"><input id="ex-motor" placeholder="Motorisation clé">
+      <input id="ex-type" placeholder="Type de panne (ex: Batterie HV, ADAS, Transmission, Charge)">
+      <input id="ex-title" placeholder="Titre"><input id="ex-symptom" placeholder="Symptômes"><textarea id="ex-diag" rows="3" placeholder="Protocole 1) … 2) … 3) …"></textarea>
+      <input id="ex-parts" placeholder="Organes/pièces concernées"><input id="ex-dtc" placeholder="DTC liés"><input id="ex-years" placeholder="Années"><input id="ex-url" placeholder="URL source">
+      <select id="ex-source"><option>Campagne constructeur</option><option>Rappel Conso</option><option>Safety Gate</option><option>NHTSA</option><option>TSB constructeur</option><option>L'Argus / Caradisiac</option></select>
+      <button class="btn btn-success" onclick="addExpert()">Ajouter la fiche expert</button>
+      <h3>🔧 Code DTC</h3>
+      <input id="dt-code" placeholder="Code"><input id="dt-desc" placeholder="Description"><input id="dt-cause" placeholder="Cause"><input id="dt-sol" placeholder="Solution">
+      <button class="btn btn-success" onclick="addDTC()">Ajouter</button>
+      <h3>📥 IMPORT MASSIF (JSON)</h3>
+      <textarea id="import-json" rows="4" placeholder='[{"type":"issue","brand":"dacia","model":"Bigster","title":"…","detail":"…","source":"Rappel Conso","url":"…"}]'></textarea>
+      <button class="btn btn-success" onclick="importJSON()">📥 Importer</button>
+    </div>
+  </div></section>
+
+  <section id="screen-app" class="screen"><div class="card">
+    <h2>🚗 Diagnostic Expert</h2>
+    <p>Bienvenue <strong id="app-user"></strong> • Base du : <span id="app-version">--</span> • <span id="net-status">📶 en ligne</span></p>
+    <h3>🧠 Diagnostic expert par symptôme</h3>
+    <input type="text" id="expert-search" placeholder="Ex: ressort suspension, AdBlue, P0420, servofrein…" oninput="expertSearch()">
+    <div id="expert-results"></div>
+    <h3>1️⃣ Marque</h3><select id="sel-marque" onchange="loadModels()"></select>
+    <h3>2️⃣ Modèle</h3><select id="sel-model" onchange="loadMotors()"></select>
+    <h3>3️⃣ Motorisation / Puissance</h3><select id="sel-motor" onchange="correlate()"></select>
+    <h3>⚠️ Pannes connues & campagnes de rappel (corrélées)</h3><div id="issues-box"><p style="color:#94a3b8">Sélectionnez un véhicule…</p></div>
+    <h3>🧠 Fiches expert corrélées au véhicule</h3><div id="expert-box"><p style="color:#94a3b8">Sélectionnez un véhicule…</p></div>
+    <h3>🔧 Codes défaut DTC corrélés</h3><div id="dtc-box"><p style="color:#94a3b8">—</p></div>
+    <h3>🔎 Recherche DTC libre</h3>
+    <input type="text" id="dtc-search" placeholder="Ex: P0300, turbo…" oninput="searchDTC()">
+    <div id="dtc-results"></div>
+    <h3>🕘 Historique des diagnostics</h3><button class="btn btn-secondary" onclick="toggleHistory()">📋 Voir / masquer</button><div id="hist-box" class="hidden"></div>
+    <h3>🖨️ Rapport</h3><button class="btn btn-admin" onclick="printReport()">🖨️ Rapport PDF du diagnostic</button>
+    <h3>🌐 Sites officiels & spécialisés</h3>
+    <div class="links-row">
+      <a target="_blank" rel="noopener" href="https://www.rappel.conso.gouv.fr/">Rappel Conso 🇫🇷</a>
+      <a target="_blank" rel="noopener" href="https://ec.europa.eu/safety-gate-alerts/screen/webReport/searchAdvanced">Safety Gate 🇪🇺</a>
+      <a target="_blank" rel="noopener" href="https://www.nhtsa.gov/recalls">NHTSA 🇺🇸</a>
+      <a target="_blank" rel="noopener" href="https://www.gov.uk/check-vehicle-recall">GOV.UK 🇬🇧</a>
+      <a target="_blank" rel="noopener" href="https://www.kba.de/">KBA 🇩🇪</a>
+      <a target="_blank" rel="noopener" href="https://www.largus.fr/">L'Argus 📰</a>
+      <a target="_blank" rel="noopener" href="https://www.caradisiac.com/">Caradisiac 📰</a>
+      <a target="_blank" rel="noopener" href="https://www.que-choisir.org/">Que Choisir ⚖️</a>
+      <a target="_blank" rel="noopener" href="https://www.obd-codes.com/">OBD-Codes 🔧</a>
+    </div>
+    <button class="btn btn-secondary" onclick="logoutApp()">🚪 Retour</button>
+  </div></section>
+</div>
+<button id="install-btn" class="install-fab hidden" onclick="installApp()">📲 Installer l'APK</button>
+<div id="print-report"></div>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="./firebase-config.js"></script>
+<script src="./data.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
